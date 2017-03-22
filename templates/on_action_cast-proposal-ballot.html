@@ -1,0 +1,10 @@
+{% extends "common.html" %}
+{% block body %}
+
+    <h2> Successfully cast ballot</h2>
+    By: {{ action.author.name }}<br/>
+    Action string: {{ action.action_string }}</br>
+
+    <hr/>
+    <a href="{{ url("") }}">Back to overview</a>
+{% endblock %}

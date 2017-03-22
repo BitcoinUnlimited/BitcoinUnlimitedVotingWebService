@@ -1,0 +1,36 @@
+{% extends "common.html" %}
+{% block body %}
+
+    <h2>Publish proposal</h2>
+    <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
+	<div class="form-group">
+	    <label>Author (Votemaster)</label>
+	    <input class="form-control" type="text" name="author_name" value="{{ cml.votemaster.name }}" readonly="readonly"/><br/>
+	    <label>Hash of file to publish</label>
+	    <input class="form-control" type="text" name="file_hash" value ="{{ hashval }}" readonly="readonly"/><br/>
+	    <label>Action string</label>
+	    <input class="form-control" type="text" name="action_string" readonly="readonly"><br/>
+	    <label>Signature</label>
+	    <input class="form-control" type="text" name="signature" id="signature"/><br/>
+	</div>
+	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
+    </form>
+
+    <p></p>
+    
+    {{ privkeyform() }}
+    <script type="text/javascript">
+     function recalc() {
+	 var ap = "{{ action_prefix }}"+ "{{ cml.hashref() }} ";
+	 var member = $("input[name='author_name']").val();
+	 var file_hash = $("input[name='file_hash']").val();
+	 var s= ap + "proposal-publish file "+file_hash+" by " + member;
+	 $("input[name='action_string']").val(s);
+	 fill_sig();
+     };
+     $(document).ready(recalc);
+    </script>
+    {{ form_js() }}
+
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "common.html" %}
+{% block body %}
+
+    <h2>Generic action submission form</h2>
+
+    <hr/>
+    <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
+	<div class="form-group">
+	    <label>Author</label>
+	    <input class="form-control" type="text" name="author_name"/><br/>
+	    <label>Action string</label>
+	    <input class="form-control" type="text" name="action_string" value="{{ action_prefix }} {{ cml.hashref() }} "><br/>
+	    <label>Signature</label>
+	    <input class="form-control" type="text" name="signature" id="signature"/><br/>
+	    <label>File to upload</label>
+	    <input class="form-control-file" type="file" name="upload"/><br/>
+	</div>
+	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
+    </form>
+
+    {{ privkeyform() }}
+    
+    <script type="text/javascript">
+     function recalc() {
+	 fill_sig();
+     }
+    </script>
+    {{ form_js() }}
+{% endblock %}

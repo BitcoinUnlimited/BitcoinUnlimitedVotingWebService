@@ -1,0 +1,13 @@
+{% extends "common.html" %}
+{% import "proplist.html" as proplist %}
+
+{% block body %}
+
+    <h2>Current unpublished propals</h2>
+
+    Unpublished proposals for current member list:<br/>
+    
+    {{ proplist.list(proposals) }}
+
+    <a href="{{ url('form/proposal-upload') }}">Upload new proposal</a>
+{% endblock %}

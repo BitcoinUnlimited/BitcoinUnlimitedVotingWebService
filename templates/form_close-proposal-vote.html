@@ -1,0 +1,38 @@
+{% extends "common.html" %}
+{% block body %}
+
+    <h2>Open vote on proposal</h2>
+    <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
+	<div class="form-group">
+	    <label>Author (Votemaster)</label>
+	    <input class="form-control" type="text" name="author_name" value="{{ cml.votemaster.name }}" readonly="readonly"/><br/>
+	    <label>Hash of vote result</label>
+	    <input class="form-control" type="text" name="result_hash" value ="{{ hashval }}" readonly="readonly"/><br/>
+	    <label>Action string</label>
+	    <input class="form-control" type="text" name="action_string" readonly="readonly"><br/>
+	    <label>Signature</label>
+	    <input class="form-control" type="text" name="signature" id="signature"/><br/>
+	</div>
+	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
+    </form>
+
+    <p></p>
+    
+    {{ privkeyform() }}
+    <script type="text/javascript">
+     function recalc() {
+	 var ap = "{{ action_prefix }}"+"{{ cml.hashref() }} ";
+	 var member = $("input[name='author_name']").val();
+	 var result_hash = $("input[name='result_hash']").val();
+	 var s= ap + "close-proposal-vote result "+result_hash+" by " + member;
+	 $("input[name='action_string']").val(s);
+	 fill_sig();
+     };
+     $("input[name='vote_method']").change(recalc);
+     $("input[name='vote_method']").keyup(recalc);
+     $(document).ready(recalc);
+    </script>
+    {{ form_js() }}
+
+
+{% endblock %}

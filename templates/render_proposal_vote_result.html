@@ -1,0 +1,32 @@
+{% extends "common.html" %}
+{% import "proplist.html" as proplist %}
+
+{% block body %}
+    <h2>Proposal Vote Result</h2>
+    {% set pvr = proposal_vote_result %}
+
+    {% if pvr.is_open %}
+    <a href="{{ url('form/cast-proposal-ballot/'+pvr.vote.hashref()) }}">Cast ballot</a> | <a href="{{ url('form/close-proposal-vote/'+pvr.hashref()) }}">Close voting</a><br/>
+    {% endif %}
+    
+    In progress: {{ pvr.is_open }}<br/>
+    <a href="{{ url('render/proposal_vote/'+pvr.vote.hashref()) }}">Vote data</a><br/>
+
+    Number of ballots: {{ pvr.ballots | count }}<br/>
+
+    Vote method: {{ pvr.vote.method_name }}<br/>
+    
+    {% if pvr.vote.method_name == "buip-acc-rej-abs" %}
+	Vote accepted: <b> {{summary.accepted }} </b><br/>
+	Quorum reached: <b> {{summary.quorum_reached }}</b><br/>
+	ACCEPT votes: <b> {{summary.accepts }}</b><br/>
+	REJECT votes: <b> {{summary.rejects }}</b><br/>
+	ABSTAIN votes: <b> {{summary.abstains }}</b><br/>
+    {% endif %}
+    <!-- FIXME: other methods -->
+    
+    <h3>Ballot list</h3>
+    {% for ballot in pvr.ballots %}
+	<a href="{{ url('render/action/'+ballot.hashref()) }}">Ballot, {{ ballot.author.name }}, {{ ballot.parser.actvars["answer_tuple"][1]["answer"] }}</a><br/>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% import "common.html" as common %}
+{% macro list(proposals) %}
+    <table class="table table-striped">
+	<thead><tr><th>Author</th><th>File name</th><th>Metadata</th><th>Published?</th><th>Vote?</th></tr></thead>
+	<tbody>
+	    {% for proposal in proposals %}
+		<tr>
+		    <td><a href="{{ common.url('render/action/' + proposal.action.hashref()) }}">{{ proposal.action.author.name }}</a></td>
+		    <td>{{ proposal.filename }}</td>
+		    <td><a href="{{ common.url('render/proposal_metadata/' + proposal.hashref()) }}"> (metadata) </a></td>
+		    <td>{% if proposal.file_public %}YES{% else %}NO <a href="{{ common.url('form/proposal-publish/'+proposal.raw_file.hashref()) }}">(publish)</a>{% endif %}</td>
+		    <td>
+			{% if proposal.vote %}
+			    {% if proposal.vote.result.is_open %}
+				<a href="{{ common.url('render/proposal_vote_result/'+ proposal.vote.result.hashref()) }}">
+				    (vote)
+				</a>
+			    {% else %}
+				<a href="{{ common.url('render/proposal_vote_result/'+ proposal.vote.result.hashref()) }}">
+				(see result)
+				</a>
+			    {% endif %}
+			{% else %}
+				--- <a href="{{ common.url('form/open-proposal-vote/'+ proposal.hashref()) }}"> (open)</a>
+			{% endif %}
+		    </td>
+		</tr>
+	    {% endfor %}
+	</tbody></table>
+{% endmacro %}

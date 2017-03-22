@@ -1,0 +1,13 @@
+{% extends "common.html" %}
+{% import "proplist.html" as proplist %}
+
+{% block body %}
+    <h2>Action</h2>
+
+    Author: <a href="{{ url('/render/member/'+action.author.hashref()) }}"> {{ action.author.name }}, {{ action.author.address }}</a><br/>
+
+    <b><a href="{{ url('/render/member_list/'+action.member_list.hashref()) }}">member list</a><br/></b>
+
+    Action string: <b>{{ action.action_string }}</b></br>
+    Signature: {{ action.signature }}</br>
+{% endblock %}

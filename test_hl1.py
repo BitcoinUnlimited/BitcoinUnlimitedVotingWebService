@@ -1,0 +1,88 @@
+import time
+import pytest
+import config
+import urlvalidate
+import hashlib
+from butype import *
+from butypes import *
+from test_highlevel import *
+from test_helpers import small_app as app
+
+def test_nonexist(app, client):
+    vote_for_raw_file_hash(client, "0"*64)
+    
+
+def test1(app, client):
+    for i in range(26):
+        member = "member_"+chr(ord('a')+i)
+        assert Member.by_name(member).eligible()
+
+        
+    prop1 = b"A test proposal"
+    upload_proposal(client,
+                    prop1, "test1.txt",
+                    "member_a")
+
+    # fail: same twice
+    with pytest.raises(UnexpectedStatus):
+        upload_proposal(client,
+                        prop1, "test1.txt",
+                        "member_a")
+
+    assert not is_public_raw_file_hash(client, sha256(prop1))
+        
+    # fail: wrong member to publish proposal
+    with pytest.raises(UnexpectedStatus):
+        publish_proposal(client, prop1, "member_c")
+        
+    publish_proposal(client, prop1, "member_v")
+    assert is_public_raw_file_hash(client, sha256(prop1))
+
+    # can't open invalid vote
+    with pytest.raises(UnexpectedStatus):
+        open_proposal_vote(client, b"doesn't exist", "member_v", "buip-acc-rej-abs")
+    
+    open_proposal_vote(client, prop1, "member_v", "buip-acc-rej-abs")
+
+    # can't open vote twice
+    with pytest.raises(UnexpectedStatus):
+        open_proposal_vote(client, prop1, "member_v", "buip-acc-rej-abs")
+
+    for i in range(26):
+        member = "member_"+chr(ord('a')+i)
+        answer = ["accept", "reject"][i<15]
+        cast_proposal_ballot(client, prop1, member, answer)
+
+    for i in range(26):
+        member = "member_"+chr(ord('a')+i)
+        assert Member.by_name(member).eligible()
+
+    config.member_expiry_time = 0.25
+    time.sleep(0.5)
+    for i in range(26):
+        member = "member_"+chr(ord('a')+i)
+        assert not Member.by_name(member).eligible()
+    config.member_expiry_time = 86400 * 365
+
+    propose_member(client, "member_v", "anewmember1")
+    assert not Member.by_name("anewmember1").eligible()
+    for i in range(26):
+        member = "member_"+chr(ord('a')+i)
+        answer = ["accept", "reject"][i<5]
+        cast_member_ballot(client, member, "anewmember1", answer)
+
+    for i in range(26):
+        member = "member_"+chr(ord('a')+i)
+        assert Member.by_name(member).eligible()
+        
+    # new member not yet in current list
+    assert not Member.by_name("anewmember1").eligible()
+    close_member_elections(client, "member_v", ["anewmember1"])
+
+    # but now it is
+    assert Member.by_name("anewmember1").eligible()
+
+    close_proposal_vote(client, prop1, "member_v")
+
+    assert summary_for_proposal_vote_result(client, result_for_vote_hash(client, vote_for_raw_file_hash(client, sha256(prop1)))) == {"quorum_reached" : True, "rejects" : 15, "accepted" : False, "accepts" : 11, "abstains" : 0 }
+

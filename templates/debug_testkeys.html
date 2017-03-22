@@ -1,0 +1,26 @@
+{% extends "common.html" %}
+{% block body %}
+    <h2>Test members and test keys</h2>
+    <table>
+    {% set tm = testmembers|list %}
+    {% for member_name, address, privkey in tm %}
+	<tr>
+	    <td>{{ member_name }}</td>
+	    <td>{{ address }}</td>
+	    <td>{{ privkey }}</td>
+	</tr>
+    {% endfor %} 
+    </table> 
+
+    <h2>Just privkey list (for quick import into e.g. Electrum)</h2>
+    <table>
+	{% for m, a, privkey in tm %}
+	    <tr>
+		<td>
+		    {{ privkey }}
+		</td>
+	    </tr>
+	{% endfor %}
+    </table>
+    
+{% endblock %}

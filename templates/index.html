@@ -1,0 +1,27 @@
+{% extends "common.html" %}
+{% import "proplist.html" as proplist %}
+
+{% block body %}
+
+<h2>Current published proposals</h2>
+{{ proplist.list(proposals) }}
+
+<h2>Unpublished proposals</h2>
+<a href="{{ url('unpublished-proposals') }}">Unpublished propals</a>
+
+<h2>Current members</h2>
+<a href="{{ url('render/member_list/'+cml.hashref()) }}">Current member list</a>
+
+<h2>Member elections in progress</h2>
+
+{% for nmer in member_applications %}
+    <a href="{{ url('render/member_election_result/'+nmer.hashref()) }}">{{ nmer.new_member.name }}, {{ nmer.new_member.address }}<a><br>
+{% endfor %}
+
+<h2>Generic action entry</h2>
+<a href="{{ url('form/generic') }}">Generic form for entry of actions</a>
+
+<h2>Debug options</h2>
+<a href="{{ url('debug') }}">Debug options</a> <!-- FIXME: make optional, depending on debug settings -->
+
+{% endblock %}

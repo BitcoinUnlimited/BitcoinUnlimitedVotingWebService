@@ -1,0 +1,7 @@
+*~
+__pycache__
+.coverage
+.cache/
+coverage_html/
+db.sqlite
+README.html

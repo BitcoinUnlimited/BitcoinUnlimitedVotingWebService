@@ -1,0 +1,15 @@
+{% extends "common.html" %}
+{% import "proplist.html" as proplist %}
+
+{% block body %}
+    <h2>Proposal Vote</h2>
+    {% set pv = proposal_vote %}
+
+    <a href="{{ url('render/proposal_metadata/'+pv.proposal_metadata.hashref()) }}">Proposal metadata</a><br>
+    <a href="{{ url('render/action/'+pv.action.hashref()) }}">Open vote action</a><br>
+
+    Vote method: {{ pv.method_name }}<br/>
+    Method options: {{ pv.method_options }}<br/>
+
+    <a href="{{ url('render/proposal_vote_result/'+pv.result.hashref()) }}">Result</a><br>
+{% endblock %}

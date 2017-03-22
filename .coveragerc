@@ -1,0 +1,7 @@
+[run]
+omit = test_*
+       testenv*
+branch = True
+
+[html]
+directory = coverage_html

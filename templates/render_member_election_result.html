@@ -1,0 +1,27 @@
+{% extends "common.html" %}
+{% import "proplist.html" as proplist %}
+
+{% block body %}
+    <h2>Ongoing election of new member</h2>
+    {% set nmer = member_election_result %}
+
+    {% if nmer.is_open %}
+	<a href="{{ url('form/cast-member-ballot/'+nmer.new_member.name+'/'+nmer.new_member.address) }}">Cast ballot</a> |  <a href="{{ url('form/close-member-elections') }}">Close voting on all members</a><br/>
+    {% endif %}
+    
+    In progress: {{ nmer.is_open }}<br/>
+    Number of ballots: <b>{{ nmer.ballots | count }}</b><br/>
+
+    Vote method: {{ nmer.method_name }}<br/>
+    
+    Vote accepted: <b> {{summary.accepted }} </b><br/>
+    Quorum reached: <b> {{summary.quorum_reached }}</b><br/>
+    ACCEPT votes: <b> {{summary.accepts }}</b><br/>
+    REJECT votes: <b> {{summary.rejects }}</b><br/>
+    ABSTAIN votes: <b> {{summary.abstains }}</b><br/>
+    
+    <h3>Ballot list</h3>
+    {% for ballot in nmer.ballots %}
+	<a href="{{ url('render/action/'+ballot.hashref()) }}">Ballot, {{ ballot.author.name }}, {{ ballot.parser.actvars["answer_tuple"][1]["answer"] }}</a><br/>
+    {% endfor %}
+{% endblock %}

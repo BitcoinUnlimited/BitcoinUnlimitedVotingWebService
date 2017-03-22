@@ -1,0 +1,43 @@
+{% extends "common.html" %}
+{% block body %}
+
+    <h2>Propose new member</h2>
+    <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
+	<div class="form-group">
+	    <label>Author (Votemaster)</label>
+	    <input class="form-control" type="text" name="author_name" value="{{ cml.votemaster.name }}" readonly="readonly"/><br/>
+	    <label>Applicant Nickname</label>
+	    <input class="form-control" type="text" name="member_name"/><br/>
+	    <label>Applicant Bitcoin address</label>
+	    <input class="form-control" type="text" name="member_address"/><br/>
+	    <label>Action string</label>
+	    <input class="form-control" type="text" name="action_string" readonly="readonly"><br/>
+	    <label>Signature</label>
+	    <input class="form-control" type="text" name="signature" id="signature"/><br/>
+	</div>
+	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
+    </form>
+
+    <p></p>
+    
+    {{ privkeyform() }}
+    <script type="text/javascript">
+     function recalc() {
+	 var ap = "{{ action_prefix }}"+ "{{ cml.hashref() }} ";
+	 var votemaster = $("input[name='author_name']").val();
+	 var member_name = $("input[name='member_name']").val();
+	 var member_address = $("input[name='member_address']").val();
+	 var s= ap + "propose-member name "+member_name+" address "+member_address+" by " + votemaster;
+	 $("input[name='action_string']").val(s);
+	 fill_sig();
+     };
+     $("input[name='member_name']").change(recalc);
+     $("input[name='member_name']").keyup(recalc);
+     $("input[name='member_address']").change(recalc);
+     $("input[name='member_address']").keyup(recalc);
+     $(document).ready(recalc);
+    </script>
+    {{ form_js() }}
+
+
+{% endblock %}

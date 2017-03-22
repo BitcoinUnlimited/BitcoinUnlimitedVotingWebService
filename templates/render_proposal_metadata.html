@@ -1,0 +1,17 @@
+{%extends "common.html" %}
+
+{% block body %}
+    {% set prop = proposal_metadata %}
+    {% set action = prop.action %}
+    <h2>Uploaded proposal metadata</h2>
+    
+    <p><b>Author:</b> {{ action.author.name }}</p>
+    <p><b><a href="{{ url("render/member_list/" + action.member_list.hashref()) }}">Member list</a></b></p>
+    <p><b>Filename:</b> {{ prop.filename }}</p>
+    <p><b>MIME type:</b> {{ prop.mime_type }}</p>
+    <p><b>File is public:</b> {{ prop.file_public }}</p>
+    {% if prop.file_public %}
+	<p><a href="{{ url('raw/raw_file/' + prop.raw_file.hashref()) }}">File link</a></p>
+    {% endif %}
+    <p><a href="{{ url('render/action/'+action.hashref()) }}">Creating command</a></p>
+{% endblock %}

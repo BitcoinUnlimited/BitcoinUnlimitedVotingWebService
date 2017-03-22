@@ -1,0 +1,38 @@
+{% extends "common.html" %}
+{% import "proplist.html" as proplist %}
+{% block body %}
+    {% if current %}
+	<p class="item-valid">This is the current member list.</p>
+
+	<a href="{{ url('form/propose-member') }}">Propose new member</a>
+    {% else %}
+	<p class="item-invalid">This is not the current member list.</p>
+    {% endif %}
+
+    {% if member_list.previous %}
+	<p><a href="{{ url('render/member_list/'+member_list.previous.hashref()) }}">Previous member list</a></p>
+    {% endif %}
+    
+    <h2>President</h2>
+    {{ member_list.president.name }}, {{ member_list.president.address }}
+
+    <h2>Secretary</h2>
+    {{ member_list.secretary.name }}, {{ member_list.secretary.address }}
+
+    <h2>Developer</h2>
+    {{ member_list.developer.name }}, {{ member_list.developer.address }}
+
+    <h2>Votemaster</h2>
+
+    {{ member_list.votemaster.name }}, {{ member_list.votemaster.address }}
+
+    <h2>Members</h2>
+    <table class="table table-striped">
+	<thead><tr><th>Handle</th><th>Voting Address</th></thead>
+	    <tbody>
+		{% for member in member_list.members %}
+		    <tr><td>{{ member.name }}</td> <td><pre>{{ member.address }}</pre></td></tr>
+		{% endfor %}
+	    </tbody>
+    </table>
+{% endblock %}

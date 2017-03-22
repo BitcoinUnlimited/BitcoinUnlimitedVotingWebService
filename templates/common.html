@@ -1,0 +1,114 @@
+{% macro url(short) -%}
+    {{ web_root }}{{ short }}
+{%- endmacro %} 
+
+{% macro privkeyform() %}
+
+<form>
+<div class="form-group">
+<label>DANGEROUS: Optional private key to use for in-browser message signing</label>
+<input type="text" name="privkey" class="form-control">
+<div class="alert alert-danger">WARNING: Entering your private key here is dangerous. You are trusting your browser and this website to not leak it. Bugs may happen! You can alternatively insert a signature generated offline above.
+
+    <b>FURTHER NOTE THAT THE JS CLIENT CODE HAS <emph>NOT</emph> UNDERGONE A PROPER PEER REVIEW YET!</b>
+</div>
+</div>
+</form>
+<hr/>
+{% endmacro %}
+
+
+{% macro form_js() %}
+    <script type="text/javascript">
+     var doc_hash="<hash-missing>";
+     function fill_sig() {
+	 var action_string = $("input[name='action_string']").val();
+	 var privkey = $("input[name='privkey']").val();
+	 if (action_string.length !=0 && privkey.length != 0) {
+	     var keypair = bitcoin.ECPair.fromWIF(privkey);
+	     var prefix = bitcoin.networks.bitcoin.messagePrefix;
+	     var pk = keypair.d.toBuffer(32);
+	     var sig = bitcoinMessage
+		 .sign(action_string, prefix, pk, keypair.compressed)
+		 .toString('base64');
+	     $("input[name='signature']").val(sig);
+	 }
+     }
+
+     function fileUploadCalcHash() {
+	 var upload_ele=document.getElementById("file-upload");
+
+	 if (upload_ele != null) {
+	     var upload=upload_ele.files[0];
+	     var reader = new FileReader();
+	     reader.onload = function(event) {
+		 doc_hash=sha256(event.target.result);
+		 recalc();
+	     }
+	     //console.log("Upload:", upload);
+	     reader.readAsArrayBuffer(upload);
+	 }
+     }
+     
+     $("#file-upload").change(fileUploadCalcHash);
+     $("input[name='author_name']").change(recalc);
+     $("input[name='author_name']").keyup(recalc);
+     $("input[name='action_string'], input[name='privkey']").change(recalc);
+     $("input[name='action_string'], input[name='privkey']").keyup(recalc);
+
+     $("#main-form").submit(function() {
+	 // privkey is in separate form and will not be submitted (tested on FF)
+	 // however, to be extra sure, clear it just before submission
+	 $("input[name='privkey']").val("");
+     });
+    </script>
+{% endmacro %}
+
+<!DOCTYPE html>
+<!-- shamelessly stolen from Bitcoin Unlimited home page! FIXME: credits -->
+<html>
+  <head> {% block headerdefault %}
+        <title>Bitcoin Unlimited Voting System</title>
+        <link rel="stylesheet" href="/components/bootstrap/dist/css/bootstrap.min.css">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,600,800' rel='stylesheet' type='text/css'> 
+        <link rel="stylesheet" href="/css/main-orange.css">
+        <link rel="icon" type="image/vnd.microsoft.icon" href="/img/favicon.ico">
+	{% endblock %}
+	{% block headerextra %}
+	{% endblock %}
+  </head>
+  <body>
+        {% block bodydefault %}
+        <script src='/components/jquery/dist/jquery.min.js'></script>
+        <script src='/components/bootstrap/dist/js/bootstrap.min.js'></script>
+        <script src='/components/bxslider-4/dist/jquery.bxslider.min.js'></script>
+        <script src='/components/marked/marked.min.js'></script>
+        <script src='/js/sequence.min.js'></script>
+	<script src='{{ url("js/bitcoinjs.js") }}'></script> 
+	<script src='{{ url("js/bitcoinjs_message.js") }}'></script> 
+	<script src='{{ url("js/sha256.js") }}'></script> 
+	<style type="text/css">
+	  .item-valid {
+	  color : green;
+	  }
+	  .item-invalid {
+	  color : red;
+	  }
+	 .warning {
+	     }
+	</style>
+	<div class="container">
+	{% endblock %}
+	<a href="/">[BU home]</a> <a href="{{url("") }}">[Voting home]</a>
+	<h1>Bitcoin Unlimited Voting</h1>
+	{% block body %}
+	{% endblock %}
+
+	{% if render_object_id is defined %}
+	    <hr/>
+	    <a href="{{ url('raw/' + render_object_type+'/'+render_object_id) }}">[Raw data]</a>
+	    <a href="{{ url('zip/' + render_object_type+'/'+render_object_id) }}">[ZIP including dependencies]</a>
+	{% endif %} 
+	</div>
+    </body>
+</html>
