@@ -54,10 +54,10 @@ class MemberList(db.Model, BUType):
             raise ValidationError("Secretary not listed as member.")
 
         if president not in self.members:
-            raise ValidationError("Secretary not listed as member.")
+            raise ValidationError("President not listed as member.")
 
         if developer not in self.members:
-            raise ValidationError("Secretary not listed as member.")
+            raise ValidationError("Developer not listed as member.")
 
         if votemaster not in self.members:
             raise ValidationError("Vote master not listed as member.")
