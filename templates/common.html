@@ -1,6 +1,6 @@
 {% macro url(short) -%}
     {{ web_root }}{{ short }}
-{%- endmacro %} 
+{%- endmacro %}
 
 {% macro privkeyform() %}
 
@@ -8,9 +8,10 @@
 <div class="form-group">
 <label>DANGEROUS: Optional private key to use for in-browser message signing</label>
 <input type="text" name="privkey" class="form-control">
-<div class="alert alert-danger">WARNING: Entering your private key here is dangerous. You are trusting your browser and this website to not leak it. Bugs may happen! You can alternatively insert a signature generated offline above.
-
-    <b>FURTHER NOTE THAT THE JS CLIENT CODE HAS <emph>NOT</emph> UNDERGONE A PROPER PEER REVIEW YET!</b>
+<div class="alert alert-danger">
+ WARNING: Entering your private key here is dangerous. You are trusting your browser and this website to not leak it.
+ Bugs may happen! You can alternatively insert a signature generated offline above.
+ <b>FURTHER NOTE THAT THE JS CLIENT CODE HAS <emph>NOT</emph> UNDERGONE A PROPER PEER REVIEW YET!</b>
 </div>
 </div>
 </form>
@@ -49,7 +50,7 @@
 	     reader.readAsArrayBuffer(upload);
 	 }
      }
-     
+
      $("#file-upload").change(fileUploadCalcHash);
      $("input[name='author_name']").change(recalc);
      $("input[name='author_name']").keyup(recalc);
@@ -70,7 +71,8 @@
   <head> {% block headerdefault %}
         <title>Bitcoin Unlimited Voting System</title>
         <link rel="stylesheet" href="/components/bootstrap/dist/css/bootstrap.min.css">
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,600,800' rel='stylesheet' type='text/css'> 
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,600,800'
+              rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="/css/main-orange.css">
         <link rel="icon" type="image/vnd.microsoft.icon" href="/img/favicon.ico">
 	{% endblock %}
@@ -84,9 +86,9 @@
         <script src='/components/bxslider-4/dist/jquery.bxslider.min.js'></script>
         <script src='/components/marked/marked.min.js'></script>
         <script src='/js/sequence.min.js'></script>
-	<script src='{{ url("js/bitcoinjs.js") }}'></script> 
-	<script src='{{ url("js/bitcoinjs_message.js") }}'></script> 
-	<script src='{{ url("js/sha256.js") }}'></script> 
+	<script src='{{ url("js/bitcoinjs.js") }}'></script>
+	<script src='{{ url("js/bitcoinjs_message.js") }}'></script>
+	<script src='{{ url("js/sha256.js") }}'></script>
 	<style type="text/css">
 	  .item-valid {
 	  color : green;
@@ -108,7 +110,7 @@
 	    <hr/>
 	    <a href="{{ url('raw/' + render_object_type+'/'+render_object_id) }}">[Raw data]</a>
 	    <a href="{{ url('zip/' + render_object_type+'/'+render_object_id) }}">[ZIP including dependencies]</a>
-	{% endif %} 
+	{% endif %}
 	</div>
     </body>
 </html>

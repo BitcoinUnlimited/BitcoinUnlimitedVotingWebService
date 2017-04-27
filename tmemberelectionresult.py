@@ -16,7 +16,7 @@ ballots_map = Table("member_ballot_assoc", db.metadata,
 class MemberElectionResult(db.Model, BUType):
     """ Result of electing a single member into BU. """
     __tablename__ = "member_election_result"
-    
+
     id = Column(Integer, primary_key=True)
     x_json = Column(LargeBinary, nullable=False)
     x_sha256 = Column(String(length=64), nullable=False, unique=True)
@@ -29,9 +29,9 @@ class MemberElectionResult(db.Model, BUType):
     action = relationship("Action", uselist=False)
 
     is_open = Column(Boolean, nullable=False)
-    
+
     ballots = relationship(Action, secondary = ballots_map)
-    
+
     def __init__(self,
                  new_member,
                  action):
@@ -54,7 +54,7 @@ class MemberElectionResult(db.Model, BUType):
         self.method_name="member-vote-acc-rej-abs"
         self.method_options={}
         self.vm = vote_methods[self.method_name]()
-        
+
     def toJ(self):
         return defaultExtend(self, {
             "new_member" : self.new_member.toJ(),
@@ -82,7 +82,7 @@ class MemberElectionResult(db.Model, BUType):
                     .filter(MemberElectionResult.new_member == member)).one()
         except sqlalchemy.orm.exc.NoResultFound:
             return None
-        
+
     def cast(self, ballot, method_name, answer):
         log.debug("Casting new member vote: %s, %s, %s", ballot, method_name, answer)
         members_voted=set(b.author for b in self.ballots)
@@ -91,24 +91,24 @@ class MemberElectionResult(db.Model, BUType):
             # should not happen - tVoteAnswer(..) should always set it correctly
             raise ValidationError("Wrong method '%s' expected '%s'." %
                                   (method_name, self.method_name))
-        
+
         if not self.is_open:
             raise ValidationError("Vote is not open anymore.")
-        
+
         if ballot.member_list != self.action.member_list: 
             # should not happen as votes need to be closed to create new member lists
             raise ValidationError("Cannot vote on old proposal with different member list.")
-        
+
         if ballot.author in members_voted:
             raise ValidationError("Member '%s' voted already." % ballot.author.name)
 
         if not ballot.author.eligible():
             raise ValidationError("Member is not eligible to vote (anymore).")
-        
+
         self.ballots.append(ballot)
         log.debug("Current ballot list: %s", self.ballots)
         self.xUpdate()
-    
+
     def summarize(self):
         """ Summarized final or preliminary result. """
         return self.vm.summarize(self)
@@ -116,4 +116,4 @@ class MemberElectionResult(db.Model, BUType):
     def close(self):
         self.is_open = False
         self.xUpdate()
-        
+

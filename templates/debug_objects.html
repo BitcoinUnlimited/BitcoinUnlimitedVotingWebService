@@ -4,7 +4,9 @@
   <hr/>
   <pre>
     {% for hash, obj in objmap.items() %}
-	{{ hash }} {{obj.__tablename__ }} | <a href="{{ url('render/'+obj.__tablename__+"/"+hash) }}">render</a>, <a href="{{ url('raw/'+obj.__tablename__+"/"+hash) }}">raw</a>
+     {{ hash }} {{obj.__tablename__ }} |
+     <a href="{{ url('render/'+obj.__tablename__+"/"+hash) }}">render</a>,
+     <a href="{{ url('raw/'+obj.__tablename__+"/"+hash) }}">raw</a>
     {% endfor %}
   </pre>
 {% endblock %}
