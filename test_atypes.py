@@ -120,3 +120,4 @@ def test_tMemberAccRejAbs():
     assert tMemberAccRejAbs("accept") == ("member-vote-acc-rej-abs", {"answer" : "accept"})
     assert tMemberAccRejAbs("reject") == ("member-vote-acc-rej-abs", {"answer" : "reject"})
     assert tMemberAccRejAbs("abstain") == ("member-vote-acc-rej-abs", {"answer" : "abstain"})
+    assert tMemberAccRejAbs("spoil") == ("member-vote-acc-rej-abs", {"answer" : "spoil"})

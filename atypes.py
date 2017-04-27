@@ -75,10 +75,11 @@ def tYesNo(x):
 
 def tAccRejAbs(x):
     """ A value accept, reject or accept, returned as string. """
-    if x in ["accept", "reject", "abstain"]:
+    if x in ["accept", "reject", "abstain", "spoil"]:
         return x
     else:
-        raise ValidationError("Expected accept, reject or abstain, got '%s'." % x)
+        raise ValidationError(
+            "Expected accept, reject or abstain (or spoil), got '%s'." % x)
     
 
 ######################################################################

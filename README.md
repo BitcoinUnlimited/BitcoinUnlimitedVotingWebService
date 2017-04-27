@@ -226,7 +226,7 @@ it visible to the world). This flag needs to be set using the
 
 An opened vote on a BUIP proposal. Refers the proposal meta data. Has
 a voting method name (currently just `buip-acc-rej-abs` for BUIP vote,
-acception/reject/abstain), potential options for the voting method
+acception/reject/abstain/spoil), potential options for the voting method
 (currently none).
 
 ### ProposalVoteResult
