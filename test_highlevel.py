@@ -14,8 +14,8 @@ def rexpect(res, code):
         ues=UnexpectedStatus("Expected HTTP status code %d." % code)
         ues.result = res
         raise ues
-    
-        
+
+
 def sha256(s):
     return hashlib.sha256(s).hexdigest()
 
@@ -60,7 +60,7 @@ def open_proposal_vote(client, data, votemaster, method):
     postAction(
         client,
         "open-proposal-vote meta %s by %s method (%s)" % (meta_for_raw_file_hash(client, sha256(data)), votemaster, method), votemaster)
-    
+
 
 def cast_proposal_ballot(client, data, member, answer):
     """ Cast ballot on proposal vote. """
@@ -76,12 +76,12 @@ def close_proposal_vote(client, data, votemaster):
     postAction(
         client,
         "close-proposal-vote result %s by %s" % (
-            result_for_vote_hash(
+            proposal_result_for_vote_hash(
                 client,
                 vote_for_raw_file_hash(client, sha256(data))),
             votemaster),
             votemaster)
-    
+
 def propose_member(client, votemaster, newmember):
     """ Propose a new member. """
     privkey, address = makeTestKey(newmember)
@@ -96,7 +96,7 @@ def cast_member_ballot(client, member, newmember, answer):
     postAction(
         client,
         "cast-member-ballot name %s address %s by %s answer %s" % (newmember, address, member, answer), member)
-        
+
 
 def close_member_elections(client, votemaster, newmembers):
     """ Close member elections. """
@@ -115,7 +115,7 @@ def is_current_member(client, member):
 
 def decode_response(res):
     return b"".join(res.response).decode("utf-8")
-        
+
 def current_member_list_hash(client):
     """ Return hash of current member list. """
     return decode_response(
@@ -130,8 +130,8 @@ def vote_for_raw_file_hash(client, rfhash):
     """ Return proposal vote for  raw file hash. """
     return decode_response(
         client.get(prefix+"debug/vote-for-raw-file/%s" % rfhash))
-                                                            
-def result_for_vote_hash(client, vhash):
+
+def proposal_result_for_vote_hash(client, vhash):
     """ Return proposal vote result for vote. """
     return decode_response(
         client.get(prefix+"debug/result-for-vote/%s" % vhash))

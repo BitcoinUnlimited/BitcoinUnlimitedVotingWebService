@@ -85,7 +85,7 @@ def test1(app, client):
     close_proposal_vote(client, prop1, "member_v")
 
     assert summary_for_proposal_vote_result(
-        client, result_for_vote_hash(client, vote_for_raw_file_hash(client, sha256(prop1)))) == {
+        client, proposal_result_for_vote_hash(client, vote_for_raw_file_hash(client, sha256(prop1)))) == {
             "quorum_reached" : True, "rejects" : 15, "accepted" : False, "accepts" : 11, "abstains" : 0, "spoiled" : 0 }
 
 
@@ -116,7 +116,7 @@ def test_vote_more_detail1(app, client):
 
     close_proposal_vote(client, prop1, "member_v")
     assert summary_for_proposal_vote_result(
-        client, result_for_vote_hash(client, vote_for_raw_file_hash(client, sha256(prop1)))) == {
+        client, proposal_result_for_vote_hash(client, vote_for_raw_file_hash(client, sha256(prop1)))) == {
             "quorum_reached" : True,
             "spoiled" : 5,
             "rejects" : 6,
