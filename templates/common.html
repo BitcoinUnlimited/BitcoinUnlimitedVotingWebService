@@ -67,7 +67,8 @@
 
 {% macro form_action_string() %}
  <label>Action string</label>
- <textarea class="form-control" type="text" name="action_string" rows="3" readonly="readonly"></textarea>
+ <textarea class="form-control" type="text" name="action_string" rows="3"
+	   readonly="readonly" onclick="this.focus();this.select();document.execCommand('copy')" ></textarea>
 {% endmacro %}
 
 {% macro form_signature() %}
