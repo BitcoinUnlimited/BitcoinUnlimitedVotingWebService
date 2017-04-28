@@ -4,14 +4,11 @@
     <h2>Publish proposal</h2>
     <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
 	<div class="form-group">
-	    <label>Author (Votemaster)</label>
-	    <input class="form-control" type="text" name="author_name" value="{{ cml.votemaster.name }}" readonly="readonly"/><br/>
+	    {{ form_author_votemaster() }}
 	    <label>Hash of file to publish</label>
 	    <input class="form-control" type="text" name="file_hash" value ="{{ hashval }}" readonly="readonly"/><br/>
-	    <label>Action string</label>
-	    <input class="form-control" type="text" name="action_string" readonly="readonly"><br/>
-	    <label>Signature</label>
-	    <input class="form-control" type="text" name="signature" id="signature"/><br/>
+	    {{ form_action_string() }}
+	    {{ form_signature() }}
 	</div>
 	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
     </form>
@@ -24,9 +21,14 @@
 	 var ap = "{{ action_prefix }}"+ "{{ cml.hashref() }} ";
 	 var member = $("input[name='author_name']").val();
 	 var file_hash = $("input[name='file_hash']").val();
-	 var s= ap + "proposal-publish file "+file_hash+" by " + member;
-	 $("input[name='action_string']").val(s);
-	 fill_sig();
+	 if (member    === "" ||
+	     file_hash === "") {
+	     $("textarea[name='action_string']").val("");
+	 } else {
+	     var s= ap + "proposal-publish file "+file_hash+" by " + member;
+	     $("textarea[name='action_string']").val(s);
+	     fill_sig();
+	 }
      };
      $(document).ready(recalc);
     </script>

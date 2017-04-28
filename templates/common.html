@@ -23,7 +23,7 @@
     <script type="text/javascript">
      var doc_hash="<hash-missing>";
      function fill_sig() {
-	 var action_string = $("input[name='action_string']").val();
+	 var action_string = $("textarea[name='action_string']").val();
 	 var privkey = $("input[name='privkey']").val();
 	 if (action_string.length !=0 && privkey.length != 0) {
 	     var keypair = bitcoin.ECPair.fromWIF(privkey);
@@ -54,8 +54,8 @@
      $("#file-upload").change(fileUploadCalcHash);
      $("input[name='author_name']").change(recalc);
      $("input[name='author_name']").keyup(recalc);
-     $("input[name='action_string'], input[name='privkey']").change(recalc);
-     $("input[name='action_string'], input[name='privkey']").keyup(recalc);
+     $("textarea[name='action_string'], input[name='privkey']").change(recalc);
+     $("textarea[name='action_string'], input[name='privkey']").keyup(recalc);
 
      $("#main-form").submit(function() {
 	 // privkey is in separate form and will not be submitted (tested on FF)
@@ -63,6 +63,27 @@
 	 $("input[name='privkey']").val("");
      });
     </script>
+{% endmacro %}
+
+{% macro form_action_string() %}
+ <label>Action string</label>
+ <textarea class="form-control" type="text" name="action_string" rows="3" readonly="readonly"></textarea>
+{% endmacro %}
+
+{% macro form_signature() %}
+ <label>Signature</label>
+ <input class="form-control" type="text" name="signature" id="signature"/><br/>
+{% endmacro %}
+
+{% macro form_author() %}
+ <label>Author</label>
+ <input class="form-control" type="text" name="author_name"/><br/>
+{% endmacro %}
+
+{% macro form_author_votemaster() %}
+<label>Author (Votemaster)</label>
+<input class="form-control" type="text" name="author_name" value="{{ cml.votemaster.name }}"
+       readonly="readonly"/><br/>
 {% endmacro %}
 
 <!DOCTYPE html>

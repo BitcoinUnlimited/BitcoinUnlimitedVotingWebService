@@ -6,12 +6,10 @@
     <hr/>
     <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
 	<div class="form-group">
-	    <label>Author</label>
-	    <input class="form-control" type="text" name="author_name"/><br/>
+	    {{ form_author() }}
 	    <label>Action string</label>
-	    <input class="form-control" type="text" name="action_string" value="{{ action_prefix }} {{ cml.hashref() }} "><br/>
-	    <label>Signature</label>
-	    <input class="form-control" type="text" name="signature" id="signature"/><br/>
+	    <textarea class="form-control" type="text" name="action_string" rows="3"></textarea>
+	    {{ form_signature() }}
 	    <label>File to upload</label>
 	    <input class="form-control-file" type="file" name="upload"/><br/>
 	</div>
@@ -19,7 +17,7 @@
     </form>
 
     {{ privkeyform() }}
-    
+
     <script type="text/javascript">
      function recalc() {
 	 fill_sig();

@@ -4,14 +4,11 @@
     <h2>Proposal Upload</h2>
     <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
 	<div class="form-group">
-	    <label>Author</label>
-	    <input class="form-control" type="text" name="author_name"/><br/>
+	    {{ form_author() }}
 	    <label>File to upload</label>
 	    <input class="form-control-file" type="file" name="upload" id="file-upload"/><br/>
-	    <label>Action string</label>
-	    <input class="form-control" type="text" name="action_string" readonly="readonly"><br/>
-	    <label>Signature</label>
-	    <input class="form-control" type="text" name="signature" id="signature"/><br/>
+	    {{ form_action_string() }}
+	    {{ form_signature() }}
 	</div>
 	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
     </form>
@@ -20,15 +17,20 @@
     
     {{ privkeyform() }}
     <script type="text/javascript">
-	function recalc() {
-	var ap = "{{ action_prefix }}"+"{{ cml.hashref() }} ";
-	var member = $("input[name='author_name']").val();
+     function recalc() {
+	 var ap = "{{ action_prefix }}"+"{{ cml.hashref() }} ";
+	 var member = $("input[name='author_name']").val();
 
-	var s= ap + "proposal-upload file "+doc_hash+" by " + member;
-	console.log("new action_string:", s);
-	$("input[name='action_string']").val(s);
-	fill_sig();
-	};
+	 if (member === "" ||
+	     doc_hash === "<hash-missing>") {
+	     $("textarea[name='action_string']").val("");
+	 } else {
+	     var s= ap + "proposal-upload file "+doc_hash+" by " + member;
+	     console.log("new action_string:", s);
+	     $("textarea[name='action_string']").val(s);
+	     fill_sig();
+	 }
+     };
     </script>
 
 

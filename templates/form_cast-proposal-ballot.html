@@ -4,16 +4,13 @@
     <h2>Cast ballot (proposal vote)</h2>
     <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
 	<div class="form-group">
-	    <label>Author</label>
-	    <input class="form-control" type="text" name="author_name"/><br/>
+            {{ form_author() }}
 	    <label>Vote hash</label>
 	    <input class="form-control" type="text" name="vote_hash" value="{{ hashval }}" readonly="readonly"/><br/>
 	    <label>Ballot option</label>
 	    <input class="form-control" type="text" name="ballot_option"/><br/>
-	    <label>Action string</label>
-	    <input class="form-control" type="text" name="action_string" readonly="readonly"><br/>
-	    <label>Signature</label>
-	    <input class="form-control" type="text" name="signature" id="signature"/><br/>
+            {{ form_action_string() }}
+            {{ form_signature() }}
 	</div>
 	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
     </form>
@@ -27,9 +24,16 @@
 	 var member = $("input[name='author_name']").val();
 	 var vote_hash = $("input[name='vote_hash']").val();
 	 var ballot_option = $("input[name='ballot_option']").val();
-	 var s= ap + "cast-proposal-ballot vote "+vote_hash+" by " + member+" answer ("+ballot_option+")";
-	 $("input[name='action_string']").val(s);
-	 fill_sig();
+
+	 if (member === ""       ||
+	     vote_hash === ""    ||
+	     ballot_option === "") {
+	     $("textarea[name='action_string']").val("");
+	 } else {
+	     var s= ap + "cast-proposal-ballot vote "+vote_hash+" by " + member+" answer ("+ballot_option+")";
+	     $("textarea[name='action_string']").val(s);
+	     fill_sig();
+	 }
      };
      $("input[name='ballot_option']").change(recalc);
      $("input[name='ballot_option']").keyup(recalc);

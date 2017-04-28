@@ -4,14 +4,11 @@
     <h2>Close member elections (all)</h2>
     <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
 	<div class="form-group">
-	    <label>Author (Votemaster)</label>
-	    <input class="form-control" type="text" name="author_name" value="{{ cml.votemaster.name }}" readonly="readonly"/><br/>
+	    {{ form_author_votemaster() }}
 	    <label>Elections to close</label>
 	    <input class="form-control" type="text" name="ma_names" value ="{{ ma_names }}" readonly="readonly"/><br/>
-	    <label>Action string</label>
-	    <input class="form-control" type="text" name="action_string" readonly="readonly"><br/>
-	    <label>Signature</label>
-	    <input class="form-control" type="text" name="signature" id="signature"/><br/>
+            {{ form_action_string() }}
+            {{ form_signature() }}
 	</div>
 	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
     </form>
@@ -24,9 +21,15 @@
 	 var ap = "{{ action_prefix }}"+"{{ cml.hashref() }} ";
 	 var votemaster = $("input[name='author_name']").val();
 	 var ma_names = $("input[name='ma_names']").val();
-	 var s= ap + "close-member-elections all [ "+ma_names+" ] by " + votemaster;
-	 $("input[name='action_string']").val(s);
-	 fill_sig();
+
+	 if (votemaster === "" ||
+	     ma_names   === "") {
+	     $("textarea[name='action_string']").val("");
+	 } else {
+	     var s= ap + "close-member-elections all [ "+ma_names+" ] by " + votemaster;
+	     $("textarea[name='action_string']").val(s);
+	     fill_sig();
+	 }
      };
      $("input[name='vote_method']").change(recalc);
      $("input[name='vote_method']").keyup(recalc);
