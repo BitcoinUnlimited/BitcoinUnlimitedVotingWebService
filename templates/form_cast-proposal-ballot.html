@@ -7,8 +7,7 @@
             {{ form_author() }}
 	    <label>Vote hash</label>
 	    <input class="form-control" type="text" name="vote_hash" value="{{ hashval }}" readonly="readonly"/><br/>
-	    <label>Ballot option</label>
-	    <input class="form-control" type="text" name="ballot_option"/><br/>
+	    {{ form_ballot_ara() }}
             {{ form_action_string() }}
             {{ form_signature() }}
 	</div>
@@ -23,11 +22,14 @@
 	 var ap = "{{ action_prefix }}"+ "{{ cml.hashref() }} ";
 	 var member = $("input[name='author_name']").val();
 	 var vote_hash = $("input[name='vote_hash']").val();
-	 var ballot_option = $("input[name='ballot_option']").val();
+	 var ballot_option = $("input[name='ballot_option']:checked").val();
 
 	 if (member === ""       ||
 	     vote_hash === ""    ||
-	     ballot_option === "") {
+	     (ballot_option !== "accept" &&
+	      ballot_option !== "reject" &&
+	      ballot_option !== "abstain" &&
+	      ballot_option !== "spoil")) {
 	     $("textarea[name='action_string']").val("");
 	 } else {
 	     var s= ap + "cast-proposal-ballot vote "+vote_hash+" by " + member+" answer ("+ballot_option+")";

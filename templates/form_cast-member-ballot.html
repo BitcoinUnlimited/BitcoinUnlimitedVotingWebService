@@ -11,8 +11,7 @@
 	    <label>Applicant Bitcoin address</label>
 	    <input class="form-control" type="text" name="member_address" value="{{ member_address }}"
                    readonly="readonly"/><br/>
-	    <label>Ballot option</label>
-	    <input class="form-control" type="text" name="ballot_option"/><br/>
+	    {{ form_ballot_ara() }}
             {{ form_action_string() }}
             {{ form_signature() }}
 	</div>
@@ -27,12 +26,15 @@
 	 var author = $("input[name='author_name']").val();
 	 var member_name = $("input[name='member_name']").val();
 	 var member_address = $("input[name='member_address']").val();
-	 var ballot_option = $("input[name='ballot_option']").val();
+	 var ballot_option = $("input[name='ballot_option']:checked").val();
 
          if (member_name === ""    ||
              member_address === "" ||
              author === ""         ||
-             ballot_option === "") {
+             (ballot_option !== "accept" &&
+	      ballot_option !== "reject" &&
+	      ballot_option !== "abstain" &&
+	      ballot_option !== "spoil")) {
           $("textarea[name='action_string']").val("");
          } else {
           var s= ap + "cast-member-ballot name "+member_name+" address "+member_address+" by " +

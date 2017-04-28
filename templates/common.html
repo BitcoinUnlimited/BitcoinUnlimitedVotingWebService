@@ -87,6 +87,21 @@
        readonly="readonly"/><br/>
 {% endmacro %}
 
+{% macro form_ballot_ara() %}
+    <label>Ballot option</label>
+    <div class="radio">
+	<label><input type="radio" name="ballot_option" value="accept">Accept</label>
+    </div>
+    <div class="radio">
+	<label><input type="radio" name="ballot_option" value="reject">Reject</label>
+    </div>
+    <div class="radio">
+	<label><input type="radio" name="ballot_option" value="abstain">Abstain</label>
+    </div>
+    <div class="radio">
+	<label><input type="radio" name="ballot_option" value="spoil">Spoil</label>
+    </div>
+{% endmacro %}
 <!DOCTYPE html>
 <!-- shamelessly stolen from Bitcoin Unlimited home page! FIXME: credits -->
 <html>
