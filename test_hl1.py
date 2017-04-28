@@ -132,13 +132,16 @@ def test_vote_more_detail1(app, client):
         cast_member_ballot(client, member, "anewmember1", answer)
     close_member_elections(client, "member_v", ["anewmember1"])
 
-    # assert summary_for_member_election_result_result(
-    #     client, result_for_vote_hash(client, vote_for_raw_file_hash(client, sha256(prop1)))) == {
-    #         "quorum_reached" : True,
-    #         "spoiled" : 5,
-    #         "rejects" : 6,
-    #         "accepts" : 7,
-    #         "abstains" : 8,
-    #         "accepted" : True }
-    
-    # FIXME: test member election result!
+    # FIXME: implement better way to iterate through / access member elections
+    me_hashes = all_hashrefs_of_type(client, "member_election_result")
+    assert len(me_hashes) == 1
+    me_hash = me_hashes[0]
+
+    assert summary_for_member_election_result(
+        client, me_hash) == {
+            "quorum_reached" : True,
+            "spoiled" : 5,
+            "rejects" : 6,
+            "accepts" : 7,
+            "abstains" : 8,
+            "accepted" : True }

@@ -139,6 +139,12 @@ def proposal_result_for_vote_hash(client, vhash):
 def summary_for_proposal_vote_result(client, rhash):
     return client.get(prefix+"debug/summary-of-proposal-vote-result/%s" % rhash).json
 
+def summary_for_member_election_result(client, rhash):
+    return client.get(prefix+"debug/summary-of-member-election-result/%s" % rhash).json
+
+def all_hashrefs_of_type(client, name):
+    return client.get(prefix+"debug/hashrefs-by-type/%s" % name).json
+
 def is_public_raw_file_hash(client, rfhash):
     metahash = meta_for_raw_file_hash(client, rfhash)
     res = client.get(prefix+"raw/proposal_metadata/%s" % metahash)
