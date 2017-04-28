@@ -22,7 +22,7 @@ def make_app(test_mode_internal=False):
         app, db=appmaker.make_test_app()
     else: # pragma: no cover
         app, db=appmaker.make_app()
-    
+
     app.config['TEMPLATES_AUTO_RELOAD'] = True
 
     if 0:
@@ -77,6 +77,16 @@ def make_app(test_mode_internal=False):
         else:
             abort(404)
 
+    @app.route("/api1/debug/hashrefs-by-type/<objtype:name>")
+    def _get_debug_hashrefs_by_type(name):
+        if config.test_mode:
+            Cls = name2type[name]
+            res=[obj.hashref() for obj in Cls.query]
+
+            return jsonify(res)
+        else:
+            abort(404)
+
     @app.route("/api1/debug/current-member-list-hash")
     def _get_debug_current_member_list_hash():
         if not config.test_mode:
@@ -87,7 +97,7 @@ def make_app(test_mode_internal=False):
     def _get_debug_meta_for_raw(hashval):
         if not config.test_mode:
             abort(404)
-            
+
         obj = RawFile.by_hash(hashval)
         if obj is None:
             abort(404)
@@ -126,7 +136,18 @@ def make_app(test_mode_internal=False):
             abort(404)
         else:
             return jsonify(v.summarize())
-        
+
+    @app.route("/api1/debug/summary-of-member-election-result/<shex:hashval>")
+    def _get_debug_summary_of_member_election_result(hashval):
+        if not config.test_mode:
+            abort(404)
+
+        v=MemberElectionResult.by_hash(hashval)
+        if v is None:
+            abort(404)
+        else:
+            return jsonify(v.summarize())
+
     @app.route("/api1/debug/testkeys")
     def get_testkeys():
         if config.test_mode:
