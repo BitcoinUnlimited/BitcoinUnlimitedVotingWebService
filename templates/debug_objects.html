@@ -1,12 +1,12 @@
 {% extends "common.html" %}
 {% block body %}
-  Objects:
+    <h1>Objects</h1>
   <hr/>
-  <pre>
+  <span class="monospace">
     {% for hash, obj in objmap.items() %}
      {{ hash }} {{obj.__tablename__ }} |
      <a href="{{ url('render/'+obj.__tablename__+"/"+hash) }}">render</a>,
      <a href="{{ url('raw/'+obj.__tablename__+"/"+hash) }}">raw</a>
     {% endfor %}
-  </pre>
+  </span>
 {% endblock %}

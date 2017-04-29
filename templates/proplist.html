@@ -1,30 +1,54 @@
 {% import "common.html" as common %}
 {% macro list(proposals) %}
-    <table class="table table-striped">
-	<thead><tr><th>Author</th><th>File name</th><th>Metadata</th><th>Published?</th><th>Vote?</th></tr></thead>
+    <div class="p2">
+    <table class="table col-12 center border">
+	<thead class="table-head">
+	    <tr>
+		<th>Author</th>
+		<th>File</th>
+		<th>Metadata</th>
+		<th>Published?</th>
+		<th>Vote?</th>
+		<th>Vote!</th>
+	    </tr>
+	</thead>
 	<tbody>
 	    {% for proposal in proposals %}
 		<tr>
-		    <td><a href="{{ common.url('render/action/' + proposal.action.hashref()) }}">{{ proposal.action.author.name }}</a></td>
-		    <td>{{ proposal.filename }}</td>
-		    <td><a href="{{ common.url('render/proposal_metadata/' + proposal.hashref()) }}"> (metadata) </a></td>
-		    <td>{% if proposal.file_public %}YES{% else %}NO <a href="{{ common.url('form/proposal-publish/'+proposal.raw_file.hashref()) }}">(publish)</a>{% endif %}</td>
+		    <td><a href="{{ common.url('render/member/'+proposal.action.author.hashref()) }}">{{ proposal.action.author.name }}</a>, <a href="{{ common.url('render/action/' + proposal.action.hashref()) }}">(act.)</a></td>
+		    <td>
+			{% if proposal.file_public %}
+			    <a href="{{ common.url('raw/raw_file/'+proposal.raw_file.hashref()) }}">{{ proposal.filename }}</a>
+			{% else %}
+			    {{ proposal.filename }}
+			{% endif %}
+		    </td>
+		    <td><a href="{{ common.url('render/proposal_metadata/' + proposal.hashref()) }}"> metadata </a></td>
+		    <td>{% if proposal.file_public %}YES{% else %}NO <a href="{{ common.url('form/proposal-publish/'+proposal.raw_file.hashref()) }}">publish</a>{% endif %}</td>
 		    <td>
 			{% if proposal.vote %}
 			    {% if proposal.vote.result.is_open %}
 				<a href="{{ common.url('render/proposal_vote_result/'+ proposal.vote.result.hashref()) }}">
-				    (vote)
+				    vote
 				</a>
 			    {% else %}
 				<a href="{{ common.url('render/proposal_vote_result/'+ proposal.vote.result.hashref()) }}">
-				(see result)
+				result
 				</a>
 			    {% endif %}
 			{% else %}
-				--- <a href="{{ common.url('form/open-proposal-vote/'+ proposal.hashref()) }}"> (open)</a>
+				--- <a href="{{ common.url('form/open-proposal-vote/'+ proposal.hashref()) }}"> open</a>
 			{% endif %}
 		    </td>
+		    {% if proposal.vote and proposal.vote.result.is_open %}
+		    <td>
+			<a href="{{ common.url('form/cast-proposal-ballot/'+proposal.vote.hashref()) }}">here</a>
+		    </td>
+		    {% else %}
+		    <td>N/A</td>
+		    {% endif %}
 		</tr>
 	    {% endfor %}
 	</tbody></table>
+    </div>
 {% endmacro %}

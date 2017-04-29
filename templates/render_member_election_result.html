@@ -2,27 +2,57 @@
 {% import "proplist.html" as proplist %}
 
 {% block body %}
-    <h2>Ongoing election of new member</h2>
     {% set nmer = member_election_result %}
-
+    <h1>Ongoing election of new member</h1>
+    <p>
+	This is representing a {{ format_object_type("member_election_result") }},
+	the result of election of a new member.
+    </p>
+    <p>
+	This is {% if nmer.is_open %} a <b>preliminary</b> {% else %}<b> the final</b>{% endif %} result of
+	the vote on new member <b>{{ nmer.new_member.name }}</b> with address {{ format_addr(nmer.new_member.address) }}.
+    </p>
+	
     {% if nmer.is_open %}
-	<a href="{{ url('form/cast-member-ballot/'+nmer.new_member.name+'/'+nmer.new_member.address) }}">Cast ballot</a> |  <a href="{{ url('form/close-member-elections') }}">Close voting on all members</a><br/>
+	<p>Current members can cast a ballot on this member <a href="{{ url('form/cast-member-ballot/'+nmer.new_member.name+'/'+nmer.new_member.address) }}">here</a>.</p>
+	<p>The vote master can close the election of all new members <a href="{{ url('form/close-member-elections') }}">here</a>.</p>
     {% endif %}
-    
-    In progress: {{ nmer.is_open }}<br/>
-    Number of ballots: <b>{{ nmer.ballots | count }}</b><br/>
 
-    Vote method: {{ nmer.method_name }}<br/>
-    
-    Vote accepted: <b> {{summary.accepted }} </b><br/>
-    Quorum reached: <b> {{summary.quorum_reached }}</b><br/>
-    ACCEPT votes: <b> {{summary.accepts }}</b><br/>
-    REJECT votes: <b> {{summary.rejects }}</b><br/>
-    ABSTAIN votes: <b> {{summary.abstains }}</b><br/>
-    SPOILED votes: <b> {{summary.spoiled }}</b><br/>
-    
-    <h3>Ballot list</h3>
-    {% for ballot in nmer.ballots %}
-	<a href="{{ url('render/action/'+ballot.hashref()) }}">Ballot, {{ ballot.author.name }}, {{ ballot.parser.actvars["answer_tuple"][1]["answer"] }}</a><br/>
-    {% endfor %}
+    <p>Vote method used here: {{ format_vote_method(nmer.method_name) }}</p>
+
+    <ul class="border border-box py2">
+    {% if nmer.is_open %}
+	<li>If closed now, the election would be accepted: <b> {{ format_yesno(summary.accepted) }}</b></li>
+	<li>Number of ballots cast so far: <b>{{ nmer.ballots | count }}</b></li>
+	<li>Quorum reached yet: <b> {{ format_yesno(summary.quorum_reached) }}</b></li>
+	<li>ACCEPT votes so far: <b> {{summary.accepts }}</b></li>
+	<li>REJECT votes so far: <b> {{summary.rejects }}</b></li>
+	<li>ABSTAIN votes so far: <b> {{summary.abstains }}</b></li>
+	<li>SPOILED votes so far: <b> {{summary.spoiled }}</b></li>
+    {% else %}
+	<li>New member accepted:
+	    <b>
+		{% if summary.accepted %}
+		    <span class="item-valid">YES</span>
+		{% else %}
+		    <span class="item-invalid">NO</span>
+		{% endif %}
+	    </b>
+	</li>
+	<li>Number of ballots cast: <b>{{ nmer.ballots | count }}</b></li>
+	<li>Quorum reached: <b> {{summary.quorum_reached }}</b></li>
+	<li>ACCEPT votes: <b> {{summary.accepts }}</b></li>
+	<li>REJECT votes: <b> {{summary.rejects }}</b></li>
+	<li>ABSTAIN votes: <b> {{summary.abstains }}</b></li>
+	<li>SPOILED votes: <b> {{summary.spoiled }}</b></li>
+    {% endif %}
+    </ul>
+    <h2>Ballot list</h2>
+    <ul>
+	{% for ballot in nmer.ballots %}
+	    <li>
+		<a href="{{ url('render/action/'+ballot.hashref()) }}">Ballot by {{ ballot.author.name }}</a>, answer: <b> {{ ballot.parser.actvars["answer_tuple"][1]["answer"] }}</b>
+	    </li>
+	{% endfor %}
+    </ul>
 {% endblock %}

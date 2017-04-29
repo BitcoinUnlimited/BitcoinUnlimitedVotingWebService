@@ -1,6 +1,10 @@
 {% extends "common.html" %}
 {% block body %}
-    <h2>Member</h2>
+    <h1>Member</h1>
+    <p>
+	This is the information in the voting system for the member with nick {{ member.name }}:</p>
+	
     Name: {{ member.name }}<br/>
-    Address: {{ member.address }}<br/>
+    Address:  {{ format_addr(member.address) }}<br/>
+    Expired: {{ format_yesno(not member.eligible()) }}<br/>
 {% endblock %}

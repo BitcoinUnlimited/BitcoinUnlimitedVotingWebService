@@ -1,11 +1,8 @@
 {% extends "common.html" %}
 {% block body %}
-
-    <h2> Upload successful</h2>
-    Author: {{ action.author.name }}<br/>
-    Action string: {{ action.action_string }}</br>
-
+    <h1> Upload successful</h1>
+    <p>Author: {{ action.author.name }}</p>
+    <p>Action string: {{ format_action_string(action.action_string) }}</p>
     <hr/>
-    <a href="{{ url('/unpublished-proposals') }}">List of unpublished proposals</a>
-
+    <p><a href="{{ url('/unpublished-proposals') }}">List of unpublished proposals</a></p>
 {% endblock %}

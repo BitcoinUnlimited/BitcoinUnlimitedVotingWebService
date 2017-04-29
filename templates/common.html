@@ -2,20 +2,67 @@
     {{ web_root }}{{ short }}
 {%- endmacro %}
 
-{% macro privkeyform() %}
+{% macro format_addr(addr) -%}
+    <span class="monospace">{{ addr }}</span>
+{%- endmacro -%}
 
-<form>
-<div class="form-group">
-<label>DANGEROUS: Optional private key to use for in-browser message signing</label>
-<input type="text" name="privkey" class="form-control">
-<div class="alert alert-danger">
- WARNING: Entering your private key here is dangerous. You are trusting your browser and this website to not leak it.
- Bugs may happen! You can alternatively insert a signature generated offline above.
- <b>FURTHER NOTE THAT THE JS CLIENT CODE HAS <emph>NOT</emph> UNDERGONE A PROPER PEER REVIEW YET!</b>
-</div>
-</div>
-</form>
-<hr/>
+{% macro format_yesno(val) -%}
+    {% if val %}
+	yes
+    {% else %}
+	no
+    {% endif %}
+{%- endmacro %}
+
+{% macro format_action_string(astr) -%}
+    <span class="monospace">{{ astr }}</span>
+{%-  endmacro %}
+
+{% macro format_signature(sig) -%}
+    <span class="monospace">{{ sig }}</span>
+{%- endmacro %}
+
+{% macro format_member_link(member) -%}
+    <a href="{{ url('render/member/'+member.hashref()) }}"> {{ member.name }}, {{ format_addr(member.address) }}</a>    
+{%- endmacro %}
+
+{% macro format_member_list_link(ml) -%}
+    <a href="{{ url('render/member_list/'+ml.hashref()) }}">member list</a>
+{%- endmacro %}
+
+{% macro format_filename(fn) -%}
+    <span class="monospace">{{ fn }}</span>
+{%- endmacro %}
+
+{% macro format_hash(hash) -%}
+    <span class="monospace">{{ hash }}</span>
+{%- endmacro %}
+
+{% macro format_object_type(type) -%}
+    <span class="monospace">{{ type }}</span>
+{%- endmacro %}
+
+{% macro format_vote_method(method) -%}
+    <span class="monospace">{{ method }}</span>
+{%- endmacro %}
+
+{% macro format_vote_options(method) -%}
+    <span class="monospace">{{ method }}</span>
+{%- endmacro %}
+
+{% macro privkeyform() %}
+    <form>
+	<div class="form-group">
+	    <label>DANGEROUS: Optional private key to use for in-browser message signing</label>
+	    <input type="text" name="privkey" class="form-control">
+	    <div class="alert alert-danger">
+		WARNING: Entering your private key here is dangerous. You are trusting your browser and this website to not leak it.
+		Bugs may happen! You can alternatively insert a signature generated offline above.
+		<b>FURTHER NOTE THAT THE JS CLIENT CODE HAS <emph>NOT</emph> UNDERGONE A PROPER PEER REVIEW YET!</b>
+	    </div>
+	</div>
+    </form>
+    <hr/>
 {% endmacro %}
 
 
@@ -66,25 +113,25 @@
 {% endmacro %}
 
 {% macro form_action_string() %}
- <label>Action string</label>
- <textarea class="form-control" type="text" name="action_string" rows="3"
-	   readonly="readonly" onclick="this.focus();this.select();document.execCommand('copy')" ></textarea>
+    <label>Action string</label>
+    <textarea class="form-control" type="text" name="action_string" rows="3"
+	      readonly="readonly" onclick="this.focus();this.select();document.execCommand('copy')" ></textarea>
 {% endmacro %}
 
 {% macro form_signature() %}
- <label>Signature</label>
- <input class="form-control" type="text" name="signature" id="signature"/><br/>
+    <label>Signature</label>
+    <input class="form-control" type="text" name="signature" id="signature"/><br/>
 {% endmacro %}
 
 {% macro form_author() %}
- <label>Author</label>
- <input class="form-control" type="text" name="author_name"/><br/>
+    <label>Author</label>
+    <input class="form-control" type="text" name="author_name"/><br/>
 {% endmacro %}
 
 {% macro form_author_votemaster() %}
-<label>Author (Votemaster)</label>
-<input class="form-control" type="text" name="author_name" value="{{ cml.votemaster.name }}"
-       readonly="readonly"/><br/>
+    <label>Author (Votemaster)</label>
+    <input class="form-control" type="text" name="author_name" value="{{ cml.votemaster.name }}"
+	   readonly="readonly"/><br/>
 {% endmacro %}
 
 {% macro form_ballot_ara() %}
@@ -102,52 +149,116 @@
 	<label><input type="radio" name="ballot_option" value="spoil">Spoil</label>
     </div>
 {% endmacro %}
-<!DOCTYPE html>
-<!-- shamelessly stolen from Bitcoin Unlimited home page! FIXME: credits -->
-<html>
-  <head> {% block headerdefault %}
-        <title>Bitcoin Unlimited Voting System</title>
-        <link rel="stylesheet" href="/components/bootstrap/dist/css/bootstrap.min.css">
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,600,800'
-              rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" href="/css/main-orange.css">
-        <link rel="icon" type="image/vnd.microsoft.icon" href="/img/favicon.ico">
-	{% endblock %}
-	{% block headerextra %}
-	{% endblock %}
-  </head>
-  <body>
-        {% block bodydefault %}
-        <script src='/components/jquery/dist/jquery.min.js'></script>
-        <script src='/components/bootstrap/dist/js/bootstrap.min.js'></script>
-        <script src='/components/bxslider-4/dist/jquery.bxslider.min.js'></script>
-        <script src='/components/marked/marked.min.js'></script>
-        <script src='/js/sequence.min.js'></script>
-	<script src='{{ url("js/bitcoinjs.js") }}'></script>
-	<script src='{{ url("js/bitcoinjs_message.js") }}'></script>
-	<script src='{{ url("js/sha256.js") }}'></script>
-	<style type="text/css">
-	  .item-valid {
-	  color : green;
-	  }
-	  .item-invalid {
-	  color : red;
-	  }
-	 .warning {
-	     }
-	</style>
-	<div class="container">
-	{% endblock %}
-	<a href="/">[BU home]</a> <a href="{{url("") }}">[Voting home]</a>
-	<h1>Bitcoin Unlimited Voting</h1>
-	{% block body %}
-	{% endblock %}
 
-	{% if render_object_id is defined %}
-	    <hr/>
-	    <a href="{{ url('raw/' + render_object_type+'/'+render_object_id) }}">[Raw data]</a>
-	    <a href="{{ url('zip/' + render_object_type+'/'+render_object_id) }}">[ZIP including dependencies]</a>
-	{% endif %}
+{% macro pageheader_items() %}
+    <div class="left">
+	<a href="/"><img class="header__logo" src="/img/bitcoin-unlimited.png"></a>
+    </div>
+    <div class="left">
+	<div class="h1 black inline-block mx2 py2">Bitcoin Unlimited Voting</div>
+    </div>
+    <div class="right">
+	<div class="dropdown__container">
+	    <div class="dropdown__title">
+		<a class="non-decorated black inline-block mx2 py2" href="/">Home</a>
+	    </div>
 	</div>
+    </div>
+    <div class="right">
+	<div class="dropdown__container">
+	    <div class="dropdown__title">
+		<a class="non-decorated black inline-block mx2 py2" href="/voting/">Voting home</a>
+	    </div>
+	</div>
+    </div>
+{% endmacro %}
+{% block wholepage -%}
+<!DOCTYPE html>
+<!-- Note: This is a partial copy of the contents of BitcoinUnlimitedWeb (for reference, see
+     https://github.com/BitcoinUnlimited/BitcoinUnlimitedWeb), to integrate the voting system with the rest of
+     the new web site. -->
+<html>
+    <head> {% block headerdefault %}
+        <title>Bitcoin Unlimited Voting System</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="The Peer-to-Peer Electronic Cash System for Planet Earth.">
+        <link rel="stylesheet" href="/css/normalize.css">
+        <link rel="stylesheet" href="/css/basscss.css">
+        <link rel="stylesheet" href="/css/bu.css">
+        <link rel="stylesheet" href="/css/site.css">
+        <link rel="icon" type="image/vnd.microsoft.icon" href="/img/favicon.ico">
+    {% endblock %}
+    {% block headerextra %}
+    {% endblock %}
+    </head>
+    <body class="avenir">
+	{% block busite_pageheader %}
+	    <div class="header--web header__container--web clearfix">
+		{{ pageheader_items() }}
+	    </div>
+	    <!-- FIXME/TODO: Check on mobile -->
+	    <div class="header--mobile header__container clearfix">
+		{{ pageheader_items() }}
+	    </div>
+	    <div class="banner"></div>
+	{% endblock %}
+	
+        {% block bodydefault %}
+            <script src='{{ url("js/jquery-3.2.1.min.js") }}'></script>
+	    <script src='{{ url("js/bitcoinjs.js") }}'></script>
+	    <script src='{{ url("js/bitcoinjs_message.js") }}'></script>
+	    <script src='{{ url("js/sha256.js") }}'></script>
+	    <style type="text/css">
+	     .item-valid {
+		 color : green;
+	     }
+	     .item-invalid {
+		 color : red;
+	     }
+	     .warning {
+	     }
+	     .alert {
+		 background-color : pink;
+	     }
+	     .monospace {
+		 font-family: monospace;
+	     }
+	     .table-head {
+		 background-color : #8080ff;
+	     }
+	    </style>
+	{% endblock %}
+	<div class="p2 py2"> 
+	    <div class="section__container">
+		{% block body %}
+		{% endblock %}
+	    </div>
+	</div> 
+	<div class="banner"></div>
+	{% if render_object_id is defined %}
+	    <div class="p2 py2">
+		<div class="section__container">
+		    <div class="p2">
+			This object in the voting system can be exported
+			as JSON. Additionally, a ZIP containing this
+			object's JSON plus the JSON of all dependencies
+			can be exported as well. For export of the data,
+			please click on the appropriate link below. Of
+			course, access to this API can also be automated
+			through <span class="monospace">wget</span> or
+			similar means.
+
+			JSON representations of all public objects
+			are accessible using the URL pattern <span class="monospace">{{ url('raw/<object-type>/<sha256-hash>') }}</span>,
+			such as for the link below.
+		    </div>
+		    
+		    <a href="{{ url('raw/' + render_object_type+'/'+render_object_id) }}">[Raw data]</a>
+		    <a href="{{ url('zip/' + render_object_type+'/'+render_object_id) }}">[ZIP including dependencies]</a>
+		</div>
+	    </div>
+	{% endif %}
+	<div class="p2 py2"></div>
     </body>
 </html>
+{%- endblock %}

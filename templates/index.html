@@ -2,26 +2,126 @@
 {% import "proplist.html" as proplist %}
 
 {% block body %}
+    Welcome to the Bitcoin Unlimited (BU) Voting system. This site is
+    meant to track voting on new BU members, and on Bitcoin Unlimited
+    Improvement Proposals (BUIP). If an election or vote is open, BU
+    members can cast votes on proposals and member elections here.
 
-<h2>Current published proposals</h2>
-{{ proplist.list(proposals) }}
+    All voting here happens with Bitcoin signed messages, using the
+    member-supplied voting keys.
+    
+    <h1>Current members</h1>
+    The members currently eligible to vote here are listed on the current {{ format_member_list_link(cml)}}.
 
-<h2>Unpublished proposals</h2>
-<a href="{{ url('unpublished-proposals') }}">Unpublished propals</a>
+    <h1>Bitcoin Unlimited Improvement Proposals (BUIPs)</h1>
+    <p>
+	BUIPs in the voting system are simple files, such as a <span class="monospace">.txt</span> file or a
+	<span class="monospace">.pdf</span>.
+	Uploads are currently limited to an appropriate size of 1MB.
+    </p>
+    
+    <p>
+	Any member can upload any number of BUIPs (though should
+	confer with the BU secretary for appropriate numbering and
+	naming of his or her proposal, this is currently out-of-scope
+	for the voting system). For security reasons, a freshly
+	uploaded proposal is in state 'unpublished' first, and
+	therefore not accessible to the general public.  A BU member
+	with the vote master can subsequently publish a proposal,
+	making it world readable.
+    </p>
+    <p>
+	In a further step, the vote master can then open the proposal
+	for voting, allowing all current, eligible members to cast
+	their vote on the Casting a vote (here or in a member
+	election) automatically implies that the voting member is
+	active as per the <a href="/resources/BUarticles.pdf">BU articles</a>.
+    </p>
+    <p>
+	Closing the vote on a proposal by the vote master makes it
+	final and prevents further ballots being cast on that proposal.
+    </p>
+    
+    <p class="italic">
+	Note: The voting system only covers proposals that are tracked
+	by the system. BUIPs not within this system are available <a href="/resources/buips">here</a>.
+    </p>
+    
+    <h2>Proposals</h2>
+    <p>This is the list of currently published proposals:</p>
+    {{ proplist.list(proposals) }}
 
-<h2>Current members</h2>
-<a href="{{ url('render/member_list/'+cml.hashref()) }}">Current member list</a>
+    <p>
+	Unpublished proposals can be found <a href="{{ url('unpublished-proposals') }}">here</a>.
+    </p>
 
-<h2>Member elections in progress</h2>
+    <p>
+	Click <a href="{{ url('form/proposal-upload') }}">here</a> to upload a new proposal.
+    </p>
 
-{% for nmer in member_applications %}
-    <a href="{{ url('render/member_election_result/'+nmer.hashref()) }}">{{ nmer.new_member.name }}, {{ nmer.new_member.address }}<a><br>
-{% endfor %}
+    <h1>Member elections</h1>
 
-<h2>Generic action entry</h2>
-<a href="{{ url('form/generic') }}">Generic form for entry of actions</a>
+    As per the BU articles, members are elected into BU in a process
+    similar to a vote on a BUIP proposal. After closing a member
+    election, the current member list above will be updated.
+    
+    {% if member_applications|list|count > 0 %}
+	<h2>Member elections in progress</h2>
+	The following member elections are in progress:
+	<div class="p2">
+	    <table class="table col-12 center border">
+		<thead class="table-head"><tr><th>New member name</th><th>New member address</th><th>Details</th></tr></thead>
+		{% for nmer in member_applications %}
+		    <tr>
+			<td>{{ nmer.new_member.name }}</td>
+			<td>{{ format_addr(nmer.new_member.address) }}</td>
+			<td>
+			    <a href="{{ url('render/member_election_result/'+nmer.hashref()) }}">
+				details
+			    </a>
+			</td>
+		    </tr>
+		{% endfor %}
+	    </table>
+	</div>
+	<p>
+	    The vote master can close the current member elections  <a href="{{ url('form/close-member-elections') }}">here</a>.
+	</p>
+    {% else %}
+	There are currently no member elections in progress.
+    {% endif %}
+    
+    <h1>Other</h1>
+    
+    This section lists minor and special places in the voting system.
+    
+    <h2>Generic action entry</h2>
+    <p>
+	For special cases, it can be of value to interact with the
+	voting system in an arbitrary way. A form is <a href="{{ url('form/generic') }}">available</a> that helps with doing so.
+    </p>
 
-<h2>Debug options</h2>
-<a href="{{ url('debug') }}">Debug options</a> <!-- FIXME: make optional, depending on debug settings -->
+    {% if test_mode %}
+	<h2>Debugging</h2>
+	<p>
+	A page with (links to) further information for debugging the
+	system is available <a href="{{url('debug') }}">here</a>.
+	</p>
+	<p class="alert">If you see this section here on the live
+	    BU voting system page, this means that the voting system
+	    is either being tested OR severely misconfigured.
+	</p>
 
+    {% endif %}
+	    
+    <h2>Source code and bug reports</h2>
+    The open source code for this part of the website is currently
+    available at:
+    <a href="https://github.com/awemany/buvweb">https://github.com/awemany/buvweb</a>. Pull requests welcome!
+    
+    <p class="italic">
+	Please also use the Github issue tracking system available
+	under "Issues" for any complaints, feature requests, bug
+	reports etc. pertaining to this voting system.
+    </p>
 {% endblock %}

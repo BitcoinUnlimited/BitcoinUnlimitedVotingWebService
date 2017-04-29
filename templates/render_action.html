@@ -2,12 +2,30 @@
 {% import "proplist.html" as proplist %}
 
 {% block body %}
-    <h2>Action</h2>
-
-    Author: <a href="{{ url('/render/member/'+action.author.hashref()) }}"> {{ action.author.name }}, {{ action.author.address }}</a><br/>
-
-    <b><a href="{{ url('/render/member_list/'+action.member_list.hashref()) }}">member list</a><br/></b>
-
-    Action string: <b>{{ action.action_string }}</b></br>
-    Signature: {{ action.signature }}</br>
+    <h1>Action</h1>
+    <p>An {{ format_object_type("action") }} is any change submitted to the voting system, such as</p>
+    <ul>
+	<li>Casting a ballot on a proposal or member vote</li>
+	<li>Uploading proposals</li>
+	<li>Publishing proposals</li>
+    </ul>
+    
+    <p>
+	The author of this action is: {{ format_member_link(action.author) }}<br/>
+    </p>
+    
+    <p>
+	The {{ format_member_list_link(action.member_list) }} that this action was made for.
+    </p>
+    
+    <p>
+	The action string, which is the actual "command" part of the action:</p>
+    <p>{{ format_action_string(action.action_string) }}</p>
+    <p> Signature:</p>
+    <p>{{ format_signature(action.signature) }}</p>
+    <p>
+	This signature is the <span class="monospace">base64</span>-encoded
+	Bitcoin-signature of the above action string, signed with this
+	action author's Bitcoin address.
+    </p>
 {% endblock %}

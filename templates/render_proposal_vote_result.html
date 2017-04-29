@@ -2,32 +2,87 @@
 {% import "proplist.html" as proplist %}
 
 {% block body %}
-    <h2>Proposal Vote Result</h2>
     {% set pvr = proposal_vote_result %}
 
+    <h1>Proposal Vote Result</h1>
+
+    This is showing the <b>{% if pvr.is_open %} preliminary {% else %} final {% endif %}</b> vote result on BUIP with file name {{ format_filename(pvr.vote.proposal_metadata.filename) }}.
     {% if pvr.is_open %}
-    <a href="{{ url('form/cast-proposal-ballot/'+pvr.vote.hashref()) }}">Cast ballot</a> | <a href="{{ url('form/close-proposal-vote/'+pvr.hashref()) }}">Close voting</a><br/>
+	<p>Ballots on this vote can be cast
+	    <a href="{{ url('form/cast-proposal-ballot/'+pvr.vote.hashref()) }}">here</a>.
+	</p>
+	<p>The vote master can close this vote
+	    <a href="{{ url('form/close-proposal-vote/'+pvr.hashref()) }}">here</a>.
+	</p>
     {% endif %}
-    
-    In progress: {{ pvr.is_open }}<br/>
-    <a href="{{ url('render/proposal_vote/'+pvr.vote.hashref()) }}">Vote data</a><br/>
 
-    Number of ballots: {{ pvr.ballots | count }}<br/>
+    <p>The vote on this proposal uses the vote method: {{ format_vote_method(pvr.vote.method_name) }}</p>
+    <p>With options: {{ format_vote_options(pvr.vote.method_options) }}</p>
 
-    Vote method: {{ pvr.vote.method_name }}<br/>
-    
-    {% if pvr.vote.method_name == "buip-acc-rej-abs" %}
-	Vote accepted: <b> {{summary.accepted }} </b><br/>
-	Quorum reached: <b> {{summary.quorum_reached }}</b><br/>
-	ACCEPT votes: <b> {{summary.accepts }}</b><br/>
-	REJECT votes: <b> {{summary.rejects }}</b><br/>
-	ABSTAIN votes: <b> {{summary.abstains }}</b><br/>
-        SPOILED votes: <b> {{summary.spoiled }}</b><br/>
-    {% endif %}
-    <!-- FIXME: other methods -->
-    
-    <h3>Ballot list</h3>
+    <p>
+	(Further details <a href="{{ url('render/proposal_vote/'+pvr.vote.hashref()) }}">here</a>)
+    </p>
+
+
+    <ul class="border border-box py2">
+	{% if pvr.is_open %}
+	    {% if pvr.vote.method_name == "buip-acc-rej-abs" %}
+		<li>
+		    If closed now, the vote would be accepted:
+		    <b>{{ format_yesno(summary.accepted) }} </b>
+		</li>
+		<li> Number of ballots cast so far: <b> {{ pvr.ballots | count }}</b></li>
+		<li>
+		    The quorum has been reached yet: <b> {{format_yesno(summary.quorum_reached) }}</b>
+		</li>
+		<li>
+		    Number of ACCEPT votes so far: <b> {{summary.accepts }}</b>
+		</li>
+		<li>
+		    Number of REJECT votes so far: <b> {{summary.rejects }}</b>
+		</li>
+		<li>
+		    Number of ABSTAIN votes so far: <b> {{summary.abstains }}</b>
+		</li>
+		<li>
+		    Number of SPOILED votes so far: <b> {{summary.spoiled }}</b>
+		</li>
+	    {% endif %}
+	{% else %}
+	    {% if pvr.vote.method_name == "buip-acc-rej-abs" %}
+		<li>
+		    Vote accepted:
+		    <b>
+			{% if summary.accepted %}
+			    <span class="item-valid">YES</span>
+			{% else %}
+			    <span class="item-invalid">NO</span>
+			{% endif %}
+		    </b>
+		</li>
+		<li> Number of ballots cast: <b> {{ pvr.ballots | count }}</b</li>
+		<li>
+		    Quorum reached: <b> {{format_yesno(summary.quorum_reached) }}</b>
+		</li>
+		<li>
+		    Number of ACCEPT votes: <b> {{summary.accepts }}</b>
+		</li>
+		<li>
+		    Number of REJECT votes: <b> {{summary.rejects }}</b>
+		</li>
+		<li>
+		    Number of ABSTAIN votes: <b> {{summary.abstains }}</b>
+		</li>
+		<li>
+		    Number of SPOILED votes: <b> {{summary.spoiled }}</b>
+		</li>
+	    {% endif %}
+	{% endif %}
+    </ul>
+    <h2>List of ballots</h2>
+    <ul>
     {% for ballot in pvr.ballots %}
-	<a href="{{ url('render/action/'+ballot.hashref()) }}">Ballot, {{ ballot.author.name }}, {{ ballot.parser.actvars["answer_tuple"][1]["answer"] }}</a><br/>
+	<li><a href="{{ url('render/action/'+ballot.hashref()) }}"> Ballot by {{ ballot.author.name }}</a>, answer: <b> {{ ballot.parser.actvars["answer_tuple"][1]["answer"] }}</b></li>
     {% endfor %}
+    </ul>
 {% endblock %}

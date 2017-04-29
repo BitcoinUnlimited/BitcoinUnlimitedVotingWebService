@@ -35,6 +35,10 @@ def make_app(test_mode_internal=False):
 
     app.jinja_env.globals["web_root"]=config.web_root
     app.jinja_env.globals["action_prefix"]=config.action_prefix
+    app.jinja_env.globals["test_mode"]=config.test_mode
+
+    app.jinja_env.trim_blocks = True
+    app.jinja_env.lstrip_blocks = True
 
     @app.route('/api1/js/<path:path>')
     def js_static(path):

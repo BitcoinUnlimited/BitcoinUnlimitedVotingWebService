@@ -1,10 +1,8 @@
 {% extends "common.html" %}
 {% block body %}
-
-    <h2> Successfully closed vote</h2>
-    Opened by: {{ action.author.name }}<br/>
-    Action string: {{ action.action_string }}</br>
-
+    <h1>Successfully closed vote</h1>
+    <p>Opened by: {{ action.author.name }}</p>
+    <p>Action string: {{ format_action_string(action.action_string) }}</p>
     <hr/>
-    <a href="{{ url("") }}">Back to overview</a>
+    <p><a href="{{ url("") }}">Back to overview</a></p>
 {% endblock %}

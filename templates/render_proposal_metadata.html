@@ -3,15 +3,32 @@
 {% block body %}
     {% set prop = proposal_metadata %}
     {% set action = prop.action %}
-    <h2>Uploaded proposal metadata</h2>
+    <h2>BUIP Metadata</h2>
+    This shows the <span class="monospace">proposal_metadata</span> object
     
-    <p><b>Author:</b> {{ action.author.name }}</p>
-    <p><b><a href="{{ url("render/member_list/" + action.member_list.hashref()) }}">Member list</a></b></p>
-    <p><b>Filename:</b> {{ prop.filename }}</p>
-    <p><b>MIME type:</b> {{ prop.mime_type }}</p>
-    <p><b>File is public:</b> {{ prop.file_public }}</p>
+    in the voting system, referring to the uploaded file {{ format_filename(prop.filename) }}.
+
     {% if prop.file_public %}
-	<p><a href="{{ url('raw/raw_file/' + prop.raw_file.hashref()) }}">File link</a></p>
+	This object was created coincidentally with upload of the above file.
+	It will change when the proposal is published.
     {% endif %}
-    <p><a href="{{ url('render/action/'+action.hashref()) }}">Creating command</a></p>
+
+    <ul>
+	<li><b>Author</b> of the upload: {{ action.author.name }}</li>
+	<li>Upload <b>file name</b>: {{ prop.filename }}</li>
+	<li>Upload <b>MIME type</b>: {{ prop.mime_type }}</li>
+	<li><b>SHA256 hash</b> of the uploaded file: {{ format_hash(prop.raw_file.hashref()) }}</li>
+	<li>
+	    {% if prop.file_public %}
+		<span class="item-valid">The file is public.</span>
+	    {% else %}
+		<span class="item-invalid">The file is not public yet.</span>
+	    {% endif %}
+	</li>
+    {% if prop.file_public %}
+	<li>Link to <a href="{{ url('raw/raw_file/' + prop.raw_file.hashref()) }}">raw file</a>.</li>
+    {% endif %}
+        <li>
+	    The action that created this upload is available <a href="{{ url('render/action/'+action.hashref()) }}">here</a>.</li>
+    </ul>
 {% endblock %}

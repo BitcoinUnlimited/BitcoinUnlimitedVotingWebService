@@ -2,12 +2,11 @@
 {% import "proplist.html" as proplist %}
 
 {% block body %}
+    <h1>Current unpublished propals</h1>
 
-    <h2>Current unpublished propals</h2>
-
-    Unpublished proposals for current member list:<br/>
+    <p>The following is the list of <i>unpublished</i> proposals
+    for the current member list:</p>
     
     {{ proplist.list(proposals) }}
 
-    <a href="{{ url('form/proposal-upload') }}">Upload new proposal</a>
 {% endblock %}

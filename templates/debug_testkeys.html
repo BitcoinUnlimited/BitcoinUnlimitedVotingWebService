@@ -6,8 +6,8 @@
     {% for member_name, address, privkey in tm %}
 	<tr>
 	    <td>{{ member_name }}</td>
-	    <td>{{ address }}</td>
-	    <td>{{ privkey }}</td>
+	    <td>{{ format_addr(address) }}</span></td>
+	    <td><span class="monospace">&nbsp;&nbsp;{{ privkey }}</span></td>
 	</tr>
     {% endfor %}
     </table>
@@ -17,7 +17,7 @@
 	{% for m, a, privkey in tm %}
 	    <tr>
 		<td>
-		    {{ privkey }}
+		    <span class="monospace">{{ privkey }}</span>
 		</td>
 	    </tr>
 	{% endfor %}
