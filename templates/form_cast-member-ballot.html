@@ -1,25 +1,21 @@
 {% extends "common.html" %}
 {% block body %}
+    <h1>Cast ballot (member election)</h1>
+    {{ mainform_begin() }}
+    {{ form_author() }}
+    
+    {{ form_text_ro("Applicant Nickname", "member_name", member_name) }}
+    {{ form_addr_ro("Applicant Bitcoin address", "member_address", member_address) }}
 
-    <h2>Cast ballot (member election)</h2>
-    <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
-	<div class="form-group">
-            {{ form_author() }}
-	    <label>Applicant Nickname</label>
-	    <input class="form-control" type="text" name="member_name" value="{{ member_name }}"
-                   readonly="readonly"/><br/>
-	    <label>Applicant Bitcoin address</label>
-	    <input class="form-control" type="text" name="member_address" value="{{ member_address }}"
-                   readonly="readonly"/><br/>
-	    {{ form_ballot_ara() }}
-            {{ form_action_string() }}
-            {{ form_signature() }}
-	</div>
-	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
-    </form>
-    <p></p>
+    {{ form_ballot_ara() }}
+    {{ form_action_string() }}
+    {{ form_signature() }}
+
+    {{ form_submit() }}
+    {{ mainform_end() }}
 
     {{ privkeyform() }}
+    
     <script type="text/javascript">
      function recalc() {
 	 var ap = "{{ action_prefix }}"+ "{{ cml.hashref() }} ";

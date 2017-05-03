@@ -1,23 +1,17 @@
 {% extends "common.html" %}
 {% block body %}
-
-    <h2>Propose new member</h2>
-    <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
-	<div class="form-group">
-            {{ form_author_votemaster() }}
-	    <label>Applicant Nickname</label>
-	    <input class="form-control" type="text" name="member_name"/><br/>
-	    <label>Applicant Bitcoin address</label>
-	    <input class="form-control" type="text" name="member_address"/><br/>
-            {{ form_action_string() }}
-            {{ form_signature() }}
-	</div>
-	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
-    </form>
-
-    <p></p>
+    <h1>Propose new member</h1>
+    {{ mainform_begin() }}
+    {{ form_author_votemaster() }}
+    {{ form_text("Applicant Nickname", "member_name", "") }}
+    {{ form_addr("Applicant Bitcoin address", "member_address", "") }}
+    {{ form_action_string() }}
+    {{ form_signature() }}
+    {{ form_submit() }}
+    {{ mainform_end() }}
 
     {{ privkeyform() }}
+    
     <script type="text/javascript">
      function recalc() {
 	 var ap = "{{ action_prefix }}"+ "{{ cml.hashref() }} ";
@@ -41,7 +35,6 @@
      $("input[name='member_address']").keyup(recalc);
      $(document).ready(recalc);
     </script>
+    
     {{ form_js() }}
-
-
 {% endblock %}

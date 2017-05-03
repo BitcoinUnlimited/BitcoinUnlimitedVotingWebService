@@ -50,21 +50,6 @@
     <span class="monospace">{{ method }}</span>
 {%- endmacro %}
 
-{% macro privkeyform() %}
-    <form>
-	<div class="form-group">
-	    <label>DANGEROUS: Optional private key to use for in-browser message signing</label>
-	    <input type="text" name="privkey" class="form-control">
-	    <div class="alert alert-danger">
-		WARNING: Entering your private key here is dangerous. You are trusting your browser and this website to not leak it.
-		Bugs may happen! You can alternatively insert a signature generated offline above.
-		<b>FURTHER NOTE THAT THE JS CLIENT CODE HAS <emph>NOT</emph> UNDERGONE A PROPER PEER REVIEW YET!</b>
-	    </div>
-	</div>
-    </form>
-    <hr/>
-{% endmacro %}
-
 
 {% macro form_js() %}
     <script type="text/javascript">
@@ -112,43 +97,160 @@
     </script>
 {% endmacro %}
 
+{% macro form_label(text) -%}
+    <label class="col col-3 bold">{{ text }}</label>
+{%- endmacro %}
+
+{% macro mainform_begin() %}
+    <div class="p2">
+    <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
+{% endmacro %}
+
+{% macro mainform_end() %}
+    </form>
+    </div>
+{% endmacro %}
+
+{% macro ff_begin() %}
+    <div class="p1 clearfix">
+{% endmacro %}
+
+{% macro ff_end() %}
+    </div>
+{% endmacro %}
+
+{% macro ff_input_class() -%}
+    col col-3
+{%- endmacro %}
+
 {% macro form_action_string() %}
-    <label>Action string</label>
-    <textarea class="form-control" type="text" name="action_string" rows="3"
+    {{ ff_begin() }}
+    {{ form_label("Action string") }}
+    <textarea class="col col-9 form-gray" type="text" name="action_string" rows="6"
 	      readonly="readonly" onclick="this.focus();this.select();document.execCommand('copy')" ></textarea>
+    {{ ff_end() }}
 {% endmacro %}
 
 {% macro form_signature() %}
-    <label>Signature</label>
-    <input class="form-control" type="text" name="signature" id="signature"/><br/>
+    {{ ff_begin() }}
+    {{ form_label("Signature") }}
+    <input class="col col-9" type="text" name="signature" id="signature"/>
+    {{ ff_end() }}
 {% endmacro %}
 
 {% macro form_author() %}
-    <label>Author</label>
-    <input class="form-control" type="text" name="author_name"/><br/>
+    {{ ff_begin() }}
+    {{ form_label("Author") }}
+    <input class="{{ ff_input_class() }}" type="text" name="author_name"/>
+    {{ ff_end() }}
+{% endmacro %}
+
+{% macro form_upload() %}
+    {{ ff_begin() }}
+    {{ form_label("File to upload") }}
+    <input class="{{ ff_input_class() }}" type="file" name="upload" id="file-upload"/><br/>
+    {{ ff_end() }}
 {% endmacro %}
 
 {% macro form_author_votemaster() %}
-    <label>Author (Votemaster)</label>
-    <input class="form-control" type="text" name="author_name" value="{{ cml.votemaster.name }}"
-	   readonly="readonly"/><br/>
+    {{ ff_begin() }}
+    {{ form_label("Author (Votemaster)") }}
+    <input class="{{ ff_input_class() }} form-gray" type="text" name="author_name" value="{{ cml.votemaster.name }}" readonly="readonly"/>
+    {{ ff_end() }}
+{% endmacro %}
+
+{% macro form_text(label, field, value) %}
+    {{ ff_begin() }}
+    {{ form_label(label) }}
+    <input class="{{ ff_input_class() }}"
+	   type="text"
+	   name="{{ field }}" value="{{ value }}">
+    {{ ff_end() }}
+{% endmacro %}
+
+{% macro form_text_ro(label, field, value) %}
+    {{ ff_begin() }}
+    {{ form_label(label) }}
+    <input class="{{ ff_input_class() }} form-gray"
+	   type="text"
+	   name="{{ field }}" value="{{ value }}" readonly="readonly">
+    {{ ff_end() }}
+{% endmacro %}
+
+{% macro form_addr(label, field, value) %}
+    {{ ff_begin() }}
+    {{ form_label(label) }}
+    <input class="col col-6"
+	   type="text"
+	   name="{{ field }}" value="{{ value }}">
+    {{ ff_end() }}
+{% endmacro %}
+
+{% macro form_addr_ro(label, field, value) %}
+    {{ ff_begin() }}
+    {{ form_label(label) }}
+    <input class="col col-6 form-gray"
+	   type="text"
+	   name="{{ field }}" value="{{ value }}" readonly="readonly">
+    {{ ff_end() }}
+{% endmacro %}
+
+{% macro form_hash_ro(label, name, hashval) %}
+    {{ ff_begin() }}
+    {{ form_label(label) }}
+    <input class="col col-8 form-gray" type="text" name="{{ name }}" value ="{{ hashval }}" readonly="readonly"/>
+    {{ ff_end() }}
 {% endmacro %}
 
 {% macro form_ballot_ara() %}
-    <label>Ballot option</label>
-    <div class="radio">
-	<label><input type="radio" name="ballot_option" value="accept">Accept</label>
+    {{ ff_begin() }}
+    {{ form_label("Ballot option") }}
+    <div class="col col-6">
+	<div class="radio">
+	    <label><input type="radio" name="ballot_option" value="accept">Accept</label>
+	</div>
+	<div class="radio">
+	    <label><input type="radio" name="ballot_option" value="reject">Reject</label>
+	</div>
+	<div class="radio">
+	    <label><input type="radio" name="ballot_option" value="abstain">Abstain</label>
+	</div>
+	<div class="radio">
+	    <label><input type="radio" name="ballot_option" value="spoil">Spoil</label>
+	</div>
     </div>
-    <div class="radio">
-	<label><input type="radio" name="ballot_option" value="reject">Reject</label>
-    </div>
-    <div class="radio">
-	<label><input type="radio" name="ballot_option" value="abstain">Abstain</label>
-    </div>
-    <div class="radio">
-	<label><input type="radio" name="ballot_option" value="spoil">Spoil</label>
-    </div>
+    {{ ff_end() }}
 {% endmacro %}
+
+{% macro form_submit() %}
+    <button type="submit" name="submit">Submit</button>
+{% endmacro %}
+
+{% macro privkeyform() %}
+    <hr/>
+    <div class="p2">
+    <form>
+	<div class="p2 center alert alert-danger">OPTIONAL, DANGEROUS PRIVATE KEY ENTRY BELOW</div>
+	{{ ff_begin() }}
+	{{ form_label("Private key") }}
+	<input type="text" name="privkey" class="col col-9">
+	{{ ff_end() }}
+	<div class="alert alert-danger">
+	    <p>
+		WARNING: Entering your private key here is dangerous. You are trusting your browser and this website to not leak it. Bugs may happen! You can alternatively insert a signature generated offline above.
+	    </p>
+	    <p>
+		<b>FURTHER NOTE THAT THE JS CLIENT CODE HAS <emph>NOT</emph> UNDERGONE A PROPER PEER REVIEW YET!</b>
+	    </p>
+	    <p>
+		<b>Note <i>also</i> that any key pasted will be visible on your screen!</b>
+	    </p>
+	</div>
+    </form>
+    </div>
+    <hr/>
+{% endmacro %}
+
 
 {% macro pageheader_items() %}
     <div class="left">
@@ -225,6 +327,9 @@
 	     }
 	     .table-head {
 		 background-color : #8080ff;
+	     }
+	     .form-gray {
+		 background-color : #e0e0e0;
 	     }
 	    </style>
 	{% endblock %}

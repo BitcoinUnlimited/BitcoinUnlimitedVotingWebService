@@ -1,23 +1,17 @@
 {% extends "common.html" %}
 {% block body %}
-
-    <h2>Open vote on proposal</h2>
-    <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
-	<div class="form-group">
-	    {{ form_author_votemaster() }}
-	    <label>Hash of proposal metadata</label>
-	    <input class="form-control" type="text" name="meta_hash" value ="{{ hashval }}" readonly="readonly"/><br/>
-	    <label>Vote method</label>
-	    <input class="form-control" type="text" name="vote_method" value ="buip-acc-rej-abs"/><br/>
-	    {{ form_action_string() }}
-	    {{ form_signature() }}
-	</div>
-	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
-    </form>
-
-    <p></p>
+    <h1>Open vote on proposal</h1>
+    {{ mainform_begin() }}
+    {{ form_author_votemaster() }}
+    {{ form_hash_ro("Hash of proposal metadata", "meta_hash", hashval) }}
+    {{ form_text_ro("Vote method", "vote_method", "buip-acc-rej-abs") }}
+    {{ form_action_string() }}
+    {{ form_signature() }}
+    {{ form_submit() }}
+    {{ mainform_end() }}
     
     {{ privkeyform() }}
+    
     <script type="text/javascript">
      function recalc() {
 	 var ap = "{{ action_prefix }}"+"{{ cml.hashref() }} ";
@@ -39,6 +33,5 @@
      $(document).ready(recalc);
     </script>
     {{ form_js() }}
-
 
 {% endblock %}

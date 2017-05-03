@@ -1,19 +1,13 @@
 {% extends "common.html" %}
 {% block body %}
-
-    <h2>Close member elections (all)</h2>
-    <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
-	<div class="form-group">
-	    {{ form_author_votemaster() }}
-	    <label>Elections to close</label>
-	    <input class="form-control" type="text" name="ma_names" value ="{{ ma_names }}" readonly="readonly"/><br/>
-            {{ form_action_string() }}
-            {{ form_signature() }}
-	</div>
-	<button type="submit" class="btn btn-primary" name="submit">Submit</button>
-    </form>
-
-    <p></p>
+    <h1>Close member elections (all)</h1>
+    {{ mainform_begin() }}
+    {{ form_author_votemaster() }}
+    {{ form_text_ro("Elections to close", "ma_names", ma_names) }}
+    {{ form_action_string() }}
+    {{ form_signature() }}
+    {{ form_submit() }}
+    {{ mainform_end() }}
     
     {{ privkeyform() }}
     <script type="text/javascript">
@@ -35,7 +29,6 @@
      $("input[name='vote_method']").keyup(recalc);
      $(document).ready(recalc);
     </script>
+    
     {{ form_js() }}
-
-
 {% endblock %}
