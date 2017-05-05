@@ -45,11 +45,13 @@ def test_static(client, app):
     dont_find(client, prefix+"debug")
     dont_find(client, prefix+"debug/objects")
     dont_find(client, prefix+"debug/testkeys")
+    dont_find(client, prefix+"debug/hashrefs-by-type/raw_file")
     dont_find(client, prefix+"debug/current-member-list-hash")
     dont_find(client, prefix+"debug/meta-for-raw-file/"+64*"0")
     dont_find(client, prefix+"debug/vote-for-raw-file/"+64*"0")
     dont_find(client, prefix+"debug/result-for-vote/"+64*"0")
     dont_find(client, prefix+"debug/summary-of-proposal-vote-result/"+64*"0")
+    dont_find(client, prefix+"debug/summary-of-member-election-result/"+64*"0")
     
     config.test_mode = True
     find(client, prefix+"debug")
@@ -62,6 +64,7 @@ def test_static(client, app):
     dont_find(client, prefix+"debug/vote-for-raw-file/"+64*"0")
     dont_find(client, prefix+"debug/result-for-vote/"+64*"0")
     dont_find(client, prefix+"debug/summary-of-proposal-vote-result/"+64*"0")
+    dont_find(client, prefix+"debug/summary-of-member-election-result/"+64*"0")
 
     get_method_not_allowed(client, prefix+"action")
     
