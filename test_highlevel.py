@@ -11,7 +11,8 @@ class UnexpectedStatus(Exception): pass
 
 def rexpect(res, code):
     if res.status_code != code:
-        ues=UnexpectedStatus("Expected HTTP status code %d." % code)
+        ues=UnexpectedStatus("Expected HTTP status code %d, got %d." %
+                             (code, res.status_code))
         ues.result = res
         raise ues
 
