@@ -32,6 +32,10 @@ def tMemberName(x):
     
     if not re.match("^[a-zA-Z0-9_-]+$", x):
         raise ValidationError("Invalid member name '%s'." % x)
+
+    if x in ["president", "developer", "secretary"]:
+        raise ValidationError("Invalid member name '%s'. Can't be any of the official BU rules." % x)
+    
     return x
 
 def tAddress(x):

@@ -27,6 +27,9 @@ def test_tMemberName():
 
     with pytest.raises(ValidationError):
         tMemberName("X"*20+"\x00")
+
+    with pytest.raises(ValidationError):
+        tMemberName("secretary")
         
 def test_tTokenList():
     assert tTokenList({}, [1,2,3]) == [1,2,3]
@@ -86,7 +89,7 @@ def test_tCurrentMember(bare_session, member_a):
 
 def test_tVoteMaster(bare_session, member_a, member_v):
     assert tVoteMaster("member_v") == "member_v"
-
+    
     with pytest.raises(ValidationError):
         assert tVoteMaster("member_a")
 
