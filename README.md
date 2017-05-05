@@ -36,9 +36,8 @@ named 'buv', which is available here:
     through messages that are Bitcoin-signed by BU members, named
     *actions*. A designated role 'votemaster' has been implemented,
     which is the member that organises elections on BUIPs and new
-    members. This role is currently the same as the BU secretary. It
-    has been logically separated from this role to allow for potential
-    future changes regarding responsibility in the BU articles.
+    members. Any subset of BU members can have the votemaster role
+    assigned.
         
     The message submission happens through a single endpoint, which
     should cut down on the attack surface.

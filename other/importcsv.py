@@ -66,8 +66,10 @@ if 1:
         members = members,
         secretary = secretary,
         president = president,
-        developer = developer,
-        votemaster = president)
+        developer = developer)
+
+    Global.set_votemaster_rules(["secretary", "president"])
+    
     db.session.add(ml)
     db.session.commit()
     Global.set_current_member_list(ml)

@@ -93,9 +93,22 @@ def tCurrentMember(membername):
     return membername
 
 def tVoteMaster(membername):
-    if membername != Global.current_member_list().votemaster.name:
-        raise ValidationError("Member '%s' needs to be vote master." % membername)
-    return membername
+    vmr = Global.get_votemaster_roles()
+
+    if membername in vmr:
+        # member is listed directly? -> pass
+        return membername
+
+    cml = Global.current_member_list()
+
+    # FIXME: factor some stuff out here
+    if ((cml.president.name == membername and "president" in vmr) or
+        (cml.secretary.name == membername and "secretary" in vmr) or
+        (cml.developer.name == membername and "developer" in vmr)):
+        # listed as any of the official roles -> pass
+        return membername
+
+    raise ValidationError("Member '%s' needs to be vote master." % membername)
 
 def tVoteMethod(context, tokens):
     from vote_methods import vote_methods

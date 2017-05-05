@@ -5,3 +5,4 @@ from butype import *
 members_in_memberlists = Table("members_assoc", db.metadata,
                                Column("member_list_id", Integer, ForeignKey("member_list.id")),
                                Column("member_id", Integer, ForeignKey("member.id")))
+

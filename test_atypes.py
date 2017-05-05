@@ -89,6 +89,8 @@ def test_tCurrentMember(bare_session, member_a):
 
 def test_tVoteMaster(bare_session, member_a, member_v):
     assert tVoteMaster("member_v") == "member_v"
+    assert tVoteMaster("member_w") == "member_w"
+    assert tVoteMaster("member_s") == "member_s"
     
     with pytest.raises(ValidationError):
         assert tVoteMaster("member_a")

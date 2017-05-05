@@ -26,8 +26,6 @@ class MemberList(db.Model, BUType):
     president = relationship("Member", uselist=False, foreign_keys=president_id)
     developer_id = Column(Integer, ForeignKey("member.id"), nullable=False)
     developer = relationship("Member", uselist=False, foreign_keys=developer_id)
-    votemaster_id = Column(Integer, ForeignKey("member.id"), nullable=False)
-    votemaster = relationship("Member", uselist=False, foreign_keys=votemaster_id)
 
     previous_id = Column(Integer, ForeignKey("member_list.id"), unique=True)
     previous = relationship("MemberList", uselist=False, foreign_keys=previous_id)
@@ -37,7 +35,6 @@ class MemberList(db.Model, BUType):
                  secretary,
                  president,
                  developer,
-                 votemaster,
                  previous=None):
 
         mnames = set(m.name for m in members)
@@ -48,7 +45,6 @@ class MemberList(db.Model, BUType):
         self.secretary = secretary
         self.president = president
         self.developer = developer
-        self.votemaster = votemaster
 
         if secretary not in self.members:
             raise ValidationError("Secretary not listed as member.")
@@ -58,9 +54,6 @@ class MemberList(db.Model, BUType):
 
         if developer not in self.members:
             raise ValidationError("Developer not listed as member.")
-
-        if votemaster not in self.members:
-            raise ValidationError("Vote master not listed as member.")
 
         self.previous=previous
         
@@ -73,7 +66,6 @@ class MemberList(db.Model, BUType):
             "secretary" : self.secretary.toJ(),
             "president" : self.president.toJ(),
             "developer" : self.developer.toJ(),
-            "votemaster" : self.votemaster.toJ(),
             "previous" : self.previous.hashref() if self.previous else None
         })
 

@@ -23,32 +23,22 @@ def test1(bare_session):
             members = ml.members,
             secretary = non_existent_member,
             president = ml.president,
-            developer = ml.developer,
-            votemaster = ml.votemaster)
+            developer = ml.developer)
 
     with pytest.raises(ValidationError):
         MemberList(
             members = ml.members,
             secretary = ml.secretary,
             president = non_existent_member,
-            developer = ml.developer,
-            votemaster = ml.votemaster)
+            developer = ml.developer)
 
     with pytest.raises(ValidationError):
         MemberList(
             members = ml.members,
             secretary = ml.secretary,
             president = ml.president,
-            developer = non_existent_member,
-            votemaster = ml.votemaster)
+            developer = non_existent_member)
 
-    with pytest.raises(ValidationError):
-        MemberList(
-            members = ml.members,
-            secretary = ml.secretary,
-            president = ml.president,
-            developer = ml.developer,
-            votemaster = non_existent_member)
         
 def test2(bare_session):
     ml = makeTestMemberList(None)
@@ -70,5 +60,4 @@ def test3(bare_session):
             members = ml.members+[duplicate_member],
             secretary = ml.secretary,
             president = ml.president,
-            developer = ml.developer,
-            votemaster = ml.votemaster)
+            developer = ml.developer)

@@ -47,7 +47,7 @@ def makeTestMemberList(old_ml, old_vote_times=True):
     secretary="member_s"
     president="member_p"
     developer="member_d"
-    votemaster="member_v"
+    votemasters=["member_v", "member_w", "secretary"]
 
     t=time.time()
     members = []
@@ -66,7 +66,6 @@ def makeTestMemberList(old_ml, old_vote_times=True):
     secretary = members[ord('s')-ord('a')]
     president = members[ord('p')-ord('a')]
     developer = members[ord('d')-ord('a')]
-    votemaster= members[ord('v')-ord('a')]
 
     
     ml=MemberList(
@@ -74,9 +73,9 @@ def makeTestMemberList(old_ml, old_vote_times=True):
         secretary = secretary,
         president = president,
         developer = developer,
-        votemaster = votemaster,
         previous = old_ml)
-
+    Global.set_votemaster_rules(votemasters)
+    
     db.session.add(ml)
     db.session.commit()
 

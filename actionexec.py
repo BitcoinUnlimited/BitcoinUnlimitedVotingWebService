@@ -204,7 +204,6 @@ class CloseMemberElectionsAE(ActionExec):
             secretary = ml.secretary,
             president = ml.president,
             developer = ml.developer,
-            votemaster = ml.votemaster,
             previous = ml)
 
         for mer in mers:

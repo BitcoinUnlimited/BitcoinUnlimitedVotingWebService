@@ -59,3 +59,18 @@ plus some convenience methods on top.
         cls.set("member_last_vote_time_"+member.name,
                 str(time))
  
+
+    @classmethod
+    def get_votemaster_roles(cls):
+        """ Return a list of strings describing the official roles that
+        have votemaster rights. """
+        try:
+            return cls.get("votemaster_roles").split()
+        except KeyError:
+            return []
+
+    @classmethod
+    def set_votemaster_rules(cls, vmr):
+        """ Set the members having votemaster role. """
+        cls.set("votemaster_roles", " ".join(vmr))
+        
