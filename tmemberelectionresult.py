@@ -32,6 +32,9 @@ class MemberElectionResult(db.Model, BUType):
 
     ballots = relationship(Action, secondary = ballots_map)
 
+    # number of members eligible to vote when vote is opened
+    Nmemb_eligible_opened = Column(Integer, nullable=False)
+    
     def __init__(self,
                  new_member,
                  action):
@@ -44,6 +47,11 @@ class MemberElectionResult(db.Model, BUType):
         self.new_member = new_member
         self.action = action
 
+        with db.session.no_autoflush:
+            self.Nmemb_eligible_opened = sum(
+                member.eligible() for member in action.member_list.members)
+
+        
         self.is_open=True
         self.reconstruct()
         self.xUpdate()
@@ -63,6 +71,7 @@ class MemberElectionResult(db.Model, BUType):
                                key = lambda j : j["author"]["name"]),
             "method_name" : self.method_name,
             "method_options" : self.method_options,
+            "Nmemb_eligible_opened" : self.Nmemb_eligible_opened,
             "open" : self.is_open
             })
 

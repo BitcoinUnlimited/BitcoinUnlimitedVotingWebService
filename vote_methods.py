@@ -39,10 +39,8 @@ class BUIPARAVM(VoteMethod): # BUIP (A)ccept, (R)eject, (A)bstain vote method
         abstains= counts["abstain"]
         spoiled = counts["spoil"]
 
-        # only count member eligible members
-        Nmemb = sum(member.eligible()
-                    for member in result.vote.action.member_list.members)
-
+        Nmemb = result.Nmemb_eligible_opened
+        
         quorum_reached_regular = (accepts+rejects+abstains) >= 0.5 * Nmemb
         quorum_reached_overwhelm = ( (accepts+rejects+abstains > 0.25 * Nmemb) and
                                      (accepts >= rejects * 3))
@@ -75,9 +73,7 @@ class MemberARAVM(VoteMethod): # Accept, Reject, Abstain vote on members
         abstains= counts["abstain"]
         spoiled = counts["spoil"]
 
-        # only count member eligible members
-        Nmemb = sum(member.eligible()
-                    for member in result.action.member_list.members)
+        Nmemb = result.Nmemb_eligible_opened
 
         quorum_reached_regular = (accepts+rejects+abstains) >= 0.5 * Nmemb
         quorum_reached_overwhelm = ( (accepts+rejects+abstains > 0.25 * Nmemb) and

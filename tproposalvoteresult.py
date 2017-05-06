@@ -32,7 +32,9 @@ class ProposalVoteResult(db.Model, BUType):
                         back_populates="result")
 
     ballots = relationship(Action, secondary = ballots_in_results)
-                    
+
+    Nmemb_eligible_opened = Column(Integer, nullable=False)
+    
     def __init__(self,
                  vote):
         if vote is None:
@@ -42,6 +44,11 @@ class ProposalVoteResult(db.Model, BUType):
             raise ValidationError("Vote already has a result attached.")
 
         self.vote = vote
+
+        with db.session.no_autoflush:
+            self.Nmemb_eligible_opened = sum(
+                member.eligible() for member in vote.action.member_list.members)
+        
         self.is_open = True
 
         self.reconstruct()
@@ -56,6 +63,7 @@ class ProposalVoteResult(db.Model, BUType):
     def toJ(self):
         return defaultExtend(self, {
             "vote_hash" : self.vote.hashref(),
+            "Nmemb_eligible_opened" : self.Nmemb_eligible_opened,
             "open" : self.is_open,
             "ballots" : sorted(
                 [b.toJ() for b in self.ballots],
