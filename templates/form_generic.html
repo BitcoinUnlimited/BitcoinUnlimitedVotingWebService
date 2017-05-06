@@ -6,9 +6,8 @@
 
     {{ ff_begin() }}
     {{ form_label("Action string") }}
-    <textarea class="col col-9" type="text" name="action_string" rows="3"
-	      onclick="this.focus();this.select();document.execCommand('copy')">
-    </textarea>
+    <!-- do not do onclick copy here, it is annoying -->
+    <textarea class="col col-9" type="text" name="action_string" rows="6"></textarea>
     {{ ff_end() }}
 
     {{ form_signature() }}
