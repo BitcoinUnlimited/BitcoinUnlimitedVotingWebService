@@ -2,9 +2,13 @@ import re
 import config
 
 class ValidationError(RuntimeError):
-    def __init__(self, msg, status=400):
+    def __init__(self,
+                 msg,
+                 status=400,
+                 error_page=None):
         super().__init__(msg)
         self.status=status
+        self.error_page=error_page
 
 def is_sha256(val):
     if len(val)!=64:

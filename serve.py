@@ -292,7 +292,11 @@ def make_app(test_mode_internal=False):
             returnval=action.apply(upload, data)
         except jvalidate.ValidationError as ve:
             log.warn("Action: Problem: %d, %s", ve.status, str(ve))
-            abort(ve.status, str(ve))
+            if ve.error_page is not None:
+                return render_template(ve.error_page["template"],
+                                       **ve.error_page), ve.status
+            else:
+                abort(ve.status, str(ve))
 
         try:
             db.session.commit()
