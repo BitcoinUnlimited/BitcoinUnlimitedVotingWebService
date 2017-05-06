@@ -26,10 +26,26 @@ types=[RawFile, Action, Member, MemberList, ProposalMetadata,
 name2type=dict((x.__tablename__,x) for x in types)
 
 
-def get_all_objects(): # for debugging & testing
+def get_all_objects():
+    """ For debugging and testing - and for the current
+    implementation of delete functionality. """
     res = {}
     for Cls in types:
         for obj in Cls.query:
             res[obj.x_sha256]=obj
     return res
 
+def users_of(obj):
+    """ Return all objects that are directly referencing 'obj'. """
+    # FIXME: this is highly inefficient - but should suffice
+    # in the meantime.
+    used = []
+    all_objs = get_all_objects().values()
+    for o in all_objs:
+        if obj in o.dependencies():
+           used.append(o)
+    return used
+    
+def is_used(obj):
+    """ Return true iff obj is used by something else. """
+    return len(used_by(obj))
