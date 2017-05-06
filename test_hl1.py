@@ -145,3 +145,28 @@ def test_vote_more_detail1(app, client):
             "accepts" : 7,
             "abstains" : 8,
             "accepted" : True }
+
+def test_deletion(app, client):
+    prop1 = b"A test proposal"
+    upload_proposal(client,
+                    prop1, "test1.txt",
+                    "member_a")
+
+    publish_proposal(client, prop1, "member_v")
+
+    prop1hash = sha256(prop1)
+    
+    meta1hash = meta_for_raw_file_hash(client, prop1hash)
+
+    # delete nonexistent
+    with pytest.raises(UnexpectedStatus):
+        delete_objects(client, "member_v", [64*"1"])
+
+    # delete incomplete
+    with pytest.raises(UnexpectedStatus):
+        delete_objects(client, "member_v", [prop1hash])
+    with pytest.raises(UnexpectedStatus):
+        delete_objects(client, "member_v", [meta1hash])
+
+    delete_objects(client, "member_v", [prop1hash, meta1hash])
+        

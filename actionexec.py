@@ -212,6 +212,53 @@ class CloseMemberElectionsAE(ActionExec):
         db.session.add(new_memberlist)
         db.session.commit()
         Global.set_current_member_list(new_memberlist)
+
+class DeleteObjectsAE(ActionExec):
+    template = "[hashes:sha256] by %member:votemaster"
+    
+    def act(self, action, upload, upload_data, hashes, member):
+        checkAuthor(action, member)
+        checkNoUpload(upload, upload_data)
+
+        all_objects = get_all_objects()
+        
+        objects = set()
+        objs_ext = set()
+        
+        # go through list of objects and add them plus all immediate
+        # dependencies to objs_ext, plus do some sanity checks
+        # FIXME: inefficient!
+        for hash in hashes:
+            if hash not in all_objects:
+                raise ValidationError("Object with hash %s not found." % hash)
+            obj = all_objects[hash]
+
+            if obj == Global.current_member_list():
+                raise ValidationError("Objects cannot be deleted as list contains the current member list.")
+            
+            objects.add(obj)
+            objs_ext.add(obj)
+            for user in users_of(obj):
+                objs_ext.add(user)
+
+        
+        # now compare - if they are not the same, the votemaster has not
+        # explicitly listed all relevant objects for deletion, which is
+        # regarded as an error to avoid mistakes
+        if objects != objs_ext:
+            raise ValidationError(
+                "Set of objects to delete is not including all dependencies.",
+                error_page={
+                    "template" : "error_delete_objects_mismatch.html",
+                    "action" : action,
+                    "objects" : objects,
+                    "ext_objs" : objs_ext,
+                    "missing" : objs_ext - objects
+                })
+
+        for obj in objects:
+            db.session.delete(obj)
+        db.session.commit()
         
 action_map={
     "proposal-upload" : ProposalUploadAE,
@@ -223,5 +270,7 @@ action_map={
 
     "propose-member" : ProposeMemberAE,
     "cast-member-ballot" : CastMemberBallotAE,
-    "close-member-elections" : CloseMemberElectionsAE
+    "close-member-elections" : CloseMemberElectionsAE,
+
+    "delete-objects" : DeleteObjectsAE
 }

@@ -1,0 +1,41 @@
+{% extends "common.html" %}
+{% block body %}
+    <h1>Incomplete set of objects to delete</h1>
+    <p>By: {{ action.author.name }}</p>
+    <p>Action string: {{ format_action_string(action.action_string) }}</p>
+    <hr/>
+    The objects listed for deletion are referenced by other objects
+    that are not listed. To fix this problem, either list all
+    remaining objects in the deletion, or delete fewer objects.
+
+    <h2>List of objects missing in delete list</h2>
+    <div class="p2">
+	<table class="table col-12 center border">
+	    <thead class="table-head">
+		<tr>
+		    <th>Object type</th>
+		    <th>Hash</th>
+		    <th>View object</th>
+		    <th>Raw data</th>
+		</tr>
+	    </thead>
+	    <tbody>
+		{% for obj in missing %}
+		    <tr>
+			<td>{{ format_object_type(obj.__tablename__) }}</td>
+			<td>{{ format_hash(obj.hashref()) }}</td>
+			{% if obj.__tablename__ != "raw_file" %}
+			    <td><a href="{{ url('render/'+obj.__tablename__+'/'+obj.hashref()) }}">view</a></td>
+			{% else %}
+			    <td>N/A</td>
+			{% endif %}
+			<td><a href="{{ url('raw/'+obj.__tablename__+'/'+obj.hashref()) }}">raw</a></td>
+		    </td>
+		{% endfor %}
+	    </tbody>
+	</table>
+    </div>
+    
+    
+    <p><a href="{{ url("") }}">Back to overview</a></p>
+{% endblock %}

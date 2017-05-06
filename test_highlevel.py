@@ -107,6 +107,13 @@ def close_member_elections(client, votemaster, newmembers):
             " ".join(newmembers),
             votemaster), votemaster)
 
+def delete_objects(client, votemaster, hashrefs):
+    """ Delete a bunch of objects. """
+    postAction(
+        client,
+        "delete-objects [%s] by %s" % (" ".join(hashrefs),
+                                       votemaster), votemaster)
+    
 ######################################################################
 ## QUERIES
 def is_current_member(client, member):
