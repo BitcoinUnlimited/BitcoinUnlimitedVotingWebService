@@ -14,7 +14,9 @@ def checkUpload(upload, upload_data):
 
 
 def checkNoUpload(upload, upload_data):
-    if upload is not None or upload_data is not None:
+    if upload_data is not None and len(upload_data)>0:
+        print("Upload:", upload)
+        print("Upload data:", upload_data)
         raise ValidationError(
             "Upload data not allowed.")
     
