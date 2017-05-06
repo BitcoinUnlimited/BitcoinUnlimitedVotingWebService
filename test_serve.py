@@ -39,6 +39,7 @@ def test_static(client, app):
     dont_find(client, "/")
     find(client, prefix)
     find(client, prefix+"js/bitcoinjs.js", b"feross")
+    find(client, prefix+"js/jquery-3.2.1.min.js", b"jQuery v3.2.1")
     find(client, prefix+"unpublished-proposals", b"unpublished proposals")
 
     config.test_mode = False
