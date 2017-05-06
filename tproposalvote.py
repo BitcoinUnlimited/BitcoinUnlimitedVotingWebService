@@ -75,5 +75,9 @@ class ProposalVote(db.Model, BUType):
             })
 
     def dependencies(self):
-        return [self.raw_file, self.proposal_metadata,
-                self.action]
+        res = [self.raw_file, self.proposal_metadata,
+               self.action]
+        if self.result:
+            res.append(self.result)
+        return res
+    

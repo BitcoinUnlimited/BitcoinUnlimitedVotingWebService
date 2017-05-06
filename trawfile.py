@@ -46,4 +46,7 @@ class RawFile(db.Model, BUType):
         self.x_sha256=self.hashref()
         
     def dependencies(self):
-        return []
+        if self.proposal_metadata:
+            return [self.proposal_metadata]
+        else:
+            return []

@@ -46,7 +46,10 @@ class BUType:
 
     @abstractmethod
     def dependencies(self):
-        """ Retrieve immediately dependent objects, for zipping JSON stuff together. """
+        """Retrieve immediately dependent objects, for zipping JSON stuff
+        together and (currently) for figuring out whether deletions are
+        ok. Circular dependencies are allowed - and should be there if one
+        object cannot exist / be rendered without another."""
         pass # pragma: no cover
 
         

@@ -70,11 +70,12 @@ def test_scenario1(bare_session, stopper=""):
 
     
     vdeps=vote.dependencies()
-    assert len(vdeps) == 3
+    assert len(vdeps) == 4
     assert rf in vdeps
     assert rf.proposal_metadata in vdeps
     assert act_open_vote in vdeps
-
+    assert vote.result in vdeps
+    
     for i, x in enumerate("abcdefghijklmnopqrstu"):
         if i<10:
             answer="accept"
