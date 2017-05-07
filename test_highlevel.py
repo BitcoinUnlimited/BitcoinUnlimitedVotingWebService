@@ -49,11 +49,11 @@ def upload_proposal(client, data, filename, member):
         member, upload_data = data, upload_fn = filename)
 
 
-def publish_proposal(client, data, votemaster):
+def publish_proposal(client, data, designation, votemaster):
     """ Publish proposal with given content as given member. """
     postAction(
         client,
-        "proposal-publish file %s by %s" % (sha256(data), votemaster),
+        "proposal-publish file %s designation %s by %s" % (sha256(data), designation, votemaster),
         votemaster)
 
 def open_proposal_vote(client, data, votemaster, method):
@@ -158,3 +158,8 @@ def is_public_raw_file_hash(client, rfhash):
     res = client.get(prefix+"raw/proposal_metadata/%s" % metahash)
     return bool(res.json["file_public"])
 
+def get_designation(client, rfhash):
+    metahash = meta_for_raw_file_hash(client, rfhash)
+    res = client.get(prefix+"raw/proposal_metadata/%s" % metahash)
+    return res.json["designation"]
+    

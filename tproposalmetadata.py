@@ -19,6 +19,8 @@ class ProposalMetadata(db.Model, BUType):
     filename = Column(String, nullable=False)
     mime_type = Column(String, nullable=False)
 
+    designation = Column(String, nullable=False, unique=True)
+
     # _creating_ action
     action_id = Column(Integer, ForeignKey("action.id"), nullable=False)
     action = relationship("Action", uselist=False)
@@ -37,9 +39,16 @@ class ProposalMetadata(db.Model, BUType):
                  mime_type,
                  raw_file,
                  action,
+                 designation=None,
                  file_public=False):
-        self.filename=filename
-        self.mime_type=mime_type
+        self.filename = filename
+        self.mime_type = mime_type
+
+        if designation is None:
+            self.designation = filename
+        else:
+            self.designation = designation
+        
         if raw_file.__tablename__ != RawFile.__tablename__:
             raise jvalidate.ValidationError("Needs raw file.")
         
@@ -53,6 +62,7 @@ class ProposalMetadata(db.Model, BUType):
         return defaultExtend(self, {
             "filename" : self.filename,
             "mime_type" : self.mime_type,
+            "designation" : self.designation,
             "file_hash" : self.raw_file.hashref(),
             "action" : self.action.toJ(),
             "file_public" : self.file_public

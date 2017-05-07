@@ -17,6 +17,7 @@
 	<li><b>Author</b> of the upload: {{ action.author.name }}</li>
 	<li>Upload <b>file name</b>: {{ prop.filename }}</li>
 	<li>Upload <b>MIME type</b>: {{ prop.mime_type }}</li>
+	<li>Proposal <b>designation</b>: {{ prop.designation }}</li>
 	<li><b>SHA256 hash</b> of the uploaded file: {{ format_hash(prop.raw_file.hashref()) }}</li>
 	<li>
 	    {% if prop.file_public %}

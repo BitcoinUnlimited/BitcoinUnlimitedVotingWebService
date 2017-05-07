@@ -33,11 +33,15 @@ def test1(app, client):
 
     # fail: wrong member to publish proposal
     with pytest.raises(UnexpectedStatus):
-        publish_proposal(client, prop1, "member_c")
+        publish_proposal(client, prop1, "BUIPxxxx", "member_c")
 
-    publish_proposal(client, prop1, "member_v")
+    assert get_designation(client, sha256(prop1)) == "test1.txt"
+    
+    publish_proposal(client, prop1, "BUIP0001", "member_v")
     assert is_public_raw_file_hash(client, sha256(prop1))
 
+    assert get_designation(client, sha256(prop1)) == "BUIP0001"
+    
     # can't open invalid vote
     with pytest.raises(UnexpectedStatus):
         open_proposal_vote(client, b"doesn't exist", "member_v", "buip-acc-rej-abs")
@@ -95,7 +99,7 @@ def test_vote_more_detail1(app, client):
                     prop1, "test1.txt",
                     "member_a")
 
-    publish_proposal(client, prop1, "member_v")
+    publish_proposal(client, prop1, "BUIP0001", "member_v")
     open_proposal_vote(client, prop1, "member_v", "buip-acc-rej-abs")
 
     def voteset1(i):
@@ -152,7 +156,7 @@ def test_deletion(app, client):
                     prop1, "test1.txt",
                     "member_a")
 
-    publish_proposal(client, prop1, "member_v")
+    publish_proposal(client, prop1, "BUIP0001", "member_v")
 
     prop1hash = sha256(prop1)
     

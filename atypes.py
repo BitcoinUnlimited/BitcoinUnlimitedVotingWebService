@@ -150,6 +150,16 @@ def tVoteAnswer(context, tokens): # FIXME: code duplication
 def tMemberAccRejAbs(x):
     return ("member-vote-acc-rej-abs", {"answer" : tAccRejAbs(x)})
 
+def tDesignation(x):
+    # designation for proposals
+    if len(x)>10:
+        raise ValidationError("Invalid designation '%s' (too long)." % x)
+    
+    if not re.match("^[a-zA-Z0-9_-]+$", x):
+        raise ValidationError("Invalid designation '%s'." % x)
+    
+    return x
+
 atypes = {
     "sha256" : tSHA256,
     "int" : tInt,
@@ -159,7 +169,7 @@ atypes = {
     "membername" : tMemberName,
     "address" : tAddress,
     "safestring" : tSafeString,
-    
+    "designation" : tDesignation,
     "current_member"         : tCurrentMember,
     "votemaster"             : tVoteMaster,
     "votemethod"             : tVoteMethod,

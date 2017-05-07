@@ -51,7 +51,7 @@ def test_scenario1(bare_session, stopper=""):
     
     act_publish=makeTestAction(author=Member.by_name("member_v"),
                                apart =
-                               (ml.hashref()+" proposal-publish file %s by member_v" % hashprop1))
+                               (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop1))
     act_publish.apply(None, None)
     bare_session.commit()
 
@@ -202,7 +202,7 @@ def test_invalid_scenario2(bare_session):
     
     act_publish=makeTestAction(author=Member.by_name("member_v"),
                                apart =
-                               (ml.hashref()+" proposal-publish file %s by member_v" % hashprop1))
+                               (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop1))
     act_publish.apply(None, None)
     bare_session.commit()
     
@@ -253,7 +253,7 @@ def test_invalid_publish(bare_session):
     with pytest.raises(ValidationError):
         act_publish=makeTestAction(author=Member.by_name("member_v"),
                                    apart =
-                                   (ml.hashref()+" proposal-publish file %s by member_v" % hashprop_noexist))
+                                   (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop_noexist))
         act_publish.apply(None, None)
 
     rf_nomd = RawFile(b"nope")
@@ -264,7 +264,7 @@ def test_invalid_publish(bare_session):
     with pytest.raises(ValidationError):
         act_publish=makeTestAction(author=Member.by_name("member_v"),
                                    apart =
-                                   (ml.hashref()+" proposal-publish file %s by member_v" % hashprop_noexist))
+                                   (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop_noexist))
         act_publish.apply(None, None)
         
     # test file is already public
@@ -273,7 +273,7 @@ def test_invalid_publish(bare_session):
     with pytest.raises(ValidationError):
         act_publish=makeTestAction(author=Member.by_name("member_v"),
                                    apart =
-                                   (ml.hashref()+" proposal-publish file %s by member_v" % hashprop1))
+                                   (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop1))
         act_publish.apply(None, None)
     
 
