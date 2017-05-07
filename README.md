@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/awemany/buvweb.svg?branch=master)](https://travis-ci.org/awemany/buvweb)
+
 # BUVWEB - Bitcoin Unlimited Voting web service (PUBLIC ALPHA)
 
 Author: Awemany  <<awemany@protonmail.com>>

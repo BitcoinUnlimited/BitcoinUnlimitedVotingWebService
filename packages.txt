@@ -8,3 +8,7 @@ Flask-BasicAuth == 0.2.0
 Werkzeug == 0.12.1
 pytest-flask == 0.10.0
 pytest-cache == 1.0
+coverage == 4.3.4
+pytest-cov == 2.4.0
+
+
