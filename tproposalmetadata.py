@@ -75,5 +75,8 @@ class ProposalMetadata(db.Model, BUType):
         r=super().extraRender()
         r.update({"action" : self.action})
         return r
-    
+
+    @classmethod
+    def all_public(cls):
+        return cls.query.filter(cls.file_public == True)
     

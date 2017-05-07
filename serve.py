@@ -48,7 +48,7 @@ def make_app(test_mode_internal=False):
     def _entry():
         cml = Global.current_member_list()
 
-        published = cml.proposals().filter(ProposalMetadata.file_public == True)
+        published = ProposalMetadata.all_public()
         member_applications = cml.applications()
         return render_template("index.html",
                                proposals = published,
