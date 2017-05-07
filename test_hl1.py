@@ -158,11 +158,15 @@ def test_deletion(app, client):
     
     meta1hash = meta_for_raw_file_hash(client, prop1hash)
 
-    # delete nonexistent
+    # delete nonexistent should not work
     with pytest.raises(UnexpectedStatus):
         delete_objects(client, "member_v", [64*"1"])
 
-    # delete incomplete
+    # delete current member list should not work
+    with pytest.raises(UnexpectedStatus):
+        delete_objects(client, "member_v", [Global.current_member_list().hashref()])
+        
+    # delete incomplete should not work
     with pytest.raises(UnexpectedStatus):
         delete_objects(client, "member_v", [prop1hash])
     with pytest.raises(UnexpectedStatus):
