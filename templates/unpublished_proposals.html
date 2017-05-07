@@ -4,9 +4,12 @@
 {% block body %}
     <h1>Current unpublished propals</h1>
 
-    <p>The following is the list of <i>unpublished</i> proposals
-    for the current member list:</p>
+    {% if proposals | list | count > 0 %}
+	<p>The following is the list of <i>unpublished</i> proposals
+	    for the current member list:</p>
     
-    {{ proplist.list(proposals) }}
-
+	{{ proplist.list(proposals) }}
+    {% else %}
+	<p> There are currently no unpublished proposals.</p>
+    {% endif %}
 {% endblock %}

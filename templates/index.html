@@ -48,9 +48,12 @@
     </p>
     
     <h2>Proposals</h2>
-    <p>This is the list of currently published proposals:</p>
-    {{ proplist.list(proposals) }}
-
+    {% if proposals | list | count > 0 %}
+	<p>This is the list of currently published proposals:</p>
+	{{ proplist.list(proposals) }}
+    {% else %}
+	<p>There are currently no published proposals.</p>
+    {% endif %}
     <p>
 	Unpublished proposals can be found <a href="{{ url('unpublished-proposals') }}">here</a>.
     </p>
