@@ -48,4 +48,4 @@ def users_of(obj):
     
 def is_used(obj):
     """ Return true iff obj is used by something else. """
-    return len(used_by(obj))
+    return len(users_of(obj))
