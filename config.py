@@ -9,14 +9,14 @@ max_upload=1024*1024
 
 # Test mode with test keys etc.
 # Disable for release!!
-test_mode = True 
+test_mode = False
 
 # Dangerous: Puts flask into debug mode!
 # Disable for release!!
-debug_mode=True
+debug_mode= False
 
 # Use test prefix for voting?
-use_test_prefix = True
+use_test_prefix = False
 
 # Prefix for action strings
 # A separate test prefix is chosen so that it is clear to everyone
