@@ -41,7 +41,7 @@ for row in csv.reader(csv_file):
 
         last_action = max(joined, last_vote)
 
-        print("Adding:", nick, addr, last_action)
+        print("Adding:", nick, addr)
         if 1:
             m = Member(nick, addr)
             Global.set_member_last_vote_time(m, last_action)
@@ -51,7 +51,7 @@ for row in csv.reader(csv_file):
             
         entries.append((nick, addr, last_action))
     except Exception as e:
-        print ("Ignoring:", row, str(e))
+        print ("Missing:", row[1])
 
 if 1:
     developer=Member.by_name(bu_developer)
