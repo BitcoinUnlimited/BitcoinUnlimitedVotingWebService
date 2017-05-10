@@ -5,3 +5,4 @@ __pycache__
 coverage_html/
 db.sqlite
 README.html
+ready-to-start.flagfile
