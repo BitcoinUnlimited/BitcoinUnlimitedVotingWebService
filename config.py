@@ -37,3 +37,8 @@ web_prefix_internal = "/api1/"
 # Timeout for members (in seconds) - if they didn't vote for this long
 # on anything, they are expired
 member_expiry_time = 86400 * 365
+
+
+# Disable signature checking - for testing
+# DO NOT USE IN PRODUCTION!
+disable_signature_checking = False

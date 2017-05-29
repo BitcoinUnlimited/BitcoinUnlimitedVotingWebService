@@ -39,21 +39,22 @@ class Action(db.Model, BUType):
         self.author = author
         self.action_string = action_string
         self.signature = signature
-        
-        # FIXME: is base64.b64decode(...) safe?
-        try:
-            pub=bitcoin.ecdsa_recover(action_string, signature)
-        except:
-            raise jvalidate.ValidationError("Signature or action string invalid.")
-        
-        addr=author.address
-        addr_from_pub=bitcoin.pubkey_to_address(pub)
 
-        # is this enough? FIXME: review!
-        # FIXME: check type(?) bug in bitcoin.ecsda_verify_addr
-        if not addr == addr_from_pub:
-            raise jvalidate.ValidationError(
-                "Signature validation failed (%s, %s, %s)." % (repr(action_string), signature, addr))
+        if not config.disable_signature_checking:
+            # FIXME: is base64.b64decode(...) safe?
+            try:
+                pub=bitcoin.ecdsa_recover(action_string, signature)
+            except:
+                raise jvalidate.ValidationError("Signature or action string invalid.")
+
+            addr=author.address
+            addr_from_pub=bitcoin.pubkey_to_address(pub)
+
+            # is this enough? FIXME: review!
+            # FIXME: check type(?) bug in bitcoin.ecsda_verify_addr
+            if not addr == addr_from_pub:
+                raise jvalidate.ValidationError(
+                    "Signature validation failed (%s, %s, %s)." % (repr(action_string), signature, addr))
 
         self.action_string = action_string
 
