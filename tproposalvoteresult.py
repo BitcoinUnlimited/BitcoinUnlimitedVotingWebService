@@ -86,9 +86,14 @@ class ProposalVoteResult(db.Model, BUType):
 
         if not self.is_open:
             raise ValidationError("Vote is not open anymore.")
-        
-        if ballot.member_list != vote.action.member_list:
-            raise ValidationError("Cannot vote on old proposal with different member list.")
+
+        # -----
+        # FIXME: temporary technical fix for social problem:
+        # member keys and updates to member list are trickling in for this first vote
+        # Temporary disable checking of proposal being generated for current member list
+        # -----
+        #if ballot.member_list != vote.action.member_list:
+        #    raise ValidationError("Cannot vote on old proposal with different member list.")
         
         if ballot.author in members_voted:
             raise ValidationError("Member '%s' voted already." % ballot.author.name)
