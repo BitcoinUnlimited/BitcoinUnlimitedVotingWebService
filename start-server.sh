@@ -11,7 +11,8 @@ while true; do
 	echo "Starting gunicorn ..." && \
 	~/.local/bin/gunicorn -w 8 --bind :9090 entry:app \
 			      --access-logfile $LOG_DIR/access.log \
-			      --error-logfile $LOG_DIR/error.log
+			      --error-logfile $LOG_DIR/error.log \
+			      --preload
 
     # reaching here? -> server has been killed. wait a bit to
     # not cause high-load loops in case something is seriously

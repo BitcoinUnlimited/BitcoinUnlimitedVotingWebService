@@ -14,6 +14,9 @@ import urlvalidate
 import jvalidate
 import appmaker
 from butypes import *
+from multiprocessing import Lock
+
+write_lock=Lock()
 
 log=logging.getLogger(__name__)
 
@@ -248,67 +251,68 @@ def make_app(test_mode_internal=False):
 
     @app.route("/api1/action", methods=["POST"])
     def _action():
-        author_name = request.form["author_name"] if "author_name" in request.form else None
-        action_string = request.form["action_string"] if "action_string" in request.form else None
-        signature = request.form["signature"] if "signature" in request.form else None
+        with write_lock:
+            author_name = request.form["author_name"] if "author_name" in request.form else None
+            action_string = request.form["action_string"] if "action_string" in request.form else None
+            signature = request.form["signature"] if "signature" in request.form else None
 
-        upload    =request.files["upload"] if "upload" in request.files else None
+            upload    =request.files["upload"] if "upload" in request.files else None
 
-        log.debug("action: Extracted fields")
+            log.debug("action: Extracted fields")
 
-        if author_name is None:
-            abort(403, "Author name field is missing.")
-        if action_string is None:
-            abort(403, "Action string is missing.")
-        if signature is None:
-            abort(403, "Signature is missing.")
+            if author_name is None:
+                abort(403, "Author name field is missing.")
+            if action_string is None:
+                abort(403, "Action string is missing.")
+            if signature is None:
+                abort(403, "Signature is missing.")
 
-        author = Member.by_name(author_name)
+            author = Member.by_name(author_name)
 
-        if author is None:
-            abort(403, "Author '%s' does not exist." % author_name)
+            if author is None:
+                abort(403, "Author '%s' does not exist." % author_name)
 
-        if upload is not None:
-            data=upload.read(config.max_upload+1)
-            if len(data)>config.max_upload:
-                abort(413, "Upload too large.")
+            if upload is not None:
+                data=upload.read(config.max_upload+1)
+                if len(data)>config.max_upload:
+                    abort(413, "Upload too large.")
 
-            hash_ref=butype.sha256(data)
-            log.debug("Upload data hash: %s, len: %d", hash_ref, len(data))
+                hash_ref=butype.sha256(data)
+                log.debug("Upload data hash: %s, len: %d", hash_ref, len(data))
 
-            if RawFile.by_hash(hash_ref) is not None:
-                abort(409, "File exists.")
+                if RawFile.by_hash(hash_ref) is not None:
+                    abort(409, "File exists.")
 
-        else:
-            hash_ref=None
-            data=None
-        log.debug("action: Handled upload")
-
-        try:
-            action=butypes.Action(#timestamp=None,
-                                    author=author,
-                                    action_string=action_string,
-                                    signature=signature)
-            returnval=action.apply(upload, data)
-        except jvalidate.ValidationError as ve:
-            log.warn("Action: Problem: %d, %s", ve.status, str(ve))
-            if ve.error_page is not None:
-                return render_template(ve.error_page["template"],
-                                       **ve.error_page), ve.status
             else:
-                abort(ve.status, str(ve))
+                hash_ref=None
+                data=None
+            log.debug("action: Handled upload")
 
-        try:
-            db.session.commit()
-        except sqlalchemy.exc.IntegrityError as ie: # pragma: no cover
-            # should not happen, but better be prepared
-            log.warn("SQLalchemy integrity error: %s", ie)
-            abort(403, "Database integrity error.")
+            try:
+                action=butypes.Action(#timestamp=None,
+                                        author=author,
+                                        action_string=action_string,
+                                        signature=signature)
+                returnval=action.apply(upload, data)
+            except jvalidate.ValidationError as ve:
+                log.warn("Action: Problem: %d, %s", ve.status, str(ve))
+                if ve.error_page is not None:
+                    return render_template(ve.error_page["template"],
+                                           **ve.error_page), ve.status
+                else:
+                    abort(ve.status, str(ve))
 
-        log.debug("action: Successful execution")
-        return render_template("on_action_%s.html" % action.parser.act,
-                               action = action,
-                               returnval = returnval), 201
+            try:
+                db.session.commit()
+            except sqlalchemy.exc.IntegrityError as ie: # pragma: no cover
+                # should not happen, but better be prepared
+                log.warn("SQLalchemy integrity error: %s", ie)
+                abort(403, "Database integrity error.")
+
+            log.debug("action: Successful execution")
+            return render_template("on_action_%s.html" % action.parser.act,
+                                   action = action,
+                                   returnval = returnval), 201
 
     @app.route("/api1/zip/<objtype:name>/<shex:hashval>")
     def _get_zip(name, hashval):
