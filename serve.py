@@ -358,7 +358,17 @@ def make_app(test_mode_internal=False):
                                 "Content-Disposition":
                                 "attachment;filename=%s" % obj.__tablename__+"-"+obj.hashref()+".zip"
                             })
+    # SQLAlchemy sessions are currently long lived - they persist for
+    # the lifetime of the worker.  To make sure that all operations
+    # happen on the current data set, force expiry of all session's
+    # objects here.
+    # TODO: Figure out how to properly configure per-request sessions.
+    @app.before_request
+    def expire_session():
+        db.session.expire_all()
+
     return app, db
+
 
 def serve(): # pragma: no cover
     app, db = make_app()
