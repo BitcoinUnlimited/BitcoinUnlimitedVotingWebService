@@ -12,7 +12,8 @@ while true; do
 	~/.local/bin/gunicorn -w 8 --bind :9090 entry:app \
 			      --access-logfile $LOG_DIR/access.log \
 			      --error-logfile $LOG_DIR/error.log \
-			      --preload
+			      --preload \
+			      --access-logformat '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(p)s %(D)s'
 
     # reaching here? -> server has been killed. wait a bit to
     # not cause high-load loops in case something is seriously
