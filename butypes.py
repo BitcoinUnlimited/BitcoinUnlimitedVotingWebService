@@ -12,6 +12,7 @@ log=logging.getLogger(__name__)
 
 from trawfile import RawFile
 from taction import Action
+from tmultiaction import MultiAction
 from tmember import Member
 from tmemberlist import MemberList, members_in_memberlists
 from tproposalmetadata import ProposalMetadata

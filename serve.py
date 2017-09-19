@@ -314,6 +314,53 @@ def make_app(test_mode_internal=False):
                                    action = action,
                                    returnval = returnval), 201
 
+
+    @app.route("/api1/multi-action", methods=["POST"])
+    def _multi_action():
+        with write_lock:
+            author_name = request.form["author_name"] if "author_name" in request.form else None
+            multi_action_string = request.form["multi_action_string"] if "multi_action_string" in request.form else None
+            multi_signature = request.form["multi_signature"] if "multi_signature" in request.form else None
+
+            log.debug("multi-action: Extracted fields")
+
+            if author_name is None:
+                abort(403, "Author name field is missing.")
+            if action_string is None:
+                abort(403, "Multi-action string is missing.")
+            if signature is None:
+                abort(403, "Multi-signature is missing.")
+
+            author = Member.by_name(author_name)
+
+            if author is None:
+                abort(403, "Author '%s' does not exist." % author_name)
+
+            try:
+                maction=butypes.MultiAction(author=author,
+                                            multi_action_string=action_string,
+                                            multi_signature=signature)
+                returnvals=maction.apply(data)
+            except jvalidate.ValidationError as ve:
+                log.warn("MultiAction: Problem: %d, %s", ve.status, str(ve))
+                if ve.error_page is not None:
+                    return render_template(ve.error_page["template"],
+                                           **ve.error_page), ve.status
+                else:
+                    abort(ve.status, str(ve))
+
+            try:
+                db.session.commit()
+            except sqlalchemy.exc.IntegrityError as ie: # pragma: no cover
+                # should not happen, but better be prepared
+                log.warn("SQLalchemy integrity error: %s", ie)
+                abort(403, "Database integrity error.")
+
+            log.debug("multi-action: Successful execution")
+            return render_template("on_multiaction.html",
+                                   multi_action = multi_action,
+                                   returnvals = returnvals), 201
+        
     @app.route("/api1/zip/<objtype:name>/<shex:hashval>")
     def _get_zip(name, hashval):
         import io
