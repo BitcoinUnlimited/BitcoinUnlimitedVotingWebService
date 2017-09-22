@@ -365,6 +365,7 @@ def make_app(test_mode_internal=False):
     # TODO: Figure out how to properly configure per-request sessions.
     @app.before_request
     def expire_session():
+        db.session.commit()
         db.session.expire_all()
 
     return app, db
