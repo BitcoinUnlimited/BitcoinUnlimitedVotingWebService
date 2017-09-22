@@ -69,8 +69,8 @@ class Action(db.Model, BUType):
         if (self.action_string[:L1] !=
             config.action_prefix):
             raise jvalidate.ValidationError(
-                "Action is not prefixed with '%s'." %
-                config.action_prefix)
+                "Action is not prefixed with '%s', found '%s' instead." %
+                (config.action_prefix, self.action_string[:L1]))
         
         member_hash=self.action_string[L1:L1+L2]
 
