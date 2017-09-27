@@ -219,11 +219,27 @@ def make_app(test_mode_internal=False):
     def _form(name, hashval=None):
         if name not in [
                 "generic", "proposal-upload", "proposal-publish",
-
                 "open-proposal-vote", "close-proposal-vote",
-                "cast-proposal-ballot",
-                "propose-member"]:
+                "cast-proposal-ballot", "cast-proposal-ballot-multiple",
+                "cast-member-ballot-multiple",
+                "propose-member",
+                ]:
             abort(404)
+
+        formopts = {}
+
+        if name == "cast-proposal-ballot":
+            pv = ProposalVote.by_hash(hashval)
+
+            if pv is None:
+                formopts = { "proposal" : None }
+            else:
+                formopts =  {
+                    "proposal" : pv.proposal_metadata
+                }
+        elif name == "cast-member-ballot-multiple":
+            formopts = { "member_applications" :
+                         Global.current_member_list().applications() }
 
         return render_template(
             "form_"+name+".html",
@@ -237,7 +253,7 @@ def make_app(test_mode_internal=False):
             cml = Global.current_member_list(),
             member_name=name,
             member_address=address)
-
+    
     @app.route("/api1/form/close-member-elections")
     def _form_close_member_elections():
         cml = Global.current_member_list()
@@ -319,16 +335,16 @@ def make_app(test_mode_internal=False):
     def _multi_action():
         with write_lock:
             author_name = request.form["author_name"] if "author_name" in request.form else None
-            multi_action_string = request.form["multi_action_string"] if "multi_action_string" in request.form else None
-            multi_signature = request.form["multi_signature"] if "multi_signature" in request.form else None
+            multi_action_string = request.form["action_string"] if "action_string" in request.form else None
+            multi_signature = request.form["signature"] if "signature" in request.form else None
 
             log.debug("multi-action: Extracted fields")
 
             if author_name is None:
                 abort(403, "Author name field is missing.")
-            if action_string is None:
+            if multi_action_string is None:
                 abort(403, "Multi-action string is missing.")
-            if signature is None:
+            if multi_signature is None:
                 abort(403, "Multi-signature is missing.")
 
             author = Member.by_name(author_name)
@@ -337,10 +353,10 @@ def make_app(test_mode_internal=False):
                 abort(403, "Author '%s' does not exist." % author_name)
 
             try:
-                maction=butypes.MultiAction(author=author,
-                                            multi_action_string=action_string,
-                                            multi_signature=signature)
-                returnvals=maction.apply(data)
+                multi_action=butypes.MultiAction(author=author,
+                                            multi_action_string=multi_action_string,
+                                            multi_signature=multi_signature)
+                returnvals=multi_action.apply()
             except jvalidate.ValidationError as ve:
                 log.warn("MultiAction: Problem: %d, %s", ve.status, str(ve))
                 if ve.error_page is not None:
@@ -357,7 +373,7 @@ def make_app(test_mode_internal=False):
                 abort(403, "Database integrity error.")
 
             log.debug("multi-action: Successful execution")
-            return render_template("on_multiaction.html",
+            return render_template("on_multi_action.html",
                                    multi_action = multi_action,
                                    returnvals = returnvals), 201
         
