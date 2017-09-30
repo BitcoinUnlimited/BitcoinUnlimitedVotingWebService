@@ -29,6 +29,10 @@
 	     $("textarea[name='action_string']").val("");
 	 } else {
 	     var s= ap + "cast-proposal-ballot vote "+vote_hash+" by " + member+" answer ("+ballot_option+")";
+
+             // add  metadata as comment
+             s+=" # proposal: {{proposal.designation}}";
+
 	     $("textarea[name='action_string']").val(s);
 	     fill_sig();
 	 }

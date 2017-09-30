@@ -6,7 +6,7 @@ import shlex
 from jvalidate import ValidationError
 
 def sanitize_input(s):
-    if not re.match("^[\(\)\[\]a-zA-Z0-9_ \-'\"]+$", s):
+    if not re.match("^[\(\)\[\]a-zA-Z0-9_ \-'\"#:]+$", s):
         raise ValidationError("Invalid characters in action string '%s'." % s)
 
 

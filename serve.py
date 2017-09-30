@@ -244,7 +244,7 @@ def make_app(test_mode_internal=False):
         return render_template(
             "form_"+name+".html",
             cml = Global.current_member_list(),
-            hashval = hashval)
+            hashval = hashval, **formopts)
 
     @app.route("/api1/form/cast-member-ballot/<name>/<address>")
     def _form_cast_member_ballot(name, address):
