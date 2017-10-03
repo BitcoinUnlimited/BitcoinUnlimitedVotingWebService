@@ -1,6 +1,5 @@
 from sqlalchemy import LargeBinary, Integer, Float, String, Column, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, reconstructor
-import bitcoin
 from butype import *
 from tmemberlist import MemberList
 from taction import Action
@@ -37,17 +36,8 @@ class MultiAction(db.Model, BUType):
         self.author = author
         self.multi_action_string = multi_action_string
         self.multi_signature = multi_signature
-        
-        if not config.disable_signature_checking:
-            # it is assumed that the multi_action does the signature checking
-            # FIXME: is base64.b64decode(...) safe?
-            try:
-                pub=bitcoin.ecdsa_recover(multi_action_string, multi_signature)
-            except:
-                raise jvalidate.ValidationError("Signature or multi-action string invalid.")
 
-            addr=author.address
-            addr_from_pub=bitcoin.pubkey_to_address(pub)
+        sigver.checkSig(multi_action_string, multi_signature, author.name)
 
         naction = 0
         for action_string in (multi_action_string

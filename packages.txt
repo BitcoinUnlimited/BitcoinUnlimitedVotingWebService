@@ -11,3 +11,4 @@ pytest-cache == 1.0
 coverage == 4.3.4
 pytest-cov == 2.4.0
 gunicorn == 19.7.1
+python-gnupg == 0.4.1

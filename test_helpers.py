@@ -6,6 +6,8 @@ import config
 from butype import *
 from butypes import *
 import bitcoin
+import gpglayer
+import testkeys
 
 def makeTestKey(name):
     privkey=bitcoin.hex_to_b58check(
@@ -16,13 +18,29 @@ def makeTestKey(name):
     return privkey, address
 
 def makeTestAction(
-                 author,
-                 apart):
+        author,
+        apart,
+        pgp = False):
     """ Create signed test action where privkey of author equals sha256(author). """
 
     action_string = config.action_prefix + apart
     privkey = bitcoin.sha256(author.name)
-    signature = bitcoin.ecdsa_sign(action_string, privkey)
+
+    if pgp: # use PGP signature
+        assert author.name in ["member_a", "member_b"]
+        gpg = gpglayer.gpgInstance()
+        ki1 = gpg.import_keys(testkeys.privkey1)
+        ki2 = gpg.import_keys(testkeys.privkey2)
+
+        signature = gpg.sign(action_string,
+                             keyid = (
+                                 ki1.fingerprints[0] if author.name=="member_a" else ki2.fingerprints[0]),
+                             detach=True,
+                             passphrase="123").data.decode("ascii")
+
+        assert len(signature)
+    else:
+        signature = bitcoin.ecdsa_sign(action_string, privkey)
     
     return Action(
                  author = author,
@@ -72,7 +90,12 @@ def makeTestMemberList(old_ml, old_vote_times=True):
             if m.address != addr:
                 raise Exception("Member with different addresses.")
         except:
-            m = Member(name, addr)
+            if name == "member_a":
+                m = Member(name, addr, testkeys.pubkey1)
+            elif name == "member_b":
+                m = Member(name, addr, testkeys.pubkey2)
+            else:
+                m = Member(name, addr)
            
         members.append(m)
         if old_vote_times:

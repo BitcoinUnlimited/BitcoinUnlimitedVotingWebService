@@ -12,6 +12,7 @@ from tglobal import Global
 from atypes import tMemberName, tAddress
 import config
 from tmember_assoc import members_in_memberlists
+from gpglayer import sanitize_pgppubkey
 
 log=logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class Member(db.Model, BUType):
     # outdated member objects will have most_recent == False
     # the current flag is not part of the JSON string
     most_recent = Column(Boolean, nullable=False,
-                     default=False, unique=False)
+                     default=False)
                      
                     
     # no two members with same nick 
@@ -41,6 +42,9 @@ class Member(db.Model, BUType):
     # member's bitcoin address
     address = Column(String, nullable=False)
 
+    # member's optional PGP public key
+    pgp_pubkey = Column(String, nullable=True)
+    
     # lists this member is part of
     member_lists = relationship("MemberList", secondary = members_in_memberlists,
                                 back_populates="members")
@@ -65,12 +69,16 @@ class Member(db.Model, BUType):
         
     def __init__(self,
                  name,
-                 address):
+                 address,
+                 pgp_pubkey = None):
         """ Create a new, current member. If a current member with
         the given address, name or PGP pubkey exists already, fail. """
         sanitize_membername(name)
         sanitize_bitcoinaddr(address)
 
+        if pgp_pubkey is not None:
+            sanitize_pgppubkey(pgp_pubkey)
+            
         if self.by_name(name):
             raise ValidationError("Current member '%s' exists already."
                                   % name)
@@ -81,15 +89,19 @@ class Member(db.Model, BUType):
         
         self.name = name
         self.address = address
+        self.pgp_pubkey = pgp_pubkey
         self.most_recent = True
         
         self.xUpdate()
         
     def toJ(self):
-        return defaultExtend(self, {
+        d={
             "name" : self.name,
             "address" : self.address
-        })
+        }
+        if self.pgp_pubkey is not None:
+            d["pgp_pubkey"] = self.pgp_pubkey
+        return defaultExtend(self, d)
 
     def dependencies(self):
         return []

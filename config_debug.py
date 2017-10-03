@@ -43,3 +43,7 @@ member_expiry_time = 86400 * 365
 # DO NOT USE IN PRODUCTION!
 disable_signature_checking = False
 
+
+# Directory used for GnuPG instance checking PGP signed action strings,
+# relative to home directory of user running buvweb instance.
+gnupg_directory = "buvweb-keys"
