@@ -4,12 +4,14 @@
 from abc import ABCMeta, abstractmethod
 import os
 import werkzeug
+import hashlib
 
 import config
 from acheck import *
 from butypes import *
 from butype import db
 from jvalidate import ValidationError, is_sha256
+from member_helpers import updateMemberinCurrentMemberList
 
 class ActionExec(metaclass=ABCMeta):
     template = ""
@@ -264,6 +266,37 @@ class DeleteObjectsAE(ActionExec):
         for obj in objects:
             db.session.delete(obj)
         db.session.commit()
+
+class UpdateMLSetPGPPubKeyAE(ActionExec):
+    template = "pubkey %pubkey_hash:sha256 for %membername:current_member by %votemaster:votemaster"
+    def act(self, action, upload, upload_data, pubkey_hash, membername, votemaster):
+        checkAuthor(action, votemaster)
+        checkUpload(upload, upload_data)
+
+        dhash = hashlib.sha256(upload_data).hexdigest()
+        
+        if dhash != pubkey_hash:
+            raise ValidationError(
+                "Uploaded PGP key data data has hash %s but expected %s as in action." %
+                (fobj.hashref(), file_hash))
+        
+        updateMemberinCurrentMemberList(membername,
+                                        "unchanged",
+                                        upload_data.decode("ascii"))
+
+class UpdateMLSetAddressAE(ActionExec):
+    template = "address %new_address:address for %membername:current_member by %votemaster:votemaster"
+    def act(self, action, upload, upload_data, new_address, membername, votemaster):
+        checkAuthor(action, votemaster)
+        checkNoUpload(upload, upload_data)
+        
+        member = Member.by_name(membername)
+
+        updateMemberinCurrentMemberList(membername,
+                                        new_address,
+                                        "unchanged")
+        
+
         
 action_map={
     "proposal-upload" : ProposalUploadAE,
@@ -277,5 +310,7 @@ action_map={
     "cast-member-ballot" : CastMemberBallotAE,
     "close-member-elections" : CloseMemberElectionsAE,
 
-    "delete-objects" : DeleteObjectsAE
+    "delete-objects" : DeleteObjectsAE,
+    "update-memberlist-set-pgp-pubkey" : UpdateMLSetPGPPubKeyAE,
+    "update-memberlist-set-address" : UpdateMLSetAddressAE
 }

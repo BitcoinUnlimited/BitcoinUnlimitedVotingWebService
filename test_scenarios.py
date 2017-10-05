@@ -15,6 +15,7 @@ from test_helpers import DummyUpload
 from test_taction import makeTestAction
 from test_helpers import bare_session, makeTestMultiAction
 from jvalidate import ValidationError
+import testkeys
 
 # FIXME: refactor this mess by creating suitable fixtures
 
@@ -506,6 +507,52 @@ def test_invalid_member_vote_close(bare_session):
              " close-member-elections all [] by member_v"))
         act_close_member_elections.apply(None, None)
 
+def test_update_ml_address(bare_session):
+    test_scenario1(bare_session, stopper="two-unpublished")
+    ml = Global.current_member_list()
+
+    new_privkey, new_address = makeTestKey("some-new-key")
+
+    old_member =  Member.by_name("member_a")
+    cur_address = Member.by_name("member_a").address
+
+    assert old_member.most_recent
+    
+    assert cur_address != new_address
+    
+    act_newaddr = makeTestAction(author = Member.by_name("member_v"),
+                                 apart = (
+                                     ml.hashref() +
+                                     " update-memberlist-set-address address %s for member_a by member_v" % new_address))
+    act_newaddr.apply(None, None)
+
+    cur_address = Member.by_name("member_a").address
+    assert cur_address == new_address
+    assert not old_member.most_recent
+    assert old_member not in Global.current_member_list().members
+    assert Member.by_name("member_a").pgp_pubkey is not None
+
+def test_update_ml_pgpkey(bare_session):
+    test_scenario1(bare_session, stopper="two-unpublished")
+    ml=Global.current_member_list()
+
+    old_member =  Member.by_name("member_c")
+    cur_address = Member.by_name("member_c").address
+    assert Member.by_name("member_c").pgp_pubkey is None
+
+    du=DummyUpload("new_pgp_key.txt", "text/plain")
+    
+    pubkey_hash = hashlib.sha256(testkeys.pubkey1).hexdigest()
+    
+    act_newpubkey = makeTestAction(
+        author = Member.by_name("member_v"),
+        apart = (ml.hashref() +
+                 " update-memberlist-set-pgp-pubkey pubkey %s for member_c by member_v" % pubkey_hash))
+    act_newpubkey.apply(du, testkeys.pubkey1)
+        
+    assert cur_address == Member.by_name("member_c").address
+    assert Member.by_name("member_c").pgp_pubkey == testkeys.pubkey1.decode("ascii")
+            
 def test_invalid_propose_member(bare_session):
     test_scenario1(bare_session, stopper="votes-cast")
     ml=Global.current_member_list()

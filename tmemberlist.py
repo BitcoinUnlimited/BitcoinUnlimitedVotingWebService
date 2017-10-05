@@ -104,4 +104,5 @@ class MemberList(db.Model, BUType):
                         .query
                         .join(MemberElectionResult.action)
                         .filter(Action.member_list == self))
-        
+
+

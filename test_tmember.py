@@ -79,7 +79,7 @@ def test_with_pgpkey(bare_session):
 
     m=Member(name="member_a",
              address="19L8fQDCta3mewpJXcRm8wqq5X6k6HFign",
-             pgp_pubkey = testkeys.pubkey1)
+             pgp_pubkey = testkeys.pubkey1.decode("ascii"))
         
     bare_session.add(m)
     bare_session.commit()

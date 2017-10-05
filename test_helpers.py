@@ -91,9 +91,9 @@ def makeTestMemberList(old_ml, old_vote_times=True):
                 raise Exception("Member with different addresses.")
         except:
             if name == "member_a":
-                m = Member(name, addr, testkeys.pubkey1)
+                m = Member(name, addr, testkeys.pubkey1.decode("ascii"))
             elif name == "member_b":
-                m = Member(name, addr, testkeys.pubkey2)
+                m = Member(name, addr, testkeys.pubkey2.decode("ascii"))
             else:
                 m = Member(name, addr)
            
