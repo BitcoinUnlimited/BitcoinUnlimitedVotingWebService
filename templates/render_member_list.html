@@ -59,7 +59,7 @@
 	    <tbody>
 		{% for member in member_list.members %}
 		    <tr>
-			<td class="center">{{ member.name }}</td>
+			<td class="center"><a href="{{ url('render/member/'+member.hashref()) }}">{{ member.name }}</a></td>
 			<td class="center"><pre>{{ member.address }}</pre></td>
 			<td class="center">{{ format_yesno(not member.eligible()) }}</td>
 		    </tr>
