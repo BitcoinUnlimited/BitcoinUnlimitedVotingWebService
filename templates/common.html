@@ -6,6 +6,10 @@
     <span class="monospace">{{ addr }}</span>
 {%- endmacro -%}
 
+{% macro format_pgpkey(key) -%}
+    <pre style="margin: 1em">{{ key }}</pre>
+{%- endmacro -%}
+
 {% macro format_yesno(val) -%}
     {% if val %}
 	yes

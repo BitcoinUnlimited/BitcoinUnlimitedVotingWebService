@@ -7,4 +7,7 @@
     Name: {{ member.name }}<br/>
     Address:  {{ format_addr(member.address) }}<br/>
     Expired: {{ format_yesno(not member.eligible()) }}<br/>
+    {% if member.pgp_pubkey %}
+        PGP public key: {{ format_pgpkey(member.pgp_pubkey) }}<br/>
+    {% endif %}
 {% endblock %}
