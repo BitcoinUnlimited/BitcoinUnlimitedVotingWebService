@@ -12,3 +12,4 @@ coverage == 4.3.4
 pytest-cov == 2.4.0
 gunicorn == 19.7.1
 python-gnupg == 0.4.1
+pytest-xdist == 1.20.1
