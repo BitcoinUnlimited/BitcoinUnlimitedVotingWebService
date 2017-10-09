@@ -54,6 +54,21 @@
     <span class="monospace">{{ method }}</span>
 {%- endmacro %}
 
+{% macro format_proposal_ballot_answer(answer) %}
+    <b>
+        {%- if answer == 'accept' %}
+            <div style="color : green; display:inline">accept</div>
+        {% elif answer == 'reject' %}
+            <div style="color : red; display:inline">reject</div>
+        {% elif answer == 'abstain' %}
+            <div style="color : gray; display:inline">abstain</div>
+        {% elif answer == 'spoil' %}
+            <div style="color : blue; display:inline">spoil</div>
+        {% else %}
+            {{ answer }} (FIXME)
+        {% endif -%}
+    </b>
+{%- endmacro %}
 
 {% macro form_js() %}
     <script type="text/javascript">

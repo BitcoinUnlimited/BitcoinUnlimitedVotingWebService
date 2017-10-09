@@ -82,7 +82,7 @@
     <h2>List of ballots</h2>
     <ul>
     {% for ballot in pvr.ballots %}
-	<li><a href="{{ url('render/action/'+ballot.hashref()) }}"> Ballot by {{ ballot.author.name }}</a>, answer: <b> {{ ballot.parser.actvars["answer_tuple"][1]["answer"] }}</b></li>
+	<li><a href="{{ url('render/action/'+ballot.hashref()) }}"> Ballot by {{ ballot.author.name }}</a>, answer: <b> {{ format_proposal_ballot_answer(ballot.parser.actvars["answer_tuple"][1]["answer"]) }}</b></li>
     {% endfor %}
     </ul>
 {% endblock %}
