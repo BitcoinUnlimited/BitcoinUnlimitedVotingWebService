@@ -1,0 +1,54 @@
+{% extends "common.html" %}
+{% block body %}
+    <h1>Proposal ballots by {{ membername }}</h1>
+    {% if ballots | count > 0 %}
+        <p> Here is a list of the proposal ballots/votes by {{ membername }}, most recent ballots first.</p>
+        <div class="p2">
+            <table class="table col-12 center border">
+                <thead class="table-head">
+                    <tr>
+                        <th>Time stamp</th>
+                        <th>Proposal</th>
+                        <th>Vote Answer</th>
+                        <th>Ballot details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ballot in ballots %}
+                        {% set vote = ProposalVote.by_hash(ballot.parser.actvars["vote_hash"]) %}
+                        {% set metadata = vote.proposal_metadata %}
+                        {% set designation = metadata.designation %}
+                        {% set answer = ballot.parser.actvars["answer_tuple"][1]["answer"] %}
+                        <tr>
+                            <td class="col-3">{{ format_timestamp(ballot.timestamp) }}</td>
+                            <td class="left-align"><a href="{{ url('render/proposal_vote_result/'+vote.result.hashref()) }}"> {{ designation }}</a></td>
+                            <td>{{ format_proposal_ballot_answer(answer) }}</td>
+                            <td><a href="{{ url('render/ballot/'+ballot.hashref()) }}">details</a></td>
+                        </tr>
+                    {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        This member has not voted on a proposal yet.
+    {% endif %}
+    {% if pms_not_voted_on_by_member | count > 0 %}
+        Proposals {{ membername }} has not yet voted on:
+        <div class="p2">
+            <table class="table col-12 center border">
+                <thead class="table-head">
+                    <tr>
+                        <th>Proposal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pm in pms_not_voted_on_by_member %}
+                        <tr>
+                            <td class="left-align"><a href="{{ url('render/proposal_metadata/'+pm.hashref()) }}"> {{ pm.designation }}</a></td>
+                        </tr>
+                    {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <p> No proposals that {{ membername }} can vote on have been found.</p>
+    {% endif %}
+{% endblock %}

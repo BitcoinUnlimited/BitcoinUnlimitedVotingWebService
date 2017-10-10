@@ -26,6 +26,10 @@
     <span class="monospace">{{ sig }}</span>
 {%- endmacro %}
 
+{% macro format_timestamp(tstamp) -%}
+    <span class="monospace">{{ tstamp|datetime }}</span>
+{%- endmacro %}
+
 {% macro format_member_link(member) -%}
     <a href="{{ url('render/member/'+member.hashref()) }}"> {{ member.name }}, {{ format_addr(member.address) }}</a>    
 {%- endmacro %}

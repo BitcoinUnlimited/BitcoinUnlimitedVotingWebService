@@ -1,4 +1,5 @@
 # Web front end
+import time
 import os
 import logging
 from flask import (Flask, render_template, send_from_directory,
@@ -15,6 +16,7 @@ import jvalidate
 import appmaker
 from butypes import *
 from multiprocessing import Lock
+import queries
 
 write_lock=Lock()
 
@@ -40,6 +42,12 @@ def make_app(test_mode_internal=False):
     app.jinja_env.globals["action_prefix"]=config.action_prefix
     app.jinja_env.globals["test_mode"]=config.test_mode
 
+    def format_datetime(tstamp):
+        """ Format float date into UTC timestamp. """
+        return time.strftime("%c", time.gmtime(tstamp))
+    
+    app.jinja_env.filters["datetime"]=format_datetime
+    
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
 
@@ -263,7 +271,42 @@ def make_app(test_mode_internal=False):
             cml = cml,
             ma_names = ma_names)
 
+    @app.route("/api1/actions-by-member/<name>")
+    def _actions_by_member_name(name):
+        actions = queries.ActionByMemberNameAndType(
+            name)
+        return render_template(
+            "actions-by-member.html",
+            actions = actions,
+            membername = name)
 
+    @app.route("/api1/proposal-ballots-by-member/<name>")
+    def _proposal_ballots_by_member_name(name):
+        ballots = queries.ActionByMemberNameAndType(
+            name, "cast-proposal-ballot")
+
+        published = list(ProposalMetadata.all_public())
+        
+        # calculate set of published proposals that have and have not
+        # yet been voted on by the selected member.
+        pms_voted_on_by_member = [
+            (ProposalVote.by_hash(ballot.parser.actvars["vote_hash"])
+             .proposal_metadata) for ballot in ballots]
+
+        pms_not_voted_on_by_member = [
+            pm for pm in published
+            if pm not in pms_voted_on_by_member]
+        
+            
+        return render_template(
+            "proposal-ballots-by-member.html",
+            ballots = ballots,
+            membername = name,
+            published = published,
+            pms_voted_on_by_member = pms_voted_on_by_member,
+            pms_not_voted_on_by_member = pms_not_voted_on_by_member,
+            ProposalVote = ProposalVote)
+    
 
     @app.route("/api1/action", methods=["POST"])
     def _action():

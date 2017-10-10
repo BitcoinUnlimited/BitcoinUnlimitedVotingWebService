@@ -1,0 +1,28 @@
+{% extends "common.html" %}
+{% block body %}
+    <h1>Actions by {{ membername }}</h1>
+    {% if actions|count >0 %}
+        <p>Here is a list of <i>all</i> submitted actions by {{ membername }}, most recent first.</p>
+        <div class="p2">
+            <table class="table col-12 center border">
+                <thead class="table-head">
+                    <tr>
+                        <th>Time stamp</th>
+                        <th>Action string</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for action in actions %}
+                        <tr>
+                            <td class="col-3">{{ format_timestamp(action.timestamp) }}</td>
+                            <td class="left-align">{{ format_action_string(action.actstr) }}</td>
+                            <td><a href="{{ url('render/action/'+action.hashref()) }}">details</a></td>
+                        </tr>
+                    {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <p>This member has submitted no actions yet.</p>
+    {% endif %}
+{% endblock %}
