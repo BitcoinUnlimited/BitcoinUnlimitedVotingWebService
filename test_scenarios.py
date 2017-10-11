@@ -30,7 +30,8 @@ def test_scenario1(bare_session, stopper=""):
     du=DummyUpload("test_proposal_1.txt", "text/plain")
     act_upload=makeTestAction(author=Member.by_name("member_a"),
                               apart =
-                              (ml.hashref()+" proposal-upload file %s by member_a" % hashprop1))
+                              (ml.hashref()+" proposal-upload file %s by member_a" % hashprop1),
+                              pgp = True)
     act_upload.apply(du, proposal1)
     bare_session.commit()
 
@@ -39,7 +40,8 @@ def test_scenario1(bare_session, stopper=""):
     du=DummyUpload("test_proposal_2.txt", "text/plain")
     act_upload=makeTestAction(author=Member.by_name("member_b"),
                               apart =
-                              (ml.hashref()+" proposal-upload file %s by member_b" % hashprop2))
+                              (ml.hashref()+" proposal-upload file %s by member_b" % hashprop2),
+                              pgp = True)
     act_upload.apply(du, proposal2)
     bare_session.commit()
     

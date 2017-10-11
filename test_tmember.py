@@ -1,6 +1,8 @@
 import time
 import pytest
 import bitcoin
+import testkeys
+import config
 from jvalidate import ValidationError
 from tmember import Member
 from tglobal import Global
@@ -64,11 +66,23 @@ def test_eligibility(bare_session, member_list, member_a):
     assert not member_a.eligible()
     config.member_expiry_time = 86400 * 365
 
-def test_eligibility(bare_session, member_list_no_vote_times, member_a):
+def test_eligibility2(bare_session, member_list_no_vote_times, member_a):
     assert Global.member_last_vote_time(member_a) is None
     assert not member_a.eligible()
     
     
+def test_with_pgpkey(bare_session):
+    with pytest.raises(ValidationError):
+        m=Member(name="member_a",
+                 address="19L8fQDCta3mewpJXcRm8wqq5X6k6HFign",
+                 pgp_pubkey = "test")
+
+    m=Member(name="member_a",
+             address="19L8fQDCta3mewpJXcRm8wqq5X6k6HFign",
+             pgp_pubkey = testkeys.pubkey1)
+        
+    bare_session.add(m)
+    bare_session.commit()
 
     
     
