@@ -1,0 +1,130 @@
+{% extends "common.html" %}
+{% block body %}
+    <h1>Cast ballots on Proposals (all at once)</h1>
+    
+    {{ mainform_begin_multi() }}
+    {{ form_author() }}
+
+    <style>
+     table { border-collapse: collapse; } tr { border: solid; border-width: 2px 0px; }
+    </style>
+
+    <table class="table col-12 center border">
+        <thead class="table-head">
+            <tr>
+                <td><b>Proposal name</b></td></div>
+                <td><b>File</b></td>
+                <td><b>Vote</b></td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proposal in cml.proposals() %}
+                {% if proposal.vote and proposal.vote.result.is_open %}
+                    <tr>
+                        <td>
+                            <b>{{ proposal.designation }}</b>
+                            <!-- {% if not loop.last %}<hr/> {% endif %} -->
+                        </td>
+                        <td>
+                            <a href="{{ url('raw/raw_file/'+proposal.raw_file.hashref()) }}">{{ proposal.filename }}</a>
+                            <!-- {% if not loop.last %}<hr/> {% endif %} -->
+                        </td>
+                        <td>
+                            {{ ff_begin() }}
+                                <div class="radio">
+                                    <label><input type="radio"
+                                                  name="ballot_option_{{ proposal.hashref() }}" value="accept">Accept</label>
+                                    <label><input type="radio"
+                                                  name="ballot_option_{{ proposal.hashref() }}" value="reject">Reject</label>
+                                    <label><input type="radio"
+                                                  name="ballot_option_{{ proposal.hashref() }}" value="abstain">Abstain</label>
+                                    <label><input type="radio"
+                                                  name="ballot_option_{{ proposal.hashref() }}" value="spoil">Spoil</label>
+                                    <label><input type="radio"
+                                                  name="ballot_option_{{ proposal.hashref() }}" value="skip">Skip</label>
+                                </div>
+                                <!-- {% if not loop.last %}<hr/> {% endif %} -->
+                                {{ ff_end() }}
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {{ form_multi_action_string() }}
+    {{ form_multi_signature() }}
+    {{ form_submit() }}
+    {{ mainform_end() }}
+
+    {{ privkeyform() }}
+    
+    <script type="text/javascript">
+     function recalc() {
+	 var ap = "{{ action_prefix }}"+ "{{ cml.hashref() }} ";
+         var sep = "\n@@@@@\n";
+	 var member = $("input[name='author_name']").val();
+         
+         var vote_hashes = [];
+         var ballot_options = [];
+         var proposal_designations = [];
+         
+         {% for proposal in cml.proposals() %}
+             {% if  proposal.vote and proposal.vote.result.is_open %}
+               vote_hashes.push("{{ proposal.vote.hashref() }}");
+               ballot_options.push($("input[name='ballot_option_{{ proposal.hashref() }}']:checked").val());
+               proposal_designations.push("{{proposal.designation}}");
+             {% endif %}
+         {% endfor %}
+         
+	 var vote_hash = $("input[name='vote_hash']").val();
+
+         var invalid = false;
+	 if (member === "") {
+             $("textarea[name='action_string']").val("");
+             invalid = true;
+         } else {
+             for (var i=0; i < ballot_options.length; i++) {
+                 if (ballot_options[i] !== "accept"  &&
+	             ballot_options[i] !== "reject"  &&
+	             ballot_options[i] !== "abstain" &&
+	             ballot_options[i] !== "spoil"   &&
+                     ballot_options[i] !== "skip") {
+                     $("textarea[name='action_string']").val("");
+                     invalid = true;
+                     break;
+                 }
+             }
+         }
+
+         if (! invalid) {
+             var s = "";
+             for (var i=0; i < ballot_options.length; i++) {
+                 if (ballot_options[i] !== "skip") {
+	             s+= ap + "cast-proposal-ballot vote "+vote_hashes[i]+" by " + member+" answer ("+ballot_options[i]+")";
+
+                     // add  metadata as comment
+                     s+=" # proposal: "+proposal_designations[i];
+                         
+                     s+=sep;
+                 }
+             }
+             // remove last separator
+             if (ballot_options.length > 0) {
+                 s = s.substring(0, s.length - sep.length);
+             }
+	     $("textarea[name='action_string']").val(s);
+	     fill_sig();
+	 }
+     };
+     {% for proposal in cml.proposals() %}
+         {% if  proposal.vote and proposal.vote.result.is_open %}
+             $("input[name='ballot_option_{{ proposal.hashref() }}']").change(recalc);
+             $("input[name='ballot_option_{{ proposal.hashref() }}']").keyup(recalc);
+         {% endif %}
+     {% endfor %}
+     $(document).ready(recalc);
+    </script>
+    {{ form_js() }}
+
+
+{% endblock %}

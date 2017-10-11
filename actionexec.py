@@ -172,6 +172,9 @@ class CastMemberBallotAE(ActionExec):
         checkNoUpload(upload, upload_data)
 
         member = Member.by_name(name)
+        if member is None:
+            raise ValidationError("Member '%s' not found." % name)
+        
         if member.address != address:
             raise ValidationError("Address '%s' for new member '%s' different from expected '%s'." %
                                   (address, name, member.address))

@@ -41,12 +41,21 @@ def test1(bare_session):
     bare_session.commit()
     
     # not allowed: reuse of address
-    m3=Member(name="member_a",
-              address="1FPZ29pzqC1FLYyDuB5Han6wi8oNwQeHCV")
+    with pytest.raises(ValidationError):
+        m3=Member(name="member_a",
+                  address="1FPZ29pzqC1FLYyDuB5Han6wi8oNwQeHCV")
 
-    bare_session.add(m3)
-    with pytest.raises(sqlalchemy.exc.IntegrityError):
-        bare_session.commit()
+def test_duplicate_name(bare_session):
+    m1=Member(name="member_a",
+              address="19L8fQDCta3mewpJXcRm8wqq5X6k6HFign")
+
+    bare_session.add(m1)
+    bare_session.commit()
+
+    with pytest.raises(ValidationError):
+        m2=Member(name="member_a",
+                  address="1FPZ29pzqC1FLYyDuB5Han6wi8oNwQeHCV")
+
 
 
 def test_eligibility(bare_session, member_list, member_a):

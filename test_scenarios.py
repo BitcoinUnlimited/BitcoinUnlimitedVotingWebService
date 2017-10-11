@@ -545,7 +545,7 @@ def test_multiaction_proposal_vote(bare_session):
         aparts = [
             (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop1),
             (ml.hashref()+" proposal-publish file %s designation BUIP0002 by member_v" % hashprop2)])
-    act_publish.apply(None)
+    act_publish.apply()
 
     # open vote on both
     act_open_vote=makeTestMultiAction(
@@ -553,7 +553,7 @@ def test_multiaction_proposal_vote(bare_session):
         aparts = [
             (ml.hashref()+ " open-proposal-vote meta %s by member_v method (buip-acc-rej-abs)" % (RawFile.by_hash(hashprop1).proposal_metadata.hashref())),
             (ml.hashref()+ " open-proposal-vote meta %s by member_v method (buip-acc-rej-abs)" % (RawFile.by_hash(hashprop2).proposal_metadata.hashref()))])
-    votes = act_open_vote.apply(None)
+    votes = act_open_vote.apply()
 
 
     bare_session.commit()

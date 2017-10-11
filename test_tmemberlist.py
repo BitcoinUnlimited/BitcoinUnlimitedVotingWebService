@@ -52,6 +52,9 @@ def test3(bare_session):
 
     assert len(ml.members) == 26
 
+    Member.by_name("member_a").most_recent = False
+    bare_session.commit()
+    
     duplicate_member=Member("member_a",
                                makeTestKey("test1")[1])
     

@@ -1,0 +1,11 @@
+{% extends "common.html" %}
+{% block body %}
+    <h1> Successfully executed multi action</h1>
+    <p>By: {{ multi_action.author.name }}</p>
+    <p>Action strings:</p>
+    {% for action in multi_action.actions %}
+        <p>{{ format_action_string(action.action_string) }}</p>
+    {% endfor %}
+    <hr/>
+    <p><a href="{{ url("") }}">Back to overview</a></p>
+{% endblock %}

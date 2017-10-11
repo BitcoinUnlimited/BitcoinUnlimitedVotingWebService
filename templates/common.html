@@ -108,6 +108,11 @@
     <form method="post" action="{{ url('action') }}" enctype="multipart/form-data" id="main-form">
 {% endmacro %}
 
+{% macro mainform_begin_multi() %}
+    <div class="p2">
+        <form method="post" action="{{ url('multi-action') }}" enctype="multipart/form-data" id="main-form">
+{% endmacro %}
+
 {% macro mainform_end() %}
     </form>
     </div>
@@ -125,15 +130,32 @@
     col col-3
 {%- endmacro %}
 
-{% macro form_action_string() %}
+{% macro form_action_stringN(N) %}
     {{ ff_begin() }}
     {{ form_label("Action string") }}
-    <textarea class="col col-9 form-gray" type="text" name="action_string" rows="6"
+    <textarea class="col col-9 form-gray" type="text" name="action_string" rows="{{N}}"
 	      readonly="readonly" onclick="this.focus();this.select();document.execCommand('copy')" ></textarea>
     {{ ff_end() }}
 {% endmacro %}
 
+{% macro form_action_string() %}
+    {{ form_action_stringN(6) }}
+{% endmacro %}
+
+{% macro form_multi_action_string() %}
+    {{ form_action_stringN(15) }}
+{% endmacro %}
+
+
+
 {% macro form_signature() %}
+    {{ ff_begin() }}
+    {{ form_label("Signature") }}
+    <input class="col col-9" type="text" name="signature" id="signature"/>
+    {{ ff_end() }}
+{% endmacro %}
+
+{% macro form_multi_signature() %}
     {{ ff_begin() }}
     {{ form_label("Signature") }}
     <input class="col col-9" type="text" name="signature" id="signature"/>

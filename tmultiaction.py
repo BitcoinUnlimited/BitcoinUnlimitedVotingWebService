@@ -72,6 +72,6 @@ class MultiAction(db.Model, BUType):
         return [self.author,
                 self.actions]
  
-    def apply(self, data):
-        return [action.parser.apply(None, data)
+    def apply(self):
+        return [action.parser.apply(None, None)
                 for action in self.actions]

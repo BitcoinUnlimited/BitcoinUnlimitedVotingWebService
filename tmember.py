@@ -27,11 +27,19 @@ class Member(db.Model, BUType):
     x_json = Column(LargeBinary, nullable=False)
     x_sha256 = Column(String(length=64), nullable=False, unique=True)
 
+    # this is the most recent member object with the
+    # given member_name
+    # outdated member objects will have most_recent == False
+    # the current flag is not part of the JSON string
+    most_recent = Column(Boolean, nullable=False,
+                     default=False, unique=False)
+                     
+                    
     # no two members with same nick 
-    name = Column(String, nullable=False, unique=True)
+    name = Column(String, nullable=False)
 
-    # same for addresses - are burned when used up
-    address = Column(String, nullable=False, unique=True)
+    # member's bitcoin address
+    address = Column(String, nullable=False)
 
     # lists this member is part of
     member_lists = relationship("MemberList", secondary = members_in_memberlists,
@@ -39,29 +47,42 @@ class Member(db.Model, BUType):
 
     @classmethod
     def by_name(cls, name):
-        """ Return member object by giving member name. """
+        """ Return most recent member object by giving member name. """
         try:
-            return cls.query.filter(cls.name  == name).one()
+            return (cls.query.filter(cls.name  == name)
+                    .filter(cls.most_recent).one())
         except sqlalchemy.orm.exc.NoResultFound:
             return None
 
     @classmethod
     def by_address(cls, address):
-        """ Return member object by giving member address. """
+        """ Return most recent member object by giving member address. """
         try:
-            return cls.query.filter(cls.address  == address).one()
+            return (cls.query.filter(cls.address  == address)
+                    .filter(cls.most_recent).one())
         except sqlalchemy.orm.exc.NoResultFound:
             return None
         
     def __init__(self,
                  name,
                  address):
+        """ Create a new, current member. If a current member with
+        the given address, name or PGP pubkey exists already, fail. """
         sanitize_membername(name)
         sanitize_bitcoinaddr(address)
+
+        if self.by_name(name):
+            raise ValidationError("Current member '%s' exists already."
+                                  % name)
+
+        if self.by_address(address):
+            raise ValidationError("Current member with address '%s' exists already." % address)
+
         
         self.name = name
         self.address = address
-
+        self.most_recent = True
+        
         self.xUpdate()
         
     def toJ(self):

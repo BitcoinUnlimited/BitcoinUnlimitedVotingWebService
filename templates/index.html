@@ -51,6 +51,11 @@
     {% if proposals | list | count > 0 %}
 	<p>This is the list of currently published proposals:</p>
 	{{ proplist.list(proposals) }}
+
+        <!-- FIXME: only show when applicable -->
+        <p> In case proposals are open for voting, a member can cast votes on
+            all open proposals at once <a href="{{ url('form/cast-proposal-ballot-multiple') }}">here</a>.</p>
+                
     {% else %}
 	<p>There are currently no published proposals.</p>
     {% endif %}
@@ -87,6 +92,11 @@
 		{% endfor %}
 	    </table>
 	</div>
+
+        <p> A current member can cast ballots on all new members at
+            once <a href="{{ url('form/cast-member-ballot-multiple') }}">here</a>.
+        </p>
+        
 	<p>
 	    The vote master can close the current member elections  <a href="{{ url('form/close-member-elections') }}">here</a>.
 	</p>
