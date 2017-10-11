@@ -29,6 +29,21 @@ def makeTestAction(
                  action_string = action_string,
                  signature = signature)
 
+def makeTestMultiAction(author,
+                        aparts):
+    """ Create signed multi action with privkey of authors as for makeTestAction. """
+    multi_action_string = config.action_prefix+ (
+        "\n@@@@@\n"+config.action_prefix).join(aparts)
+    
+    privkey = bitcoin.sha256(author.name)
+    multi_signature = bitcoin.ecdsa_sign(multi_action_string, privkey)
+
+    return MultiAction(
+        author = author,
+        multi_action_string = multi_action_string,
+        multi_signature = multi_signature)
+
+    
 def makeTestMemberKeys():
     member_names=["member_%s" % x for x in "abcdefghijklmnopqrstuvwxyz"]
 

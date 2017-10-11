@@ -24,23 +24,35 @@ class Action(db.Model, BUType):
     member_list_id = Column(Integer, ForeignKey("member_list.id"), nullable=False)
     member_list = relationship("MemberList", uselist=False)
 
+    multi_action_id = Column(Integer, ForeignKey("multi_action.id"), nullable=True)
+    multi_action = relationship("MultiAction", back_populates="actions")
+    
     # Time stamp of creation in DB
     # used for member voting eligibility calculations etc.
     timestamp = Column(Float, nullable=False)
                        
-    signature = Column(String, nullable=False)
+    signature = Column(String, nullable=True)
 
     def __init__(self,
                  author,
                  action_string,
-                 signature):
+                 signature,
+                 multi_action = None):
+        if multi_action is not None and signature is not None:
+            raise jvalidate.ValidationError("An action that is part of a multi-action cannot have a signature.")
+
+        if multi_action is None and signature is None:
+            raise jvalidate.ValidationError("Action needs to be part of a signed multi-action or needs to have a signature itself.")
+        
         self.timestamp = time.time()
 
         self.author = author
         self.action_string = action_string
         self.signature = signature
-
-        if not config.disable_signature_checking:
+        self.multi_action = multi_action
+            
+        if not config.disable_signature_checking and not self.multi_action:
+            # it is assumed that the multi_action does the signature checking
             # FIXME: is base64.b64decode(...) safe?
             try:
                 pub=bitcoin.ecdsa_recover(action_string, signature)
@@ -69,8 +81,8 @@ class Action(db.Model, BUType):
         if (self.action_string[:L1] !=
             config.action_prefix):
             raise jvalidate.ValidationError(
-                "Action is not prefixed with '%s'." %
-                config.action_prefix)
+                "Action is not prefixed with '%s', found '%s' instead." %
+                (config.action_prefix, self.action_string[:L1]))
         
         member_hash=self.action_string[L1:L1+L2]
 

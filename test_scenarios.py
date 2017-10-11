@@ -13,7 +13,7 @@ from butype import *
 from test_tmemberlist import makeTestMemberList, makeTestKey
 from test_helpers import DummyUpload
 from test_taction import makeTestAction
-from test_helpers import bare_session
+from test_helpers import bare_session, makeTestMultiAction
 from jvalidate import ValidationError
 
 # FIXME: refactor this mess by creating suitable fixtures
@@ -107,8 +107,20 @@ def test_scenario1(bare_session, stopper=""):
                                   " propose-member name newmember1 address %s by member_v" %
                                   (makeTestKey("newmember1")[1])))
     act_new_member.apply(None, None)
+    act_new_member=makeTestAction(author=Member.by_name("member_v"),
+                                 apart =
+                                 (ml.hashref()+
+                                  " propose-member name newmember2 address %s by member_v" %
+                                  (makeTestKey("newmember2")[1])))
+    act_new_member.apply(None, None)
+    act_new_member=makeTestAction(author=Member.by_name("member_v"),
+                                 apart =
+                                 (ml.hashref()+
+                                  " propose-member name newmember3 address %s by member_v" %
+                                  (makeTestKey("newmember3")[1])))
+    act_new_member.apply(None, None)
     bare_session.commit()
-    if stopper == "new-applicant":
+    if stopper == "new-applicants":
         return
 
     for i, x in enumerate("abcdefghijklmnopq"):
@@ -127,7 +139,7 @@ def test_scenario1(bare_session, stopper=""):
         author=Member.by_name("member_v"),
         apart =
         (ml.hashref()+
-         " close-member-elections all [newmember1] by member_v"))
+         " close-member-elections all [newmember1 newmember2 newmember3] by member_v"))
     act_close_member_elections.apply(None, None)
 
     assert Global.current_member_list() != ml
@@ -406,7 +418,7 @@ def test_invalid_cast_ballot(bare_session):
         act_cast_vote.apply(None, None)
         
 def test_invalid_cast_member_ballot(bare_session):
-    vote = test_scenario1(bare_session, stopper="new-applicant")
+    vote = test_scenario1(bare_session, stopper="new-applicants")
     ml=Global.current_member_list()
 
     proposal1=b"Test proposal #1"
@@ -463,7 +475,7 @@ def test_invalid_cast_member_ballot(bare_session):
         author=Member.by_name("member_v"),
         apart =
         (ml.hashref()+
-         " close-member-elections all [newmember1] by member_v"))
+         " close-member-elections all [newmember1 newmember2 newmember3] by member_v"))
     act_close_member_elections.apply(None, None)
 
     
@@ -514,3 +526,34 @@ def test_invalid_propose_member(bare_session):
                                   (makeTestKey("member_a")[1])))
         act_new_member.apply(None, None)
         
+def test_multiaction_proposal_vote(bare_session):
+    """ Test acting o multiple proposals at once, using
+    the MultiAction. """
+    test_scenario1(bare_session, stopper="two-unpublished")
+    
+    ml=Global.current_member_list()
+
+    proposal1=b"Test proposal #1"
+    hashprop1=hashlib.sha256(proposal1).hexdigest()
+
+    proposal2=b"Test proposal #2"
+    hashprop2=hashlib.sha256(proposal2).hexdigest()
+
+    # publish two at once
+    act_publish=makeTestMultiAction(
+        author=Member.by_name("member_v"),
+        aparts = [
+            (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop1),
+            (ml.hashref()+" proposal-publish file %s designation BUIP0002 by member_v" % hashprop2)])
+    act_publish.apply(None)
+
+    # open vote on both
+    act_open_vote=makeTestMultiAction(
+        author=Member.by_name("member_v"),
+        aparts = [
+            (ml.hashref()+ " open-proposal-vote meta %s by member_v method (buip-acc-rej-abs)" % (RawFile.by_hash(hashprop1).proposal_metadata.hashref())),
+            (ml.hashref()+ " open-proposal-vote meta %s by member_v method (buip-acc-rej-abs)" % (RawFile.by_hash(hashprop2).proposal_metadata.hashref()))])
+    votes = act_open_vote.apply(None)
+
+
+    bare_session.commit()
