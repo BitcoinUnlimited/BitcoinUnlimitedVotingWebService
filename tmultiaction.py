@@ -4,6 +4,7 @@ from butype import *
 from tmemberlist import MemberList
 from taction import Action
 import jvalidate
+import sigver
 import config
 
 
