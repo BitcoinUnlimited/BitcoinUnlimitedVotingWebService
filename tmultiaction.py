@@ -16,16 +16,16 @@ class MultiAction(db.Model, BUType):
 
     id = Column(Integer, primary_key=True)
     x_json = Column(LargeBinary, nullable=False)
-    x_sha256 = Column(String(length=64), nullable=False, unique=True)    
+    x_sha256 = Column(String(length=64), nullable=False, unique=True)
 
     author_id = Column(Integer, ForeignKey("member.id"), nullable=False)
     author = relationship("Member", uselist=False)
-    
+
     actions = relationship("Action")
 
     # the concatenated individual actions
     multi_action_string = Column(String, nullable=False)
-                       
+
     multi_signature = Column(String, nullable=False)
 
     def __init__(self,
@@ -43,7 +43,6 @@ class MultiAction(db.Model, BUType):
         for action_string in (multi_action_string
                               .replace("\r", "")
                               .split("\n@@@@@\n")):
-            print("At section of multi-action:", repr(action_string))
             # action adds itself to this multi_action
             Action(author, action_string, None, self)
             naction+=1
@@ -62,7 +61,7 @@ class MultiAction(db.Model, BUType):
     def dependencies(self):
         return [self.author,
                 self.actions]
- 
+
     def apply(self):
         return [action.parser.apply(None, None)
                 for action in self.actions]
