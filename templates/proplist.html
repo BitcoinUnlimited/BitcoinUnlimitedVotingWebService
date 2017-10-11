@@ -5,6 +5,7 @@
 	<thead class="table-head">
 	    <tr>
 		<th>Designation</th>
+                <th>Title</th>
 		<th>Author</th>
 		<th>File</th>
 		<th>Metadata</th>
@@ -17,6 +18,7 @@
 	    {% for proposal in proposals | sort(attribute='designation') %}
 		<tr>
 		    <td>{{ proposal.designation }}</td>
+                    <td>{{ proposal.title }}</td>
 		    <td><a href="{{ common.url('render/member/'+proposal.action.author.hashref()) }}">{{ proposal.action.author.name }}</a>, <a href="{{ common.url('render/action/' + proposal.action.hashref()) }}">(act.)</a></td>
 		    <td>
 			{% if proposal.file_public %}

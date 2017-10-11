@@ -43,13 +43,14 @@ class ProposalUploadAE(ActionExec):
         db.session.add(mobj)
 
 class ProposalPublishAE(ActionExec):
-    template = "file %file_hash:sha256 designation %designation:designation by %member:votemaster"
+    template = "file %file_hash:sha256 designation %designation:designation title %title:safestring by %member:votemaster"
     def act(self,
             action,
             upload,
             upload_data,
             file_hash,
             designation,
+            title,
             member):
         checkAuthor(action, member)
         checkNoUpload(upload, upload_data)
@@ -70,6 +71,7 @@ class ProposalPublishAE(ActionExec):
             filename=mobj.filename,
             mime_type=mobj.mime_type,
             designation=designation,
+            title = title,
             raw_file=fobj,
             action=mobj.action,
             file_public=True)
@@ -92,7 +94,7 @@ class OpenProposalVoteAE(ActionExec):
 
         if not mobj.file_public:
             raise ValidationError("Proposal needs  to be published first.")
-        
+
         fobj = mobj.raw_file
 
         if mobj.vote is not None:
@@ -119,7 +121,7 @@ class CloseProposalVoteAE(ActionExec):
         if not result.is_open:
             raise ValidationError("Result is already closed.")
         result.close()
-    
+
 class CastProposalBallotAE(ActionExec):
     template = "vote %vote_hash:sha256 by %member:current_member answer (answer_tuple:voteanswer)"
     def act(self, action, upload, upload_data, vote_hash, member, answer_tuple):
@@ -151,11 +153,11 @@ class ProposeMemberAE(ActionExec):
         with db.session.no_autoflush:
             if Member.by_name(name) is not None:
                 raise ValidationError("Member '%s' exists already." % name)
-            
+
             if Member.by_address(address) is not None:
                 raise ValidationError("Member '%s' already uses address '%s'." %
                                       (Member.by_address(address).name, address))
-                    
+
             m = Member(name = name,
                        address = address)
 
@@ -166,7 +168,7 @@ class ProposeMemberAE(ActionExec):
 
 class CastMemberBallotAE(ActionExec):
     template = "name %name:membername address %address:address by %member:current_member answer %answer_tuple:member_acc_rej_abs"
-    
+
     def act(self, action, upload, upload_data, name, address, member, answer_tuple):
         method_name, answer = answer_tuple
 
@@ -176,11 +178,11 @@ class CastMemberBallotAE(ActionExec):
         member = Member.by_name(name)
         if member is None:
             raise ValidationError("Member '%s' not found." % name)
-        
+
         if member.address != address:
             raise ValidationError("Address '%s' for new member '%s' different from expected '%s'." %
                                   (address, name, member.address))
-        
+
         election = MemberElectionResult.by_member(member)
 
         if election is None:
@@ -190,7 +192,7 @@ class CastMemberBallotAE(ActionExec):
 
 class CloseMemberElectionsAE(ActionExec):
     template = "all [names:membername] by %member:votemaster" # make it explict
-    
+
     def act(self, action, upload, upload_data, names, member):
         checkAuthor(action, member)
         checkNoUpload(upload, upload_data)
@@ -215,23 +217,23 @@ class CloseMemberElectionsAE(ActionExec):
 
         for mer in mers:
             mer.close()
-            
+
         db.session.add(new_memberlist)
         db.session.commit()
         Global.set_current_member_list(new_memberlist)
 
 class DeleteObjectsAE(ActionExec):
     template = "[hashes:sha256] by %member:votemaster"
-    
+
     def act(self, action, upload, upload_data, hashes, member):
         checkAuthor(action, member)
         checkNoUpload(upload, upload_data)
 
         all_objects = get_all_objects()
-        
+
         objects = set()
         objs_ext = set()
-        
+
         # go through list of objects and add them plus all immediate
         # dependencies to objs_ext, plus do some sanity checks
         # FIXME: inefficient!
@@ -242,13 +244,13 @@ class DeleteObjectsAE(ActionExec):
 
             if obj == Global.current_member_list():
                 raise ValidationError("Objects cannot be deleted as list contains the current member list.")
-            
+
             objects.add(obj)
             objs_ext.add(obj)
             for user in users_of(obj):
                 objs_ext.add(user)
 
-        
+
         # now compare - if they are not the same, the votemaster has not
         # explicitly listed all relevant objects for deletion, which is
         # regarded as an error to avoid mistakes
@@ -274,12 +276,12 @@ class UpdateMLSetPGPPubKeyAE(ActionExec):
         checkUpload(upload, upload_data)
 
         dhash = hashlib.sha256(upload_data).hexdigest()
-        
+
         if dhash != pubkey_hash:
             raise ValidationError(
                 "Uploaded PGP key data data has hash %s but expected %s as in action." %
                 (fobj.hashref(), file_hash))
-        
+
         updateMemberinCurrentMemberList(membername,
                                         "unchanged",
                                         upload_data.decode("ascii"))
@@ -289,15 +291,15 @@ class UpdateMLSetAddressAE(ActionExec):
     def act(self, action, upload, upload_data, new_address, membername, votemaster):
         checkAuthor(action, votemaster)
         checkNoUpload(upload, upload_data)
-        
+
         member = Member.by_name(membername)
 
         updateMemberinCurrentMemberList(membername,
                                         new_address,
                                         "unchanged")
-        
 
-        
+
+
 action_map={
     "proposal-upload" : ProposalUploadAE,
     "proposal-publish" : ProposalPublishAE,

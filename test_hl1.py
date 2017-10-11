@@ -33,15 +33,16 @@ def test1(app, client):
 
     # fail: wrong member to publish proposal
     with pytest.raises(UnexpectedStatus):
-        publish_proposal(client, prop1, "BUIPxxxx", "member_c")
+        publish_proposal(client, prop1, "BUIPxxxx", "proposal title", "member_c")
 
     assert get_designation(client, sha256(prop1)) == "test1.txt"
-    
-    publish_proposal(client, prop1, "BUIP0001", "member_v")
+
+    publish_proposal(client, prop1, "BUIP0001", "another proposal title", "member_v")
     assert is_public_raw_file_hash(client, sha256(prop1))
 
     assert get_designation(client, sha256(prop1)) == "BUIP0001"
-    
+    assert get_title(client, sha256(prop1)) == "another proposal title"
+
     # can't open invalid vote
     with pytest.raises(UnexpectedStatus):
         open_proposal_vote(client, b"doesn't exist", "member_v", "buip-acc-rej-abs")
@@ -99,7 +100,7 @@ def test_vote_more_detail1(app, client):
                     prop1, "test1.txt",
                     "member_a")
 
-    publish_proposal(client, prop1, "BUIP0001", "member_v")
+    publish_proposal(client, prop1, "BUIP0001", "BUIP0001 title", "member_v")
     open_proposal_vote(client, prop1, "member_v", "buip-acc-rej-abs")
 
     def voteset1(i):
@@ -156,10 +157,10 @@ def test_deletion(app, client):
                     prop1, "test1.txt",
                     "member_a")
 
-    publish_proposal(client, prop1, "BUIP0001", "member_v")
+    publish_proposal(client, prop1, "BUIP0001", "BUIP0001 title", "member_v")
 
     prop1hash = sha256(prop1)
-    
+
     meta1hash = meta_for_raw_file_hash(client, prop1hash)
 
     # delete nonexistent should not work
@@ -169,7 +170,7 @@ def test_deletion(app, client):
     # delete current member list should not work
     with pytest.raises(UnexpectedStatus):
         delete_objects(client, "member_v", [Global.current_member_list().hashref()])
-        
+
     # delete incomplete should not work
     with pytest.raises(UnexpectedStatus):
         delete_objects(client, "member_v", [prop1hash])
@@ -177,4 +178,3 @@ def test_deletion(app, client):
         delete_objects(client, "member_v", [meta1hash])
 
     delete_objects(client, "member_v", [prop1hash, meta1hash])
-        

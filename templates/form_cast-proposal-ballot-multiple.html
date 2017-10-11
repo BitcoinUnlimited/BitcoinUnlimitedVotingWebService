@@ -1,7 +1,7 @@
 {% extends "common.html" %}
 {% block body %}
     <h1>Cast ballots on Proposals (all at once)</h1>
-    
+
     {{ mainform_begin_multi() }}
     {{ form_author() }}
 
@@ -12,7 +12,7 @@
     <table class="table col-12 center border">
         <thead class="table-head">
             <tr>
-                <td><b>Proposal name</b></td></div>
+                <td><b>Proposal</b></td></div>
                 <td><b>File</b></td>
                 <td><b>Vote</b></td>
             </tr>
@@ -22,7 +22,7 @@
                 {% if proposal.vote and proposal.vote.result.is_open %}
                     <tr>
                         <td>
-                            <b>{{ proposal.designation }}</b>
+                            <b>{{ proposal.designation }}<br/>{{ proposal.title }}</b>
                             <!-- {% if not loop.last %}<hr/> {% endif %} -->
                         </td>
                         <td>
@@ -57,17 +57,17 @@
     {{ mainform_end() }}
 
     {{ privkeyform() }}
-    
+
     <script type="text/javascript">
      function recalc() {
 	 var ap = "{{ action_prefix }}"+ "{{ cml.hashref() }} ";
          var sep = "\n@@@@@\n";
 	 var member = $("input[name='author_name']").val();
-         
+
          var vote_hashes = [];
          var ballot_options = [];
          var proposal_designations = [];
-         
+
          {% for proposal in cml.proposals() %}
              {% if  proposal.vote and proposal.vote.result.is_open %}
                vote_hashes.push("{{ proposal.vote.hashref() }}");
@@ -75,7 +75,7 @@
                proposal_designations.push("{{proposal.designation}}");
              {% endif %}
          {% endfor %}
-         
+
 	 var vote_hash = $("input[name='vote_hash']").val();
 
          var invalid = false;
@@ -104,7 +104,7 @@
 
                      // add  metadata as comment
                      s+=" # proposal: "+proposal_designations[i];
-                         
+
                      s+=sep;
                  }
              }

@@ -41,7 +41,7 @@ def postAction(client, astr, member, upload_data=None, upload_fn=None):
 ######################################################################
 ## ACTIONS
 def upload_proposal(client, data, filename, member):
-    """ Upload proposal with contents 'data' and filename 'filename' from 
+    """ Upload proposal with contents 'data' and filename 'filename' from
     member 'member'. """
     postAction(
         client,
@@ -49,11 +49,11 @@ def upload_proposal(client, data, filename, member):
         member, upload_data = data, upload_fn = filename)
 
 
-def publish_proposal(client, data, designation, votemaster):
+def publish_proposal(client, data, designation, title, votemaster):
     """ Publish proposal with given content as given member. """
     postAction(
         client,
-        "proposal-publish file %s designation %s by %s" % (sha256(data), designation, votemaster),
+        "proposal-publish file %s designation %s title '%s' by %s" % (sha256(data), designation, title, votemaster),
         votemaster)
 
 def open_proposal_vote(client, data, votemaster, method):
@@ -113,7 +113,7 @@ def delete_objects(client, votemaster, hashrefs):
         client,
         "delete-objects [%s] by %s" % (" ".join(hashrefs),
                                        votemaster), votemaster)
-    
+
 ######################################################################
 ## QUERIES
 def is_current_member(client, member):
@@ -162,4 +162,8 @@ def get_designation(client, rfhash):
     metahash = meta_for_raw_file_hash(client, rfhash)
     res = client.get(prefix+"raw/proposal_metadata/%s" % metahash)
     return res.json["designation"]
-    
+
+def get_title(client, rfhash):
+    metahash = meta_for_raw_file_hash(client, rfhash)
+    res = client.get(prefix+"raw/proposal_metadata/%s" % metahash)
+    return res.json["title"] if "title" in res.json else None

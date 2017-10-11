@@ -21,7 +21,7 @@ import testkeys
 
 def test_scenario1(bare_session, stopper=""):
     old_ml = makeTestMemberList(None) # dummy old member list
-    
+
     ml = makeTestMemberList(old_ml)
     ml.set_current()
 
@@ -45,22 +45,22 @@ def test_scenario1(bare_session, stopper=""):
                               pgp = True)
     act_upload.apply(du, proposal2)
     bare_session.commit()
-    
+
     if stopper == "two-unpublished":
         return
-    
+
     rf= RawFile.by_hash(hashprop1)
     m1 = rf.proposal_metadata
-    
+
     act_publish=makeTestAction(author=Member.by_name("member_v"),
                                apart =
-                               (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop1))
+                               (ml.hashref()+" proposal-publish file %s designation BUIP0001 title 'title BUIP0001' by member_v" % hashprop1))
     act_publish.apply(None, None)
     bare_session.commit()
 
     if stopper == "one-published":
         return
-    
+
     act_open_vote=makeTestAction(author=Member.by_name("member_v"),
                                  apart =
                                  (ml.hashref()+
@@ -71,20 +71,20 @@ def test_scenario1(bare_session, stopper=""):
     if stopper == "open-proposal-vote":
         return vote
 
-    
+
     vdeps=vote.dependencies()
     assert len(vdeps) == 4
     assert rf in vdeps
     assert rf.proposal_metadata in vdeps
     assert act_open_vote in vdeps
     assert vote.result in vdeps
-    
+
     for i, x in enumerate("abcdefghijklmnopqrstu"):
         if i<10:
             answer="accept"
         else:
             answer="reject"
-            
+
         act_cast_vote=makeTestAction(author=Member.by_name("member_%s" % x),
                                      apart =
                                      (ml.hashref()+
@@ -94,13 +94,13 @@ def test_scenario1(bare_session, stopper=""):
         bare_session.commit()
     if stopper == "votes-cast":
         return
-    
+
     act_close_vote=makeTestAction(author=Member.by_name("member_v"),
                                  apart =
                                  (ml.hashref()+
                                   " close-proposal-vote result %s by member_v" %
                                   (vote.result.hashref())))
-    
+
     act_close_vote.apply(None, None)
     bare_session.commit()
 
@@ -147,13 +147,13 @@ def test_scenario1(bare_session, stopper=""):
 
     assert Global.current_member_list() != ml
     assert Member.by_name("newmember1") in Global.current_member_list().members
-    
+
     bare_session.commit()
 
 
 def test_deps(bare_session):
     test_scenario1(bare_session)
-    
+
     all_objs = set(get_all_objects().values())
     for obj in all_objs:
         for dep in obj.dependencies():
@@ -179,8 +179,8 @@ def test_serialized(bare_session):
         assert isinstance(ser, bytes)
         if not isinstance(obj, RawFile):
             json.loads(ser.decode("utf-8"))
-        
-            
+
+
 def test_scenario_invalid1(bare_session):
     """ Test invalid action type """
     ml = makeTestMemberList(None)
@@ -214,13 +214,13 @@ def test_invalid_scenario2(bare_session):
     bare_session.commit()
 
     rf= RawFile.by_hash(hashprop1)
-    
+
     act_publish=makeTestAction(author=Member.by_name("member_v"),
                                apart =
-                               (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop1))
+                               (ml.hashref()+" proposal-publish file %s designation BUIP0001 title 'title BUIP0001' by member_v" % hashprop1))
     act_publish.apply(None, None)
     bare_session.commit()
-    
+
     act_open_vote=makeTestAction(author=Member.by_name("member_v"),
                                  apart =
                                  (ml.hashref()+
@@ -239,7 +239,7 @@ def test_invalid_scenario2(bare_session):
 def test_scenario_invalid3(bare_session):
     test_scenario1(bare_session, "two-unpublished")
     ml=Global.current_member_list()
-    
+
     proposal1=b"Test proposal #1"
     hashprop1=hashlib.sha256(proposal1).hexdigest()
     rf= RawFile.by_hash(hashprop1)
@@ -260,7 +260,7 @@ def test_invalid_publish(bare_session):
     hashprop1=hashlib.sha256(proposal1).hexdigest()
 
     hashprop_noexist = hashlib.sha256(b"nope").hexdigest()
-    
+
     rf= RawFile.by_hash(hashprop1)
     m1 = rf.proposal_metadata
 
@@ -268,7 +268,7 @@ def test_invalid_publish(bare_session):
     with pytest.raises(ValidationError):
         act_publish=makeTestAction(author=Member.by_name("member_v"),
                                    apart =
-                                   (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop_noexist))
+                                   (ml.hashref()+" proposal-publish file %s designation BUIP0001 title 'title BUIP0001' by member_v" % hashprop_noexist))
         act_publish.apply(None, None)
 
     rf_nomd = RawFile(b"nope")
@@ -279,18 +279,18 @@ def test_invalid_publish(bare_session):
     with pytest.raises(ValidationError):
         act_publish=makeTestAction(author=Member.by_name("member_v"),
                                    apart =
-                                   (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop_noexist))
+                                   (ml.hashref()+" proposal-publish file %s designation BUIP0001 title 'title BUIP0001' by member_v" % hashprop_noexist))
         act_publish.apply(None, None)
-        
+
     # test file is already public
     m1.file_public = True
-    
+
     with pytest.raises(ValidationError):
         act_publish=makeTestAction(author=Member.by_name("member_v"),
                                    apart =
-                                   (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop1))
+                                   (ml.hashref()+" proposal-publish file %s designation BUIP0001 title 'title BUIP0001' by member_v" % hashprop1))
         act_publish.apply(None, None)
-    
+
 
 def test_invalid_open_proposal_vote(bare_session):
     test_scenario1(bare_session, stopper="one-published")
@@ -321,7 +321,7 @@ def test_invalid_open_proposal_vote(bare_session):
 
     rf= RawFile.by_hash(hashprop1)
     m1 = rf.proposal_metadata
-    
+
     # open proposal vote on invalid metadata
     with pytest.raises(ValidationError):
         act_open_vote=makeTestAction(author=Member.by_name("member_v"),
@@ -339,8 +339,8 @@ def test_invalid_open_proposal_vote(bare_session):
                                      (ml.hashref()+
                                       " open-proposal-vote meta %s by member_v method (buip-acc-rej-abs)" %
                                       (rf.proposal_metadata.hashref())))
-        act_open_vote.apply(None, None)        
-        
+        act_open_vote.apply(None, None)
+
 
     m1.file_public=True
     act_open_vote=makeTestAction(author=Member.by_name("member_v"),
@@ -348,8 +348,8 @@ def test_invalid_open_proposal_vote(bare_session):
                                      (ml.hashref()+
                                       " open-proposal-vote meta %s by member_v method (buip-acc-rej-abs)" %
                                       (rf.proposal_metadata.hashref())))
-    act_open_vote.apply(None, None)        
-        
+    act_open_vote.apply(None, None)
+
     # open proposal vote where vote is open already
     with pytest.raises(ValidationError):
         act_open_vote=makeTestAction(author=Member.by_name("member_v"),
@@ -357,8 +357,8 @@ def test_invalid_open_proposal_vote(bare_session):
                                      (ml.hashref()+
                                       " open-proposal-vote meta %s by member_v method (buip-acc-rej-abs)" %
                                       (rf.proposal_metadata.hashref())))
-        act_open_vote.apply(None, None)        
-        
+        act_open_vote.apply(None, None)
+
 def test_invalid_close_proposal_vote(bare_session):
     vote = test_scenario1(bare_session, stopper="open-proposal-vote")
     ml=Global.current_member_list()
@@ -379,24 +379,24 @@ def test_invalid_close_proposal_vote(bare_session):
                                   " close-proposal-vote result %s by member_v" %
                                   (hashprop_noexist)))
         act_close_vote.apply(None, None)
-    
+
     # close vote twice
     act_close_vote=makeTestAction(author=Member.by_name("member_v"),
                                   apart =
                                   (ml.hashref()+
                                    " close-proposal-vote result %s by member_v" %
-                                   (vote.result.hashref())))        
+                                   (vote.result.hashref())))
     act_close_vote.apply(None, None)
     bare_session.commit()
-    
+
     with pytest.raises(ValidationError):
         act_close_vote=makeTestAction(author=Member.by_name("member_v"),
                                       apart =
                                  (ml.hashref()+
                                   " close-proposal-vote result %s by member_v" %
-                                  (vote.result.hashref())))        
+                                  (vote.result.hashref())))
         act_close_vote.apply(None, None)
-        
+
 
 def test_invalid_cast_ballot(bare_session):
     vote = test_scenario1(bare_session, stopper="open-proposal-vote")
@@ -419,7 +419,7 @@ def test_invalid_cast_ballot(bare_session):
                                       " cast-proposal-ballot vote %s by member_%s answer (%s)" %
                                       (hashprop_noexist, x, "accept")))
         act_cast_vote.apply(None, None)
-        
+
 def test_invalid_cast_member_ballot(bare_session):
     vote = test_scenario1(bare_session, stopper="new-applicants")
     ml=Global.current_member_list()
@@ -431,7 +431,7 @@ def test_invalid_cast_member_ballot(bare_session):
 
     rf= RawFile.by_hash(hashprop1)
     m1 = rf.proposal_metadata
-    
+
     # create ballot for member election that does not exist
     with pytest.raises(ValidationError):
         ans="accept"
@@ -472,8 +472,8 @@ def test_invalid_cast_member_ballot(bare_session):
                                       " cast-member-ballot name newmember1 address %s by member_%s answer %s" % (
                                       (makeTestKey("newmember1")[1], x, ans))))
         act_new_member_cast.apply(None, None)
-        
-        
+
+
     act_close_member_elections=makeTestAction(
         author=Member.by_name("member_v"),
         apart =
@@ -481,7 +481,7 @@ def test_invalid_cast_member_ballot(bare_session):
          " close-member-elections all [newmember1 newmember2 newmember3] by member_v"))
     act_close_member_elections.apply(None, None)
 
-    
+
     # create ballot for closed vote
     nml=Global.current_member_list()
     with pytest.raises(ValidationError):
@@ -493,7 +493,7 @@ def test_invalid_cast_member_ballot(bare_session):
                                       " cast-member-ballot name newmember1 address %s by member_%s answer %s" % (
                                       (makeTestKey("newmember1")[1], x, ans))))
         act_new_member_cast.apply(None, None)
-        
+
 
 def test_invalid_member_vote_close(bare_session):
     vote = test_scenario1(bare_session, stopper="votes-on-applicant")
@@ -517,9 +517,9 @@ def test_update_ml_address(bare_session):
     cur_address = Member.by_name("member_a").address
 
     assert old_member.most_recent
-    
+
     assert cur_address != new_address
-    
+
     act_newaddr = makeTestAction(author = Member.by_name("member_v"),
                                  apart = (
                                      ml.hashref() +
@@ -541,18 +541,18 @@ def test_update_ml_pgpkey(bare_session):
     assert Member.by_name("member_c").pgp_pubkey is None
 
     du=DummyUpload("new_pgp_key.txt", "text/plain")
-    
+
     pubkey_hash = hashlib.sha256(testkeys.pubkey1).hexdigest()
-    
+
     act_newpubkey = makeTestAction(
         author = Member.by_name("member_v"),
         apart = (ml.hashref() +
                  " update-memberlist-set-pgp-pubkey pubkey %s for member_c by member_v" % pubkey_hash))
     act_newpubkey.apply(du, testkeys.pubkey1)
-        
+
     assert cur_address == Member.by_name("member_c").address
     assert Member.by_name("member_c").pgp_pubkey == testkeys.pubkey1.decode("ascii")
-            
+
 def test_invalid_propose_member(bare_session):
     test_scenario1(bare_session, stopper="votes-cast")
     ml=Global.current_member_list()
@@ -574,12 +574,12 @@ def test_invalid_propose_member(bare_session):
                                        " propose-member name newmember address %s by member_v" %
                                   (makeTestKey("member_a")[1])))
         act_new_member.apply(None, None)
-        
+
 def test_multiaction_proposal_vote(bare_session):
     """ Test acting o multiple proposals at once, using
     the MultiAction. """
     test_scenario1(bare_session, stopper="two-unpublished")
-    
+
     ml=Global.current_member_list()
 
     proposal1=b"Test proposal #1"
@@ -592,8 +592,8 @@ def test_multiaction_proposal_vote(bare_session):
     act_publish=makeTestMultiAction(
         author=Member.by_name("member_v"),
         aparts = [
-            (ml.hashref()+" proposal-publish file %s designation BUIP0001 by member_v" % hashprop1),
-            (ml.hashref()+" proposal-publish file %s designation BUIP0002 by member_v" % hashprop2)])
+            (ml.hashref()+" proposal-publish file %s designation BUIP0001 title 'title BUIP0001' by member_v" % hashprop1),
+            (ml.hashref()+" proposal-publish file %s designation BUIP0002 title 'title BUIP0002' by member_v" % hashprop2)])
     act_publish.apply()
 
     # open vote on both

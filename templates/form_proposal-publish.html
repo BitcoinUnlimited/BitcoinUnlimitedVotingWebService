@@ -5,26 +5,29 @@
     {{ form_author_votemaster() }}
     {{ form_hash_ro("Hash of file to publish", "file_hash", hashval) }}
     {{ form_text("Proposal designation", "designation", "") }}
+    {{ form_text("Proposal title", "title", "") }}
     {{ form_action_string() }}
     {{ form_signature() }}
     {{ form_submit() }}
     {{ mainform_end() }}
-    
+
     {{ privkeyform() }}
-    
+
     <script type="text/javascript">
      function recalc() {
 	 var ap = "{{ action_prefix }}"+ "{{ cml.hashref() }} ";
 	 var member = $("input[name='author_name']").val();
 	 var file_hash = $("input[name='file_hash']").val();
 	 var designation = $("input[name='designation']").val();
-	 
-	 if (member    === "" ||
-	     file_hash === "" ||
-	     designation === "") {
+	 var title = $("input[name='title']").val();
+
+	 if (member      === "" ||
+	     file_hash   === "" ||
+	     designation === "" ||
+             title       === "") {
 	     $("textarea[name='action_string']").val("");
 	 } else {
-	     var s= ap + "proposal-publish file "+file_hash+" designation " + designation + " by " + member;
+	     var s= ap + "proposal-publish file "+file_hash+" designation " + designation + " title '" + title + "' by " + member;
 	     $("textarea[name='action_string']").val(s);
 	     fill_sig();
 	 }

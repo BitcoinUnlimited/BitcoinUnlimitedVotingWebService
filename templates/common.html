@@ -31,7 +31,7 @@
 {%- endmacro %}
 
 {% macro format_member_link(member) -%}
-    <a href="{{ url('render/member/'+member.hashref()) }}"> {{ member.name }}, {{ format_addr(member.address) }}</a>    
+    <a href="{{ url('render/member/'+member.hashref()) }}"> {{ member.name }}, {{ format_addr(member.address) }}</a>
 {%- endmacro %}
 
 {% macro format_member_list_link(ml) -%}
@@ -111,6 +111,8 @@
      $("input[name='author_name']").keyup(recalc);
      $("input[name='designation']").change(recalc);
      $("input[name='designation']").keyup(recalc);
+     $("input[name='title']").change(recalc);
+     $("input[name='title']").keyup(recalc);
      $("textarea[name='action_string'], input[name='privkey']").change(recalc);
      $("textarea[name='action_string'], input[name='privkey']").keyup(recalc);
 
@@ -351,7 +353,7 @@
 	    </div>
 	    <div class="banner"></div>
 	{% endblock %}
-	
+
         {% block bodydefault %}
             <script src='{{ url("js/jquery-3.2.1.min.js") }}'></script>
 	    <script src='{{ url("js/bitcoinjs.js") }}'></script>
@@ -380,12 +382,12 @@
 	     }
 	    </style>
 	{% endblock %}
-	<div class="p2 py2"> 
+	<div class="p2 py2">
 	    <div class="section__container">
 		{% block body %}
 		{% endblock %}
 	    </div>
-	</div> 
+	</div>
 	<div class="banner"></div>
 	{% if render_object_id is defined %}
 	    <div class="p2 py2">
@@ -404,7 +406,7 @@
 			are accessible using the URL pattern <span class="monospace">{{ url('raw/<object-type>/<sha256-hash>') }}</span>,
 			such as for the link below.
 		    </div>
-		    
+
 		    <a href="{{ url('raw/' + render_object_type+'/'+render_object_id) }}">[Raw data]</a>
 		    <a href="{{ url('zip/' + render_object_type+'/'+render_object_id) }}">[ZIP including dependencies]</a>
 		</div>

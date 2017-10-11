@@ -5,7 +5,7 @@
     {% set action = prop.action %}
     <h2>BUIP Metadata</h2>
     This shows the <span class="monospace">proposal_metadata</span> object
-    
+
     in the voting system, referring to the uploaded file {{ format_filename(prop.filename) }}.
 
     {% if prop.file_public %}
@@ -18,6 +18,7 @@
 	<li>Upload <b>file name</b>: {{ prop.filename }}</li>
 	<li>Upload <b>MIME type</b>: {{ prop.mime_type }}</li>
 	<li>Proposal <b>designation</b>: {{ prop.designation }}</li>
+	<li>Proposal <b>title</b>: {{ prop.title }}</li>
 	<li><b>SHA256 hash</b> of the uploaded file: {{ format_hash(prop.raw_file.hashref()) }}</li>
 	<li>
 	    {% if prop.file_public %}
