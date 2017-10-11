@@ -8,11 +8,20 @@ from contextlib import contextmanager
 import sqlalchemy.orm.exc
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm.session import make_transient
+from sqlalchemy import MetaData
 
 import config
 import jvalidate
 
-db=SQLAlchemy()
+#db=SQLAlchemy()
+db= SQLAlchemy(metadata=MetaData(naming_convention={
+    'pk': 'pk_%(table_name)s',
+    'fk': 'fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s',
+    'ix': 'ix_%(table_name)s_%(column_0_name)s',
+    'uq': 'uq_%(table_name)s_%(column_0_name)s',
+    #'ck': 'ck_%(table_name)s_%(constraint_name)s',
+    "ck": "ck_%(table_name)s_%(column_0_name)s"
+}))
 
 log=logging.getLogger(__name__)
 
@@ -35,12 +44,12 @@ class BUType:
 
     def serialize(self):
         return self.x_json
-    
+
     def extraRender(self):
         return {
             "hashref" : self.hashref()
         }
-    
+
     def public(self):
         return True
 
@@ -52,7 +61,7 @@ class BUType:
         object cannot exist / be rendered without another."""
         pass # pragma: no cover
 
-        
+
     # def unhinge(self):
     #     """ Clone this object and return it as a context manager. xUpdate() and add after
     #     context exit."""
@@ -66,7 +75,7 @@ class BUType:
             return cls.query.filter(cls.x_sha256 == href).one()
         except sqlalchemy.orm.exc.NoResultFound:
             return None
-        
+
 def defaultExtend(obj, j):
     j.update({
         "version" : 1,
