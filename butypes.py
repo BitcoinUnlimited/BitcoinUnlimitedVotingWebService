@@ -21,7 +21,7 @@ from tproposalvoteresult import ProposalVoteResult
 from tmemberelectionresult import MemberElectionResult
 from tglobal import Global
 
-types=[RawFile, Action, Member, MemberList, ProposalMetadata,
+types=[RawFile, Action, MultiAction, Member, MemberList, ProposalMetadata,
        ProposalVote, ProposalVoteResult, MemberElectionResult]
 
 name2type=dict((x.__tablename__,x) for x in types)
@@ -46,7 +46,7 @@ def users_of(obj):
         if obj in o.dependencies():
            used.append(o)
     return used
-    
+
 def is_used(obj):
     """ Return true iff obj is used by something else. """
     return len(users_of(obj))
