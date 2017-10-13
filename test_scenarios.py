@@ -54,7 +54,7 @@ def test_scenario1(bare_session, stopper=""):
 
     act_publish=makeTestAction(author=Member.by_name("member_v"),
                                apart =
-                               (ml.hashref()+" proposal-publish file %s designation BUIP0001 title 'title BUIP0001' by member_v" % hashprop1))
+                               (ml.hashref()+" proposal-publish file %s designation BUIP0001 title 'some annoyingly long title for BUIP0001 to test the proper formatting in all templates' by member_v" % hashprop1))
     act_publish.apply(None, None)
     bare_session.commit()
 
