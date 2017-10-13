@@ -1,4 +1,10 @@
 #!/bin/bash
+
+# Important warning: If there are any database migrations,
+# to protect the DB these have to be done manually for now
+# (after a proper backup!!),
+# with 'alembic upgrade head'!
+
 cd `dirname $0`
 
 while true; do
