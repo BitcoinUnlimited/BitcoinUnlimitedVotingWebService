@@ -29,13 +29,13 @@ def tTokenList(context, x):
 def tMemberName(x):
     if len(x)>30:
         raise ValidationError("Invalid member name '%s' (too long)." % x)
-    
+
     if not re.match("^[a-zA-Z0-9_-]+$", x):
         raise ValidationError("Invalid member name '%s'." % x)
 
     if x in ["president", "developer", "secretary"]:
         raise ValidationError("Invalid member name '%s'. Can't be any of the official BU rules." % x)
-    
+
     return x
 
 def tAddress(x):
@@ -49,7 +49,7 @@ def tAddress(x):
 
 
 def tSafeString(x):
-    """ String that hopefully cannot be used to render any HTML/JS tricks. 
+    """ String that hopefully cannot be used to render any HTML/JS tricks.
     FIXME: review!
     """
     if x[0]=="'":
@@ -63,8 +63,8 @@ def tSafeString(x):
 
     x=x[1:-1]
 
-    
-    if not re.match("^[a-zA-Z0-9_ .;!?+\-*/#@%=^\(\)]*$", x):
+
+    if not re.match("^[a-zA-Z0-9_ .:;!?+\-*/#@%=^\(\)\[\]\$]*$", x):
         raise ValidationError("Unsafe string '%s'." % x)
     return x
 
@@ -84,7 +84,7 @@ def tAccRejAbs(x):
     else:
         raise ValidationError(
             "Expected accept, reject or abstain (or spoil), got '%s'." % x)
-    
+
 
 ######################################################################
 def tCurrentMember(membername):
@@ -129,14 +129,14 @@ def tVoteAnswer(context, tokens): # FIXME: code duplication
 
     if "vote_hash" not in context:
         raise ValidationError("Expected 'vote_hash' in context.")
-    
+
     vote = ProposalVote.by_hash(context["vote_hash"])
 
     if vote is None:
         raise ValidationError("Vote '%s' does not exist." % context["vote_hash"])
-    
+
     method_name = vote.method_name
-    
+
     if method_name not in vote_methods:
         raise ValidationError("Invalid voting method '%s'." % method_name)
 
@@ -154,10 +154,10 @@ def tDesignation(x):
     # designation for proposals
     if len(x)>10:
         raise ValidationError("Invalid designation '%s' (too long)." % x)
-    
+
     if not re.match("^[a-zA-Z0-9_-]+$", x):
         raise ValidationError("Invalid designation '%s'." % x)
-    
+
     return x
 
 atypes = {
