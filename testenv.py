@@ -14,11 +14,16 @@ from test_helpers import DummyUpload
 from test_taction import makeTestAction
 from appmaker import make_app
 from test_scenarios import *
+import logging
+import gnupg
+
+# quieten down GPG here as well
+gnupg.logger.setLevel(logging.INFO)
 
 if len(sys.argv) < 2:
     print("Please specify stop point or empty string.")
     exit(1)
-    
+
 app, db = make_app(fresh=True)
 test_scenario1(db.session, sys.argv[1])
 
