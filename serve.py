@@ -1,6 +1,7 @@
 # Web front end
 import time
 import os
+import signal
 import logging
 from flask import (Flask, render_template, send_from_directory,
                    abort, Response, request, jsonify)
@@ -45,9 +46,9 @@ def make_app(test_mode_internal=False):
     def format_datetime(tstamp):
         """ Format float date into UTC timestamp. """
         return time.strftime("%c", time.gmtime(tstamp))
-    
+
     app.jinja_env.filters["datetime"]=format_datetime
-    
+
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
 
@@ -175,6 +176,14 @@ def make_app(test_mode_internal=False):
         else:
             abort(404)
 
+    @app.route("/api1/debug/shutdown")
+    def debug_shutdown():
+        """ Shutdown the web server. """
+        if config.test_mode:
+            os.kill(os.getppid(), signal.SIGTERM)
+        else:
+            abort(404)
+
     @app.route("/api1/render/<objtype:name>/<shex:hashval>")
     def _render(name, hashval):
         Cls = name2type[name]
@@ -261,7 +270,7 @@ def make_app(test_mode_internal=False):
             cml = Global.current_member_list(),
             member_name=name,
             member_address=address)
-    
+
     @app.route("/api1/form/close-member-elections")
     def _form_close_member_elections():
         cml = Global.current_member_list()
@@ -286,7 +295,7 @@ def make_app(test_mode_internal=False):
             name, "cast-proposal-ballot")
 
         published = list(ProposalMetadata.all_public())
-        
+
         # calculate set of published proposals that have and have not
         # yet been voted on by the selected member.
         pms_voted_on_by_member = [
@@ -296,8 +305,8 @@ def make_app(test_mode_internal=False):
         pms_not_voted_on_by_member = [
             pm for pm in published
             if pm not in pms_voted_on_by_member]
-        
-            
+
+
         return render_template(
             "proposal-ballots-by-member.html",
             ballots = ballots,
@@ -306,7 +315,7 @@ def make_app(test_mode_internal=False):
             pms_voted_on_by_member = pms_voted_on_by_member,
             pms_not_voted_on_by_member = pms_not_voted_on_by_member,
             ProposalVote = ProposalVote)
-    
+
 
     @app.route("/api1/action", methods=["POST"])
     def _action():
@@ -419,7 +428,7 @@ def make_app(test_mode_internal=False):
             return render_template("on_multi_action.html",
                                    multi_action = multi_action,
                                    returnvals = returnvals), 201
-        
+
     @app.route("/api1/zip/<objtype:name>/<shex:hashval>")
     def _get_zip(name, hashval):
         import io
@@ -481,4 +490,3 @@ def serve(): # pragma: no cover
     app, db = make_app()
     print("Starting buv web server on localhost:9090.")
     app.run(host='localhost', port=9090, debug=config.debug_mode)
-    
