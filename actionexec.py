@@ -206,7 +206,27 @@ class CloseMemberElectionsAE(ActionExec):
         if app_names != names:
             raise ValidationError("Currently, all new member elections must be closed at once.")
 
-        new_members=[r.new_member for r in mers if r.summarize()["accepted"]]
+        members_voted_in = dict(
+            (r.new_member.name, r.new_member) for r in mers if r.summarize()["accepted"])
+
+        new_members=[]
+
+        # loop over names given to close-member-election action to keep the
+        # order (member numbers) intact
+        for name in names:
+            if name in members_voted_in:
+                m = members_voted_in[name]
+
+                # "deprecate" tempory member objects used for voting
+                m.most_recent = False
+                db.session.commit()
+
+                # create new members - with auto-assigned member numbers
+                new_members.append(
+                    Member(name = m.name,
+                           address = m.address,
+                           pgp_pubkey = m.pgp_pubkey,
+                           number = "assign-new"))
 
         new_memberlist=MemberList(
             members = ml.members+new_members,
@@ -284,7 +304,8 @@ class UpdateMLSetPGPPubKeyAE(ActionExec):
 
         updateMemberinCurrentMemberList(membername,
                                         "unchanged",
-                                        upload_data.decode("ascii"))
+                                        upload_data.decode("ascii"),
+                                        "unchanged")
 
 class UpdateMLSetAddressAE(ActionExec):
     template = "address %new_address:address for %membername:current_member by %votemaster:votemaster"
@@ -296,7 +317,24 @@ class UpdateMLSetAddressAE(ActionExec):
 
         updateMemberinCurrentMemberList(membername,
                                         new_address,
+                                        "unchanged",
                                         "unchanged")
+
+class UpdateMLSetNumberAE(ActionExec):
+    template = "number %new_number:int for %membername:current_member by %votemaster:votemaster"
+    def act(self, action, upload, upload_data, new_number, membername, votemaster):
+        checkAuthor(action, votemaster)
+        checkNoUpload(upload, upload_data)
+
+        if new_number <= 0:
+            raise ValidationError("Member number must be set to a positive number, not %d." % new_number)
+
+        member = Member.by_name(membername)
+
+        updateMemberinCurrentMemberList(membername,
+                                        "unchanged",
+                                        "unchanged",
+                                        new_number)
 
 
 
@@ -314,5 +352,6 @@ action_map={
 
     "delete-objects" : DeleteObjectsAE,
     "update-memberlist-set-pgp-pubkey" : UpdateMLSetPGPPubKeyAE,
-    "update-memberlist-set-address" : UpdateMLSetAddressAE
+    "update-memberlist-set-address" : UpdateMLSetAddressAE,
+    "update-memberlist-set-number" : UpdateMLSetNumberAE
 }

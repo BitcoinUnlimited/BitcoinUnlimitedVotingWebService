@@ -3,21 +3,22 @@ from butypes import *
 
 def updateMemberinCurrentMemberList(name,
                                     address,
-                                    pgp_pubkey = None):
+                                    pgp_pubkey = None,
+                                    number = None):
     ml = Global.current_member_list()
 
     for proposal in ml.proposals():
         if proposal.vote and proposal.vote.is_open:
-            raise ValidationError("Current member list has proposal openm for voting.")
+            raise ValidationError("Current member list has proposal open for voting.")
 
     if len(list(ml.applications())):
         raise ValidationError("Current member list has new members applying.")
-            
-        
+
+
     member = Member.by_name(name)
     if member is None:
         raise ValidationError("No recent member '%s' exists." % name)
-    
+
     if member not in ml.members:
         raise ValidationError("Member '%s' not in current member list." % member)
 
@@ -28,12 +29,13 @@ def updateMemberinCurrentMemberList(name,
 
     updated_member = Member(name = name,
                             address = member.address if address=="unchanged" else address,
-                            pgp_pubkey = member.pgp_pubkey if pgp_pubkey=="unchanged" else pgp_pubkey)
+                            pgp_pubkey = member.pgp_pubkey if pgp_pubkey=="unchanged" else pgp_pubkey,
+                            number = member.number if number=="unchanged" else number)
 
     new_memberlist = ml.members.copy()
     new_memberlist.remove(member)
     new_memberlist.append(updated_member)
-    
+
     new_president = (updated_member
                      if updated_member.name == ml.president.name
                      else ml.president)

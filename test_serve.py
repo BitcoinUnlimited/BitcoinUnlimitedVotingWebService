@@ -24,7 +24,7 @@ def find(client, url, contains=None, ct_like=None):
             assert False
     if ct_like is not None:
         assert ct_like in dict(res.headers)["Content-Type"]
-        
+
 def dont_find(client, url):
     res = client.get(url)
     assert res.status_code == 404
@@ -36,8 +36,8 @@ def unauthorized(client, url):
 def get_method_not_allowed(client, url):
     res = client.get(url)
     assert res.status_code == 405
-    
-        
+
+
 def test_static(client, app):
     dont_find(client, "/")
     find(client, prefix)
@@ -56,7 +56,7 @@ def test_static(client, app):
     dont_find(client, prefix+"debug/result-for-vote/"+64*"0")
     dont_find(client, prefix+"debug/summary-of-proposal-vote-result/"+64*"0")
     dont_find(client, prefix+"debug/summary-of-member-election-result/"+64*"0")
-    
+
     config.test_mode = True
     find(client, prefix+"debug")
     find(client, prefix+"debug/objects")
@@ -71,8 +71,8 @@ def test_static(client, app):
     dont_find(client, prefix+"debug/summary-of-member-election-result/"+64*"0")
 
     get_method_not_allowed(client, prefix+"action")
-    
-    
+
+
 def test_render_raw(client, app, raw_file, proposal_vote, member_election_result):
     pvr = proposal_vote
     mer = member_election_result
@@ -90,28 +90,28 @@ def test_render_raw(client, app, raw_file, proposal_vote, member_election_result
          ct_like="text/html")
     find(client, prefix+"raw/proposal_metadata/"+pm.hashref(),
          ct_like="application/json")
-    
-    
-    find(client, prefix+"render/member/fce7de9a7ca1a81c80151f724c13fd89eece971276555abca7b0f13d813f7f04", ct_like="text/html")
-    find(client, prefix+"raw/member/fce7de9a7ca1a81c80151f724c13fd89eece971276555abca7b0f13d813f7f04", ct_like="application/json") 
+
+
+    find(client, prefix+"render/member/"+mer.new_member.hashref(), ct_like="text/html")
+    find(client, prefix+"raw/member/"+mer.new_member.hashref(), ct_like="application/json")
 
     cml = Global.current_member_list()
-    
+
     find(client, prefix+"render/member_list/"+cml.hashref(),
          ct_like="text/html")
     find(client, prefix+"raw/member_list/"+cml.hashref(),
          ct_like="application/json")
-    
+
     dont_find(client, prefix+"render/member/"+64*"1")
     dont_find(client, prefix+"raw/member/"+64*"1")
-    
+
     find(client, prefix+"render/proposal_vote/"+pvr.hashref(),
          ct_like = "text/html")
     find(client, prefix+"raw/proposal_vote/"+pvr.hashref(),
          ct_like="application/json")
 
     res = pvr.result
-    
+
     find(client, prefix+"render/proposal_vote_result/"+res.hashref(),
          ct_like = "text/html")
     find(client, prefix+"raw/proposal_vote_result/"+res.hashref(),
@@ -127,7 +127,7 @@ def test_render_raw(client, app, raw_file, proposal_vote, member_election_result
          ct_like = "text/html")
     find(client, prefix+"raw/member_election_result/"+mer.hashref(),
          ct_like="application/json")
-    
+
 def test_forms(client, app):
     find(client, prefix+"form/generic/"+64*"1")
     dont_find(client, prefix+"form/invalid")
@@ -140,21 +140,21 @@ def test_forms(client, app):
     find(client, prefix+"form/propose-member")
     find(client, prefix+"form/cast-member-ballot/name/address")
     find(client, prefix+"form/close-member-elections")
-    
+
     with pytest.raises(ValidationError):
         dont_find(client, prefix+"form/proposal-publish/invalid")
-        
+
     with pytest.raises(ValidationError):
         dont_find(client, prefix+"form/open-proposal-vote/invalid")
-        
+
     with pytest.raises(ValidationError):
         dont_find(client, prefix+"form/close-proposal-vote/invalid")
-        
+
     with pytest.raises(ValidationError):
         dont_find(client, prefix+"form/cast-proposal-ballot/invalid")
-        
-    
-    
+
+
+
 def test_action1(client, app, raw_file):
     data={}
     res = client.post(prefix+"action", data=data)
@@ -184,13 +184,13 @@ def test_action1(client, app, raw_file):
     newmember6 = Member("newmember6", nm1addr)
 
     ml = Global.current_member_list()
-    
+
     action = makeTestAction(
         member_v(),
         "%s propose-member name %s address %s by member_v" % (
             ml.hashref(), newmember6.name, newmember6.address))
 
-    
+
     # add upload
     data["upload"]=(BytesIO(b"dummy data"), "test.txt")
     data["author_name"]="member_v"
@@ -214,12 +214,12 @@ def test_action1(client, app, raw_file):
     data["signature"] = action.signature
     res = client.post(prefix+"action", data=data)
     assert res.status_code == 409
-    
+
     # finally, do everything right
     del data["upload"]
     res = client.post(prefix+"action", data=data)
     assert res.status_code == 201
-    
+
 
 def test_upload(client, app, raw_file):
     data={}
@@ -230,7 +230,7 @@ def test_upload(client, app, raw_file):
 
     test_upload_data=b"Test upload data"
     upload_hash=hashlib.sha256(test_upload_data).hexdigest()
-    
+
     action = makeTestAction(
         member_a(),
         "%s proposal-upload file %s by member_a" % (
@@ -247,13 +247,13 @@ def test_upload(client, app, raw_file):
     data["upload"]=(BytesIO(test_upload_data+b" incorrect"), "test.txt")
     res = client.post(prefix+"action", data=data)
     assert res.status_code == 400
-    
+
     # upload of correct data
     data["upload"]=(BytesIO(test_upload_data), "test.txt")
     res = client.post(prefix+"action", data=data)
     assert res.status_code == 201
-    
-    
+
+
 def test_zip_download(client, app, member_list, raw_file, proposal_vote):
     with pytest.raises(urlvalidate.ValidationError):
         dont_find(client, prefix+"zip/invalid/invalid")
@@ -269,13 +269,8 @@ def test_zip_download(client, app, member_list, raw_file, proposal_vote):
 
     unauthorized(client, prefix+"zip/raw_file/"+raw_file.hashref())
 
-    raw_file.proposal_metadata.file_public=True 
+    raw_file.proposal_metadata.file_public=True
     res = client.get(prefix+"zip/raw_file/"+raw_file.hashref())
     assert res.status_code == 200
 
     # FIXME: check all zip's contents!
-    
-    
-    
-    
-    

@@ -12,7 +12,7 @@ import testkeys
 def makeTestKey(name):
     privkey=bitcoin.hex_to_b58check(
             bitcoin.sha256(name), 0x80)
-    
+
     address = bitcoin.privkey_to_address(privkey)
 
     return privkey, address
@@ -41,7 +41,7 @@ def makeTestAction(
         assert len(signature)
     else:
         signature = bitcoin.ecdsa_sign(action_string, privkey)
-    
+
     return Action(
                  author = author,
                  action_string = action_string,
@@ -52,7 +52,7 @@ def makeTestMultiAction(author,
     """ Create signed multi action with privkey of authors as for makeTestAction. """
     multi_action_string = config.action_prefix+ (
         "\n@@@@@\n"+config.action_prefix).join(aparts)
-    
+
     privkey = bitcoin.sha256(author.name)
     multi_signature = bitcoin.ecdsa_sign(multi_action_string, privkey)
 
@@ -61,7 +61,7 @@ def makeTestMultiAction(author,
         multi_action_string = multi_action_string,
         multi_signature = multi_signature)
 
-    
+
 def makeTestMemberKeys():
     member_names=["member_%s" % x for x in "abcdefghijklmnopqrstuvwxyz"]
 
@@ -69,7 +69,7 @@ def makeTestMemberKeys():
         bitcoin.hex_to_b58check(
             bitcoin.sha256(member), 0x80)
         for member in member_names]
-    
+
     addresses=[bitcoin.privkey_to_address(priv) for priv in privkeys]
 
     return member_names, addresses, privkeys
@@ -91,12 +91,14 @@ def makeTestMemberList(old_ml, old_vote_times=True):
                 raise Exception("Member with different addresses.")
         except:
             if name == "member_a":
-                m = Member(name, addr, testkeys.pubkey1.decode("ascii"))
+                m = Member(name, addr, testkeys.pubkey1.decode("ascii"), number = "assign-new")
             elif name == "member_b":
-                m = Member(name, addr, testkeys.pubkey2.decode("ascii"))
+                m = Member(name, addr, testkeys.pubkey2.decode("ascii"), number = "assign-new")
             else:
-                m = Member(name, addr)
-           
+                m = Member(name, addr, number = "assign-new")
+
+        db.session.add(m)
+        db.session.commit()
         members.append(m)
         if old_vote_times:
             Global.set_member_last_vote_time(m, t)
@@ -105,7 +107,7 @@ def makeTestMemberList(old_ml, old_vote_times=True):
     president = members[ord('p')-ord('a')]
     developer = members[ord('d')-ord('a')]
 
-    
+
     ml=MemberList(
         members = members,
         secretary = secretary,
@@ -113,7 +115,7 @@ def makeTestMemberList(old_ml, old_vote_times=True):
         developer = developer,
         previous = old_ml)
     Global.set_votemaster_rules(votemasters)
-    
+
     db.session.add(ml)
     db.session.commit()
 
@@ -128,7 +130,7 @@ class DummyUpload:
 def app_and_session():
     """ Big session, pre-filled with test_scenario1. """
     import serve
-    
+
     app, db = serve.make_app(test_mode_internal=True)
     import logging
     logging.basicConfig(level=logging.INFO)
@@ -138,14 +140,14 @@ def app_and_session():
 
     logging.basicConfig(level=logging.DEBUG) # FIXME: use ctx manager
     db.session.commit()
-    
+
     return app, db.session
 
 @pytest.fixture(scope="function")
 def small_app():
     """ Flask app and session, only pre-filled with default initial member list. """
     import serve
-    
+
     app, db = serve.make_app(test_mode_internal=True)
 
     from test_tmemberlist import makeTestMemberList
@@ -153,7 +155,7 @@ def small_app():
     ml.set_current()
     db.session.add(ml)
     db.session.commit()
-    
+
     return app
 
 @pytest.fixture(scope="function")
@@ -166,7 +168,7 @@ def app():
 def bare_session():
     """ Session without any predefined stuff. """
     import serve
-    
+
     app, db = serve.make_app(test_mode_internal=True)
     return db.session
 
@@ -201,7 +203,7 @@ def objCached(cls, name):
                 db.session.add(obj)
                 Global.set(n, obj.hashref())
                 return obj
-            
+
         return wrapper
     return decorator
 
@@ -225,7 +227,7 @@ def member_v():
 def newmember5():
     nm1addr=makeTestKey("newmember5")[1]
     return Member("newmember5", nm1addr)
-    
+
 
 @pytest.fixture(scope="function")
 @objCached(ProposalMetadata, "proposal_metadata")
@@ -268,7 +270,7 @@ def proposal_vote_ballot(pvr):
 @objCached(Action, "propose_member_action")
 def propose_member_action():
     ml = member_list()
-    
+
     return makeTestAction(member_v(), "%s propose-member name %s address %s by member_v" % (
         ml.hashref(), newmember5().name, newmember5().address))
 
@@ -276,11 +278,11 @@ def propose_member_action():
 @objCached(Action, "member_ballot")
 def member_ballot():
     ml = member_list()
-    
+
     return makeTestAction(member_a(), "%s cast-member-ballot name %s address %s by member_a answer accept" % (
         ml.hashref(), newmember5().name, newmember5().address))
 
-    
+
 @pytest.fixture(scope="function")
 @objCached(MemberElectionResult, "member_election_result")
 def member_election_result():
@@ -289,7 +291,3 @@ def member_election_result():
     return MemberElectionResult(
         newmember5(),
         propose_member_action())
-
-
-
-

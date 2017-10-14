@@ -3,10 +3,20 @@
     <h1>Member</h1>
     <p>
 	This is the information in the voting system for the member with nick {{ member.name }}:</p>
-	
+
     Name: {{ member.name }}<br/>
     Address:  {{ format_addr(member.address) }}<br/>
     Expired: {{ format_yesno(not member.eligible()) }}<br/>
+    {% if member.last_vote_action() > 0.0 %}
+        Last vote action: {{ format_timestamp(member.last_vote_action()) }}<br/>
+    {% endif %}
+    {% if member.last_member_confirmation() > 0.0 %}
+        Last member confirmation: {{ format_timestamp(member.last_member_confirmation()) }}<br/>
+    {% endif %}
+    {% if member.expiry_time() > 0.0 %}
+        Member expires: {{ format_timestamp(member.expiry_time()) }}<br/>
+    {% endif %}
+    Member number: {{ member.number }}<br/>
     {% if member.pgp_pubkey %}
         PGP public key: {{ format_pgpkey(member.pgp_pubkey) }}<br/>
     {% endif %}

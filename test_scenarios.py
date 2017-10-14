@@ -553,6 +553,36 @@ def test_update_ml_pgpkey(bare_session):
     assert cur_address == Member.by_name("member_c").address
     assert Member.by_name("member_c").pgp_pubkey == testkeys.pubkey1.decode("ascii")
 
+def test_update_ml_number(bare_session):
+    test_scenario1(bare_session, stopper="two-unpublished")
+    ml = Global.current_member_list()
+
+    old_member =  Member.by_name("member_a")
+    cur_number = Member.by_name("member_a").number
+
+    assert old_member.most_recent
+
+    assert cur_number != 12345
+
+    act_newnum = makeTestAction(author = Member.by_name("member_v"),
+                                 apart = (
+                                     ml.hashref() +
+                                     " update-memberlist-set-number number 12345 for member_a by member_v"))
+    act_newnum.apply(None, None)
+
+    cur_number = Member.by_name("member_a").number
+    assert cur_number == 12345
+    assert not old_member.most_recent
+    assert old_member not in Global.current_member_list().members
+    assert Member.by_name("member_a").pgp_pubkey is not None
+
+    with pytest.raises(ValidationError):
+        act_newnum = makeTestAction(author = Member.by_name("member_v"),
+                                     apart = (
+                                         ml.hashref() +
+                                         " update-memberlist-set-number number -12345 for member_a by member_v"))
+        act_newnum.apply(None, None)
+
 def test_invalid_propose_member(bare_session):
     test_scenario1(bare_session, stopper="votes-cast")
     ml=Global.current_member_list()

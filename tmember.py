@@ -20,7 +20,7 @@ sanitize_membername=tMemberName
 sanitize_bitcoinaddr=tAddress
 
 class Member(db.Model, BUType):
-    """A BU member with name and Bitcoin address and memberlists s/he belongs to. 
+    """A BU member with name and Bitcoin address and memberlists s/he belongs to.
     """
     __tablename__="member"
 
@@ -34,9 +34,9 @@ class Member(db.Model, BUType):
     # the current flag is not part of the JSON string
     most_recent = Column(Boolean, nullable=False,
                      default=False)
-                     
-                    
-    # no two members with same nick 
+
+
+    # no two members with same nick
     name = Column(String, nullable=False)
 
     # member's bitcoin address
@@ -44,7 +44,12 @@ class Member(db.Model, BUType):
 
     # member's optional PGP public key
     pgp_pubkey = Column(String, nullable=True)
-    
+
+    # A member's optional member number
+    # It is up to the vote master to manually
+    # ensure that these values are unique.
+    number = Column(Integer, nullable=True)
+
     # lists this member is part of
     member_lists = relationship("MemberList", secondary = members_in_memberlists,
                                 back_populates="members")
@@ -66,19 +71,33 @@ class Member(db.Model, BUType):
                     .filter(cls.most_recent).one())
         except sqlalchemy.orm.exc.NoResultFound:
             return None
-        
+
+    @classmethod
+    def by_number(cls, number):
+        """ Return most recent member by giving member's number.
+        (Or None if nothing is found) """
+        try:
+            return (cls.query.filter(cls.number  == number)
+                    .filter(cls.most_recent).one())
+        except sqlalchemy.orm.exc.NoResultFound:
+            return None
+
     def __init__(self,
                  name,
                  address,
-                 pgp_pubkey = None):
+                 pgp_pubkey = None,
+                 number = None):
         """ Create a new, current member. If a current member with
-        the given address, name or PGP pubkey exists already, fail. """
+        the given address or name exists already, fail. If
+        the given member number is "assign-new", auto-assigned a non-used
+        member number.
+        """
         sanitize_membername(name)
         sanitize_bitcoinaddr(address)
 
         if pgp_pubkey is not None:
             sanitize_pgppubkey(pgp_pubkey)
-            
+
         if self.by_name(name):
             raise ValidationError("Current member '%s' exists already."
                                   % name)
@@ -86,14 +105,36 @@ class Member(db.Model, BUType):
         if self.by_address(address):
             raise ValidationError("Current member with address '%s' exists already." % address)
 
-        
+        # Note: as-is, the member.number increment statement below is
+        # subject to potential race conditions.
+        # However, note also: all changes to the DB happen within the
+        # write_lock as defined in serve.py, which should take care of
+        # any races here. Note, though, that such an additional
+        # locking scheme is needed.
+
+        if number == "assign-new":
+            old_max = db.session.query(func.max(Member.number)).one()[0]
+            if old_max == None:
+                number = 1
+            else:
+                number = old_max + 1
+
+        if number is not None and number <= 0:
+            raise ValidationError("Member number must be positive.")
+
         self.name = name
         self.address = address
         self.pgp_pubkey = pgp_pubkey
+        self.number = number
         self.most_recent = True
-        
+
         self.xUpdate()
-        
+
+    # helper value to be able to properly sort member lists using jinja2
+    @property
+    def number_or_zero(self):
+        return self.number if self.number is not None else 0
+
     def toJ(self):
         d={
             "name" : self.name,
@@ -101,6 +142,10 @@ class Member(db.Model, BUType):
         }
         if self.pgp_pubkey is not None:
             d["pgp_pubkey"] = self.pgp_pubkey
+
+        if self.number is not None:
+            d["number"] = self.number
+
         return defaultExtend(self, d)
 
     def dependencies(self):
@@ -111,7 +156,7 @@ class Member(db.Model, BUType):
         from taction import Action
         from tproposalvoteresult import ProposalVoteResult
         from tmemberelectionresult import MemberElectionResult
-        
+
         # last proposal vote
         last_pvote = (db.session
                       .query(func.max(Action.timestamp))
@@ -131,9 +176,9 @@ class Member(db.Model, BUType):
             last_mvote = 0.0
 
         return max(last_pvote, last_mvote)
-    
+
     def last_member_confirmation(self):
-        """Returns the time (unix epoch) this member was last voted on. 
+        """Returns the time (unix epoch) this member was last voted on.
         The time a member is voted in is assumed to be the time of
         the last ballot cast on that particular vote. Returns 0.0 if the
         member was never confirmed (member existed before voting system).
@@ -144,7 +189,7 @@ class Member(db.Model, BUType):
         """
         from taction import Action
         from tmemberelectionresult import MemberElectionResult
-        
+
         last_conf = (db.session
                      .query(func.max(Action.timestamp))
                      .filter(MemberElectionResult.new_member == self)
@@ -152,17 +197,17 @@ class Member(db.Model, BUType):
                      .one())[0]
 
         return 0.0 if last_conf is None else last_conf
-    
+
     def eligible(self):
-        """Returns true iff member is eligible to vote. 
-        
+        """Returns true iff member is eligible to vote.
+
         Remark:
 
         Note that the above two methods, last_member_confirmation()
         and last_vote_action() can NOT be used alone to determine member
         eligibility in all cases, as members who are on the initial member list
         will have an unknown time of last-vote from just the above
-        queries.  
+        queries.
 
         That's why a global configuration setting for those members
         will be used instead. In case a member has no configured external
@@ -174,7 +219,7 @@ class Member(db.Model, BUType):
         if not self.current():
             log.debug("Not eligible, not a current member.")
             return False
-        
+
         t=time.time()
         t_expire = t - config.member_expiry_time
 
@@ -186,7 +231,7 @@ class Member(db.Model, BUType):
         log.debug("Last vote action relative to now:%f", lva - t)
         log.debug("Last member confirmation vote relative to now:%f", lmc - t)
         t_elig = max(lva, lmc)
-        
+
         if t_elig > 0.0:
             # regular case: member has voted or been voted in
             eligible = t_elig > t_expire
@@ -208,11 +253,31 @@ class Member(db.Model, BUType):
                 # member eligibility is determined from Global config
                 return eligible
 
+    def expiry_time(self):
+        """ Return time when membership will expire. """
+
+        # FIXME: some code dup with eligible() above
+        t=time.time()
+        lva = self.last_vote_action()
+        lmc = self.last_member_confirmation()
+        t_elig = max(lva, lmc)
+
+        if t_elig > 0.0:
+            # regular case: member has voted or been voted in
+            return t_elig + config.member_expiry_time
+        else:
+            # member has a set expiry time
+            t_last = Global.member_last_vote_time(self)
+            if t_last is None:
+                # expired - member has no expiry time set
+                return 0.0
+            else:
+                return t_last + config.member_expiry_time
+
+
     def current(self):
         """ Is this member in current member list? """
         if Global.current_member_list() is not None:
             return self in Global.current_member_list().members
         else:
             return False
-        
-        

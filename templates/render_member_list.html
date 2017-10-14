@@ -9,7 +9,7 @@
 	voting address). In case a member list changes through voting
 	action (new members voted in or old ones voted out), a member
 	list will also refer to a previous member list.
-	
+
 	Additionally, a member list contains information on the
 	members in official positions (secretary, president, ...).
 
@@ -25,7 +25,7 @@
 	whether a member is eligible to vote on proposals or in member
 	elections.
     </p>
-    
+
     {% if current %}
 	<p class="item-valid">This is the current member list.</p>
 	<h2>Propose new member</h2>
@@ -37,7 +37,7 @@
     <h2>Previous member list</h2>
     {% if member_list.previous %}
 	<p>
-	    The member list preceding this one is available 
+	    The member list preceding this one is available
 	    <a href="{{ url('render/member_list/'+member_list.previous.hashref()) }}">here</a>.
 	</p>
     {% else %}
@@ -54,14 +54,52 @@
 	</ul>
     </p>
     <h2>Members</h2>
-    <table class="table table-striped">
-	<thead><tr><th>Handle</th><th>Voting Address</th><th>Expired</th></thead>
+    <table class="table table-striped col-12 center border">
+	<thead class="table-head">
+            <tr>
+                <th>Number</th>
+                <th>Handle</th>
+                <th>Voting Address</th>
+                <th>Expired</th>
+                <th>Last vote action</th>
+                <th>Last confirmation</th>
+                <th>Expiry time</th>
+        </thead>
 	    <tbody>
-		{% for member in member_list.members %}
+		{% for member in member_list.members|sort(attribute='number_or_zero') %}
 		    <tr>
+                        <td>
+                            {% if member.number_or_zero > 0%}
+                                {{ member.number }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
 			<td class="center"><a href="{{ url('render/member/'+member.hashref()) }}">{{ member.name }}</a></td>
 			<td class="center"><pre>{{ member.address }}</pre></td>
 			<td class="center">{{ format_yesno(not member.eligible()) }}</td>
+                        <td class="center">
+                            {% if member.last_vote_action() > 0.0 %}
+                                {{ format_timestamp(member.last_vote_action()) }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="center">
+                            {% if member.last_member_confirmation() > 0.0 %}
+                                {{ format_timestamp(member.last_member_confirmation()) }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="center">
+                            {% if member.expiry_time() > 0.0 %}
+                                {{ format_timestamp(member.expiry_time()) }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
 		    </tr>
 		{% endfor %}
 	    </tbody>
