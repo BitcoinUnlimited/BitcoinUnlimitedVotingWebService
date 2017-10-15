@@ -157,19 +157,20 @@ class Member(db.Model, BUType):
         from tproposalvoteresult import ProposalVoteResult
         from tmemberelectionresult import MemberElectionResult
 
+        last_action = (db.session
+                   .query(func.max(Action.timestamp))
+                   .join(Member)
+                   .filter(Member.name == self.name))
+
         # last proposal vote
-        last_pvote = (db.session
-                      .query(func.max(Action.timestamp))
-                      .filter(Action.author == self)
+        last_pvote = (last_action
                       .filter(ProposalVoteResult.ballots.any(id=Action.id))
                       .one())[0]
         if last_pvote is None:
             last_pvote = 0.0
 
         # last member vote
-        last_mvote = (db.session
-                      .query(func.max(Action.timestamp))
-                      .filter(Action.author == self)
+        last_mvote = (last_action
                       .filter(MemberElectionResult.ballots.any(id=Action.id))
                       .one())[0]
         if last_mvote is None:
@@ -190,11 +191,17 @@ class Member(db.Model, BUType):
         from taction import Action
         from tmemberelectionresult import MemberElectionResult
 
-        last_conf = (db.session
-                     .query(func.max(Action.timestamp))
-                     .filter(MemberElectionResult.new_member == self)
-                     .filter(MemberElectionResult.ballots.any(id=Action.id))
-                     .one())[0]
+        q1 = (db.session
+              .query(MemberElectionResult)
+              .join(Member) # will join on MemberElectionResult.new_member
+              .filter(Member.name == self.name))
+
+        q2 = (db.session
+              .query(func.max(Action.timestamp))
+              .join(q1)
+              .filter(MemberElectionResult.ballots.any(id=Action.id)))
+
+        last_conf = q2.one()[0]
 
         return 0.0 if last_conf is None else last_conf
 
