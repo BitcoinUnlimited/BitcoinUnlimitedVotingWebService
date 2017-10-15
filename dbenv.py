@@ -4,6 +4,9 @@ import os
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
+from sqlalchemy import func
+from sqlalchemy.orm import aliased
+
 import config
 import hashlib
 from butypes import *

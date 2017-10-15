@@ -2,12 +2,14 @@ import sqlalchemy.orm.exc
 from sqlalchemy import LargeBinary, Integer, Float, String, Column, ForeignKey, Boolean, Table
 from sqlalchemy.orm import relationship
 from butype import *
+import logging
+log = logging.getLogger(__name__)
 
 class Global(db.Model):
     """ Global state stored as (key, value) string pairs in the DB,
 plus some convenience methods on top.
     """
-    
+
     id = Column(Integer, primary_key=True)
     key = Column(String, nullable=False, unique=True)
     value = Column(String, nullable=False)
@@ -21,10 +23,11 @@ plus some convenience methods on top.
             raise KeyError("'%s' not found." % k)
         else:
             return objs[0].value
-        
+
     @classmethod
     def set(cls, k, v):
         """ Set value for key. Overrides old value if it exists. """
+        log.debug("global set %s=%s", k , v)
         x=cls.query.filter(cls.key == k).all()
         if len(x):
             x[0].value = v
@@ -41,12 +44,12 @@ plus some convenience methods on top.
             return None
         return MemberList.query.get(cml_id)
 
-            
+
     @classmethod
     def set_current_member_list(cls, ml):
         """ Set the current member list. """
         cls.set("current_member_list", ml.id)
-        
+
     @classmethod
     def member_last_vote_time(cls, member):
         try:
@@ -58,7 +61,7 @@ plus some convenience methods on top.
     def set_member_last_vote_time(cls, member, time):
         cls.set("member_last_vote_time_"+member.name,
                 str(time))
- 
+
 
     @classmethod
     def get_votemaster_roles(cls):
@@ -73,4 +76,3 @@ plus some convenience methods on top.
     def set_votemaster_rules(cls, vmr):
         """ Set the members having votemaster role. """
         cls.set("votemaster_roles", " ".join(vmr))
-        
