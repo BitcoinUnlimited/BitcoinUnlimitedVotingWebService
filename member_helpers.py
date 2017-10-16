@@ -1,5 +1,6 @@
 from butype import *
 from butypes import *
+from jvalidate import ValidationError
 
 def updateMemberinCurrentMemberList(name,
                                     address,
@@ -24,13 +25,18 @@ def updateMemberinCurrentMemberList(name,
 
     assert member.most_recent
 
+    lva = member.last_vote_action()
+    lmc = member.last_member_confirmation()
+
     member.most_recent = False
-    db.session.commit()
 
     updated_member = Member(name = name,
                             address = member.address if address=="unchanged" else address,
                             pgp_pubkey = member.pgp_pubkey if pgp_pubkey=="unchanged" else pgp_pubkey,
                             number = member.number if number=="unchanged" else number)
+    if Member.by_hash(updated_member.hashref()):
+        # FIXME: maybe implement pointing to old member definition here
+        raise ValidationError("Member exists already.")
 
     new_memberlist = ml.members.copy()
     new_memberlist.remove(member)
@@ -57,11 +63,24 @@ def updateMemberinCurrentMemberList(name,
 
     # carry over vote eligibility info into global eligibility table,
     # if that data is available
-    lva = member.last_vote_action()
-    lmc = member.last_member_confirmation()
     t_elig = max(lva, lmc)
     if t_elig > 0.0:
         Global.set_member_last_vote_time(updated_member, t_elig)
 
-    db.session.commit()
     Global.set_current_member_list(new_memberlist)
+
+
+def update_member_cmd(args):
+    """ Update a member's info (by creating a new member and updating the member list) """
+    import dbenv
+    pgp_key = None
+    if args.pgp_key_file is not None:
+        pgp_key = open(args.pgp_key_file).read()
+
+    updateMemberinCurrentMemberList(
+        args.name,
+        args.address if args.address is not None else "unchanged",
+        pgp_key if pgp_key is not None else "unchanged",
+        args.number if args.number is not None else "unchanged")
+
+    db.session.commit()

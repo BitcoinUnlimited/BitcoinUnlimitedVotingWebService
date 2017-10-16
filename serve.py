@@ -486,7 +486,7 @@ def make_app(test_mode_internal=False):
     return app, db
 
 
-def serve(): # pragma: no cover
+def serve(args): # pragma: no cover
     app, db = make_app()
     print("Starting buv web server on localhost:9090.")
     app.run(host='localhost', port=9090, debug=config.debug_mode)
