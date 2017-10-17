@@ -13,15 +13,14 @@ def test2(monkeypatch):
 
     with pytest.raises(RuntimeError):
         buvcmd.buvcmd()
-        
+
 def test3(monkeypatch):
     monkeypatch.setattr("sys.argv", ["", "webserver"])
 
-    def f():
+    def f(args):
         raise RuntimeError("Would start webserver")
-    
+
     monkeypatch.setattr("serve.serve", f)
-    
+
     with pytest.raises(RuntimeError):
         buvcmd.buvcmd()
-        
