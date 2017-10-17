@@ -219,7 +219,6 @@ class CloseMemberElectionsAE(ActionExec):
 
                 # "deprecate" tempory member objects used for voting
                 m.most_recent = False
-                db.session.commit()
 
                 # create new members - with auto-assigned member numbers
                 new_members.append(
@@ -239,7 +238,6 @@ class CloseMemberElectionsAE(ActionExec):
             mer.close()
 
         db.session.add(new_memberlist)
-        db.session.commit()
         Global.set_current_member_list(new_memberlist)
 
 class DeleteObjectsAE(ActionExec):
@@ -287,7 +285,6 @@ class DeleteObjectsAE(ActionExec):
 
         for obj in objects:
             db.session.delete(obj)
-        db.session.commit()
 
 class UpdateMLSetPGPPubKeyAE(ActionExec):
     template = "pubkey %pubkey_hash:sha256 for %membername:current_member by %votemaster:votemaster"

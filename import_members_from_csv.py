@@ -19,7 +19,7 @@ def date2epoch(s):
     if s == "never":
         return 0.0
     return datetime.datetime.strptime(s, "%d-%b-%y").timestamp()
-    
+
 
 entries = []
 members = []
@@ -36,7 +36,7 @@ for row in csv.reader(csv_file):
 
         addr = row[5].strip()
         bitcoin.b58check_to_hex(addr)
-        
+
         last_vote = date2epoch(row[6])
 
         last_action = max(joined, last_vote)
@@ -57,21 +57,19 @@ for row in csv.reader(csv_file):
                 nick+="_"
             else:
                 break
-            
+
         if m is None and b is None:
             print("add!")
             m = Member(nick, addr)
             Global.set_member_last_vote_time(m, last_action)
             members.append(m)
             db.session.add(m)
-            db.session.commit()
         else:
             m = Member.by_name(nick)
             Global.set_member_last_vote_time(m, last_action)
             members.append(m)
             print("Not adding %s as in db already" % m.name)
-            db.session.commit()
-                        
+
         entries.append((nick, addr, last_action))
     except Exception as e:
         print ("XXXX Not enough data:", row[1], e)
@@ -92,11 +90,7 @@ if 1:
         developer = developer)
 
     Global.set_votemaster_rules(["secretary", "president"])
-    
+
     db.session.add(ml)
-    db.session.commit()
     Global.set_current_member_list(ml)
     db.session.commit()
-    
-
-

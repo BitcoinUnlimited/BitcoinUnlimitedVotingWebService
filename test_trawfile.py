@@ -16,15 +16,14 @@ from jvalidate import ValidationError
 def test_rawfile1(bare_session):
     rf=RawFile(b"123")
     bare_session.add(rf)
-    bare_session.commit()
 
     assert not rf.public()
     assert rf.serialize() == b"123"
 
     H=hashlib.sha256(b"123").hexdigest()
-    
+
     assert rf.hashref() == H
-    
+
     with pytest.raises(ValidationError):
         rf2 = RawFile(b"123")
 

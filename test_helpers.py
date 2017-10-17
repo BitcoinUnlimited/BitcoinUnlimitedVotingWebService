@@ -98,7 +98,6 @@ def makeTestMemberList(old_ml, old_vote_times=True):
                 m = Member(name, addr, number = "assign-new")
 
         db.session.add(m)
-        db.session.commit()
         members.append(m)
         if old_vote_times:
             Global.set_member_last_vote_time(m, t)
@@ -117,7 +116,6 @@ def makeTestMemberList(old_ml, old_vote_times=True):
     Global.set_votemaster_rules(votemasters)
 
     db.session.add(ml)
-    db.session.commit()
 
     return ml
 
@@ -139,7 +137,6 @@ def app_and_session():
     test_scenarios.test_scenario1(db.session, "")
 
     logging.basicConfig(level=logging.DEBUG) # FIXME: use ctx manager
-    db.session.commit()
 
     return app, db.session
 
@@ -154,7 +151,6 @@ def small_app():
     ml = makeTestMemberList(None)
     ml.set_current()
     db.session.add(ml)
-    db.session.commit()
 
     return app
 

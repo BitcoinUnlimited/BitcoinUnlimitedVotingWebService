@@ -82,6 +82,8 @@ def test_render_raw(client, app, raw_file, proposal_vote, member_election_result
     unauthorized(client, prefix+"raw/raw_file/"+raw_file.hashref())
 
     raw_file.proposal_metadata.file_public=True
+    db.session.flush()
+
     dont_find(client, prefix+"render/raw_file/"+raw_file.hashref())
     find(client, prefix+"raw/raw_file/"+raw_file.hashref(), ct_like="application/pdf")
 
@@ -270,6 +272,8 @@ def test_zip_download(client, app, member_list, raw_file, proposal_vote):
     unauthorized(client, prefix+"zip/raw_file/"+raw_file.hashref())
 
     raw_file.proposal_metadata.file_public=True
+    db.session.flush()
+
     res = client.get(prefix+"zip/raw_file/"+raw_file.hashref())
     assert res.status_code == 200
 

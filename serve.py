@@ -358,10 +358,11 @@ def make_app(test_mode_internal=False):
 
             try:
                 action=butypes.Action(#timestamp=None,
-                                        author=author,
-                                        action_string=action_string,
-                                        signature=signature)
+                    author=author,
+                    action_string=action_string,
+                    signature=signature)
                 returnval=action.apply(upload, data)
+                db.session.commit()
             except jvalidate.ValidationError as ve:
                 log.warn("Action: Problem: %d, %s", ve.status, str(ve))
                 if ve.error_page is not None:
@@ -370,8 +371,6 @@ def make_app(test_mode_internal=False):
                 else:
                     abort(ve.status, str(ve))
 
-            try:
-                db.session.commit()
             except sqlalchemy.exc.IntegrityError as ie: # pragma: no cover
                 # should not happen, but better be prepared
                 log.warn("SQLalchemy integrity error: %s", ie)
@@ -409,6 +408,7 @@ def make_app(test_mode_internal=False):
                                             multi_action_string=multi_action_string,
                                             multi_signature=multi_signature)
                 returnvals=multi_action.apply()
+                db.session.commit()
             except jvalidate.ValidationError as ve:
                 log.warn("MultiAction: Problem: %d, %s", ve.status, str(ve))
                 if ve.error_page is not None:
@@ -416,9 +416,6 @@ def make_app(test_mode_internal=False):
                                            **ve.error_page), ve.status
                 else:
                     abort(ve.status, str(ve))
-
-            try:
-                db.session.commit()
             except sqlalchemy.exc.IntegrityError as ie: # pragma: no cover
                 # should not happen, but better be prepared
                 log.warn("SQLalchemy integrity error: %s", ie)
@@ -480,8 +477,16 @@ def make_app(test_mode_internal=False):
     # TODO: Figure out how to properly configure per-request sessions.
     @app.before_request
     def expire_session():
-        db.session.commit()
+        log.info("expiring session")
+        #try:
+        #    db.session.commit()
+        #except sqlalchemy.exc.InvalidRequestError:
+        #    # commit will fail if request was aborted - just ignore then
+        #    log.warn("encountered invalid request while expiring session")
+        #    pass
+
         db.session.expire_all()
+        #db.session.close()
 
     return app, db
 

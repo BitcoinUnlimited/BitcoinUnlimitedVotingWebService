@@ -39,25 +39,24 @@ def test1(bare_session):
             president = ml.president,
             developer = non_existent_member)
 
-        
+
 def test2(bare_session):
     ml = makeTestMemberList(None)
     assert not ml.current()
 
     ml.set_current()
     assert ml.current()
-    
+
 def test3(bare_session):
     ml = makeTestMemberList(None)
 
     assert len(ml.members) == 26
 
     Member.by_name("member_a").most_recent = False
-    bare_session.commit()
-    
+
     duplicate_member=Member("member_a",
                                makeTestKey("test1")[1])
-    
+
     with pytest.raises(ValidationError):
         MemberList(
             members = ml.members+[duplicate_member],

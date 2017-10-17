@@ -34,7 +34,6 @@ def test_scenario1(bare_session, stopper=""):
                               (ml.hashref()+" proposal-upload file %s by member_a" % hashprop1),
                               pgp = True)
     act_upload.apply(du, proposal1)
-    bare_session.commit()
 
     proposal2=b"Test proposal #2"
     hashprop2=hashlib.sha256(proposal2).hexdigest()
@@ -44,7 +43,6 @@ def test_scenario1(bare_session, stopper=""):
                               (ml.hashref()+" proposal-upload file %s by member_b" % hashprop2),
                               pgp = True)
     act_upload.apply(du, proposal2)
-    bare_session.commit()
 
     if stopper == "two-unpublished":
         return
@@ -56,7 +54,6 @@ def test_scenario1(bare_session, stopper=""):
                                apart =
                                (ml.hashref()+" proposal-publish file %s designation BUIP0001 title 'some annoyingly long title for BUIP0001 to test the proper formatting in all templates' by member_v" % hashprop1))
     act_publish.apply(None, None)
-    bare_session.commit()
 
     if stopper == "one-published":
         return
@@ -67,7 +64,6 @@ def test_scenario1(bare_session, stopper=""):
                                   " open-proposal-vote meta %s by member_v method (buip-acc-rej-abs)" %
                                   (rf.proposal_metadata.hashref())))
     vote = act_open_vote.apply(None, None)
-    bare_session.commit()
     if stopper == "open-proposal-vote":
         return vote
 
@@ -91,7 +87,6 @@ def test_scenario1(bare_session, stopper=""):
                                       " cast-proposal-ballot vote %s by member_%s answer (%s)" %
                                       (vote.hashref(), x, answer)))
         act_cast_vote.apply(None, None)
-        bare_session.commit()
     if stopper == "votes-cast":
         return
 
@@ -102,7 +97,6 @@ def test_scenario1(bare_session, stopper=""):
                                   (vote.result.hashref())))
 
     act_close_vote.apply(None, None)
-    bare_session.commit()
 
     act_new_member=makeTestAction(author=Member.by_name("member_v"),
                                  apart =
@@ -122,7 +116,6 @@ def test_scenario1(bare_session, stopper=""):
                                   " propose-member name newmember3 address %s by member_v" %
                                   (makeTestKey("newmember3")[1])))
     act_new_member.apply(None, None)
-    bare_session.commit()
     if stopper == "new-applicants":
         return
 
@@ -134,7 +127,6 @@ def test_scenario1(bare_session, stopper=""):
                                       " cast-member-ballot name newmember1 address %s by member_%s answer %s" % (
                                       (makeTestKey("newmember1")[1], x, ans))))
         act_new_member_cast.apply(None, None)
-        bare_session.commit()
     if stopper == "votes-on-applicant":
         return
 
@@ -148,7 +140,6 @@ def test_scenario1(bare_session, stopper=""):
     assert Global.current_member_list() != ml
     assert Member.by_name("newmember1") in Global.current_member_list().members
 
-    bare_session.commit()
 
 
 def test_deps(bare_session):
@@ -211,7 +202,6 @@ def test_invalid_scenario2(bare_session):
                               apart =
                               (ml.hashref()+" proposal-upload file %s by member_a" % hashprop1))
     act_upload.apply(du, proposal1)
-    bare_session.commit()
 
     rf= RawFile.by_hash(hashprop1)
 
@@ -219,7 +209,6 @@ def test_invalid_scenario2(bare_session):
                                apart =
                                (ml.hashref()+" proposal-publish file %s designation BUIP0001 title 'title BUIP0001' by member_v" % hashprop1))
     act_publish.apply(None, None)
-    bare_session.commit()
 
     act_open_vote=makeTestAction(author=Member.by_name("member_v"),
                                  apart =
@@ -273,7 +262,6 @@ def test_invalid_publish(bare_session):
 
     rf_nomd = RawFile(b"nope")
     bare_session.add(rf_nomd)
-    bare_session.commit()
 
     # test file has no metadata
     with pytest.raises(ValidationError):
@@ -387,7 +375,6 @@ def test_invalid_close_proposal_vote(bare_session):
                                    " close-proposal-vote result %s by member_v" %
                                    (vote.result.hashref())))
     act_close_vote.apply(None, None)
-    bare_session.commit()
 
     with pytest.raises(ValidationError):
         act_close_vote=makeTestAction(author=Member.by_name("member_v"),
@@ -633,6 +620,3 @@ def test_multiaction_proposal_vote(bare_session):
             (ml.hashref()+ " open-proposal-vote meta %s by member_v method (buip-acc-rej-abs)" % (RawFile.by_hash(hashprop1).proposal_metadata.hashref())),
             (ml.hashref()+ " open-proposal-vote meta %s by member_v method (buip-acc-rej-abs)" % (RawFile.by_hash(hashprop2).proposal_metadata.hashref()))])
     votes = act_open_vote.apply()
-
-
-    bare_session.commit()

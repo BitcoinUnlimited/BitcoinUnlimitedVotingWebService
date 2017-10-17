@@ -60,12 +60,13 @@ def updateMemberinCurrentMemberList(name,
         previous = ml)
     db.session.add(updated_member)
     db.session.add(new_memberlist)
+    db.session.flush() # need to flush so that Global.set* works below
 
     # carry over vote eligibility info into global eligibility table,
     # if that data is available
     t_elig = max(lva, lmc)
     if t_elig > 0.0:
-        Global.set_member_last_vote_time(updated_member, t_elig)
+        Global.set_member_last_vote_time(member, t_elig)
 
     Global.set_current_member_list(new_memberlist)
 
@@ -82,5 +83,4 @@ def update_member_cmd(args):
         args.address if args.address is not None else "unchanged",
         pgp_key if pgp_key is not None else "unchanged",
         args.number if args.number is not None else "unchanged")
-
     db.session.commit()
