@@ -9,7 +9,9 @@ def updateMemberinCurrentMemberList(name,
     ml = Global.current_member_list()
 
     for proposal in ml.proposals():
-        if proposal.vote and proposal.vote.is_open:
+        if (proposal.vote is not None and
+            proposal.vote.result is not None and
+            proposal.vote.result.is_open):
             raise ValidationError("Current member list has proposal open for voting.")
 
     if len(list(ml.applications())):
