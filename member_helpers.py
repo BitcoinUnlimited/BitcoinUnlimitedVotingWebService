@@ -8,11 +8,11 @@ def updateMemberinCurrentMemberList(name,
                                     number = None):
     ml = Global.current_member_list()
 
-    for proposal in ml.proposals():
-        if (proposal.vote is not None and
-            proposal.vote.result is not None and
-            proposal.vote.result.is_open):
-            raise ValidationError("Current member list has proposal open for voting.")
+    # for proposal in ml.proposals():
+    #     if (proposal.vote is not None and
+    #         proposal.vote.result is not None and
+    #         proposal.vote.result.is_open):
+    #         raise ValidationError("Current member list has proposal open for voting (%s)." % (proposal.designation))
 
     if len(list(ml.applications())):
         raise ValidationError("Current member list has new members applying.")
@@ -56,9 +56,9 @@ def updateMemberinCurrentMemberList(name,
 
     new_memberlist=MemberList(
         members = new_memberlist,
-        secretary = ml.secretary,
-        president = ml.president,
-        developer = ml.developer,
+        secretary = new_secretary,
+        president = new_president,
+        developer = new_developer,
         previous = ml)
     db.session.add(updated_member)
     db.session.add(new_memberlist)
