@@ -23,7 +23,7 @@
                             <td class="col-3">{{ format_timestamp(ballot.timestamp) }}</td>
                             <td class="left-align"><a href="{{ url('render/proposal_vote_result/'+vote.result.hashref()) }}"> {{ designation }}</a></td>
                             <td>{{ format_proposal_ballot_answer(answer) }}</td>
-                            <td><a href="{{ url('render/ballot/'+ballot.hashref()) }}">details</a></td>
+                            <td><a href="{{ url('render/action/'+ballot.hashref()) }}">details</a></td>
                         </tr>
                     {% endfor %}
             </table>
