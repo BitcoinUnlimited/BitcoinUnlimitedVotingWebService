@@ -280,8 +280,16 @@ def make_app(test_mode_internal=False):
             cml = cml,
             ma_names = ma_names)
 
-    @app.route("/api1/actions-by-member/<name>")
-    def _actions_by_member_name(name):
+    @app.route("/api1/actions-by-member", methods=["GET"])
+    def _actions_by_member_name():
+        name = request.args.get('name')
+
+        if name is None:
+            abort(403, "Member name is missing.")
+
+        if Member.by_name(name) is None:
+            abort(404, "Member '%s' not found." % name)
+
         actions = queries.ActionByMemberNameAndType(
             name)
         return render_template(
@@ -289,8 +297,16 @@ def make_app(test_mode_internal=False):
             actions = actions,
             membername = name)
 
-    @app.route("/api1/proposal-ballots-by-member/<name>")
-    def _proposal_ballots_by_member_name(name):
+    @app.route("/api1/proposal-ballots-by-member", methods=["GET"])
+    def _proposal_ballots_by_member_name():
+        name = request.args.get('name')
+
+        if name is None:
+            abort(403, "Member name is missing.")
+
+        if Member.by_name(name) is None:
+            abort(404, "Member '%s' not found." % name)
+
         ballots = queries.ActionByMemberNameAndType(
             name, "cast-proposal-ballot")
 

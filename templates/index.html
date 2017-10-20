@@ -9,7 +9,7 @@
 
     All voting here happens with Bitcoin signed messages, using the
     member-supplied voting keys.
-    
+
     <h1>Current members</h1>
     The members currently eligible to vote here are listed on the current {{ format_member_list_link(cml)}}.
 
@@ -19,7 +19,7 @@
 	<span class="monospace">.pdf</span>.
 	Uploads are currently limited to an appropriate size of 1MB.
     </p>
-    
+
     <p>
 	Any member can upload any number of BUIPs (though should
 	confer with the BU secretary for appropriate numbering and
@@ -41,12 +41,12 @@
 	Closing the vote on a proposal by the vote master makes it
 	final and prevents further ballots being cast on that proposal.
     </p>
-    
+
     <p class="italic">
 	Note: The voting system only covers proposals that are tracked
 	by the system. BUIPs not within this system are available <a href="/resources/buips">here</a>.
     </p>
-    
+
     <h2>Proposals</h2>
     {% if proposals | list | count > 0 %}
 	<p>This is the list of currently published proposals:</p>
@@ -55,7 +55,7 @@
         <!-- FIXME: only show when applicable -->
         <p> In case proposals are open for voting, a member can cast votes on
             all open proposals at once <a href="{{ url('form/cast-proposal-ballot-multiple') }}">here</a>.</p>
-                
+
     {% else %}
 	<p>There are currently no published proposals.</p>
     {% endif %}
@@ -72,7 +72,7 @@
     As per the BU articles, members are elected into BU in a process
     similar to a vote on a BUIP proposal. After closing a member
     election, the current member list above will be updated.
-    
+
     {% if member_applications|list|count > 0 %}
 	<h2>Member elections in progress</h2>
 	The following member elections are in progress:
@@ -96,7 +96,7 @@
         <p> A current member can cast ballots on all new members at
             once <a href="{{ url('form/cast-member-ballot-multiple') }}">here</a>.
         </p>
-        
+
 	<p>
 	    The vote master can close the current member elections  <a href="{{ url('form/close-member-elections') }}">here</a>.
 	</p>
@@ -108,11 +108,11 @@
 	    There are currently no member elections in progress.
 	</p>
     {% endif %}
-    
+
     <h1>Other</h1>
-    
+
     This section lists minor and special places in the voting system.
-    
+
     <h2>Generic action entry</h2>
     <p>
 	For special cases, it can be of value to interact with the
@@ -131,12 +131,39 @@
 	</p>
 
     {% endif %}
-	    
+
+    <h2>Queries</h2>
+    <h3>Actions by member</h3>
+    To see all actions by a particular member, please enter the member's
+    name here and click submit:
+    <div class="p2">
+        <form method="get" action="{{ url('actions-by-member') }}" id="actions-by-member-form">
+            {{ ff_begin() }}
+            {{ form_label("Member name") }}
+            <input class="{{ ff_input_class() }}" type="text" name="name"/>
+            {{ ff_end() }}
+            {{ form_submit() }}
+        </form>
+    </div>
+
+    <h3>Proposal ballots by member</h3>
+    To see all proposal ballots by a particular member, please enter the
+    member's name here and click submit:
+    <div class="p2">
+        <form method="get" action="{{ url('proposal-ballots-by-member') }}" id="proposal-ballots-by-member-form">
+            {{ ff_begin() }}
+            {{ form_label("Member name") }}
+            <input class="{{ ff_input_class() }}" type="text" name="name"/>
+            {{ ff_end() }}
+            {{ form_submit() }}
+        </form>
+    </div>
+
     <h2>Source code and bug reports</h2>
     The open source code for this part of the website is currently
     available at:
     <a href="https://github.com/BitcoinUnlimited/BitcoinUnlimitedVotingWebService">https://github.com/BitcoinUnlimited/BitcoinUnlimitedVotingWebService</a>. Pull requests welcome!
-    
+
     <p class="italic">
 	Please also use the Github issue tracking system available
 	under "Issues" for any complaints, feature requests, bug
