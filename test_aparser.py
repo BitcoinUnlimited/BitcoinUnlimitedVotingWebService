@@ -154,3 +154,18 @@ def test_verr():
     ae=AExpr("(a:int)", atypes)
     with pytest.raises(ValidationError):
         ae.parse(verr_at(["(", "1", "2"], 1))
+
+def test_optional():
+    ae=AExpr("some string %s:safestring and ?( optional string %t:safestring ) also", atypes)
+
+    r1 = ae.parse("some string 'abc' and optional string 'def' also".split())
+    assert r1 == { "s" : "abc", "t": "def" }
+
+    r2 = ae.parse("some string 'abc' and also".split())
+    assert r2 == { "s" : "abc" }
+
+    with pytest.raises(ValidationError):
+        ae.parse("some string 'abc' and".split())
+
+    with pytest.raises(ValidationError):
+        ae.parse("some string 'abc' and optional".split())

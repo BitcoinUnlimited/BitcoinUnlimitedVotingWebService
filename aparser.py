@@ -2,6 +2,7 @@
 # actions.
 import re
 import shlex
+from itertools import chain
 
 from jvalidate import ValidationError
 
@@ -29,14 +30,14 @@ class AExpr:
 
     def parse(self, tokens):
         avars = {}
-        tmpl     = self.tmpl.split()
+        expects  = self.tmpl.split()
         type_map = self.type_map
 
         l = iter(tokens)
 
-        for expect in tmpl:
-            assert len(expect)>=1
-
+        while len(expects):
+            expect = expects[0]
+            expects = expects[1:]
             try:
                 tok=next(l)
             except StopIteration:
@@ -72,6 +73,25 @@ class AExpr:
                     if tok != ']':
                         vlist.append(type_map[vartype](tok))
                 avars[varname]=vlist
+            elif expect[:2] == '?(':
+                # "?( ... )": optional part denoted by existence or non-existence of next token that
+                # must be literal (no subexpression nesting!)
+                assert len(expects)
+                print ("A",  expect)
+
+                qexpect = expects[0]
+
+                if tok == qexpect:
+                    expects = (expects[1:expects.index(")")]+
+                               expects[expects.index(")")+1:])
+                    print ("C",  expects)
+                else:
+                    expects = expects[expects.index(")")+1:]
+                    print ("D",  expects)
+                    # put back token
+                    l = chain([tok], l)
+
+
             elif expect[0] == '(': # subexpression
                 assert expect[-1] == ')'
                 varname, vartype = expect[1:-1].split(":")
