@@ -43,15 +43,15 @@ class ProposalUploadAE(ActionExec):
         db.session.add(mobj)
 
 class ProposalPublishAE(ActionExec):
-    template = "file %file_hash:sha256 designation %designation:designation title %title:safestring by %member:votemaster"
+    template = "file %file_hash:sha256 designation %designation:designation ?( title %title:safestring ) by %member:votemaster"
     def act(self,
             action,
             upload,
             upload_data,
             file_hash,
             designation,
-            title,
-            member):
+            member,
+            title = None):
         checkAuthor(action, member)
         checkNoUpload(upload, upload_data)
 
