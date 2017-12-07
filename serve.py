@@ -335,112 +335,130 @@ def make_app(test_mode_internal=False):
 
     @app.route("/api1/action", methods=["POST"])
     def _action():
-        with write_lock:
-            author_name = request.form["author_name"] if "author_name" in request.form else None
-            action_string = request.form["action_string"] if "action_string" in request.form else None
-            signature = request.form["signature"] if "signature" in request.form else None
+        try:
+            with write_lock:
+                author_name = request.form["author_name"] if "author_name" in request.form else None
+                action_string = request.form["action_string"] if "action_string" in request.form else None
+                signature = request.form["signature"] if "signature" in request.form else None
 
-            upload    =request.files["upload"] if "upload" in request.files else None
+                upload    =request.files["upload"] if "upload" in request.files else None
 
-            log.debug("action: Extracted fields")
+                log.debug("action: Extracted fields")
+                log.debug("action: string: %s", action_string)
+                if author_name is None:
+                    abort(403, "Author name field is missing.")
+                if action_string is None:
+                    abort(403, "Action string is missing.")
+                if signature is None:
+                    abort(403, "Signature is missing.")
 
-            if author_name is None:
-                abort(403, "Author name field is missing.")
-            if action_string is None:
-                abort(403, "Action string is missing.")
-            if signature is None:
-                abort(403, "Signature is missing.")
+                author = Member.by_name(author_name)
 
-            author = Member.by_name(author_name)
+                if author is None:
+                    abort(403, "Author '%s' does not exist." % author_name)
 
-            if author is None:
-                abort(403, "Author '%s' does not exist." % author_name)
+                if upload is not None:
+                    data=upload.read(config.max_upload+1)
+                    if len(data)>config.max_upload:
+                        abort(413, "Upload too large.")
 
-            if upload is not None:
-                data=upload.read(config.max_upload+1)
-                if len(data)>config.max_upload:
-                    abort(413, "Upload too large.")
+                    hash_ref=butype.sha256(data)
+                    log.debug("Upload data hash: %s, len: %d", hash_ref, len(data))
 
-                hash_ref=butype.sha256(data)
-                log.debug("Upload data hash: %s, len: %d", hash_ref, len(data))
+                    if RawFile.by_hash(hash_ref) is not None:
+                        abort(409, "File exists.")
 
-                if RawFile.by_hash(hash_ref) is not None:
-                    abort(409, "File exists.")
-
-            else:
-                hash_ref=None
-                data=None
-            log.debug("action: Handled upload")
-
-            try:
-                action=butypes.Action(#timestamp=None,
-                    author=author,
-                    action_string=action_string,
-                    signature=signature)
-                returnval=action.apply(upload, data)
-                db.session.commit()
-            except jvalidate.ValidationError as ve:
-                log.warn("Action: Problem: %d, %s", ve.status, str(ve))
-                if ve.error_page is not None:
-                    return render_template(ve.error_page["template"],
-                                           **ve.error_page), ve.status
                 else:
-                    abort(ve.status, str(ve))
+                    hash_ref=None
+                    data=None
+                log.debug("action: Handled upload")
 
-            except sqlalchemy.exc.IntegrityError as ie: # pragma: no cover
-                # should not happen, but better be prepared
-                log.warn("SQLalchemy integrity error: %s", ie)
-                abort(403, "Database integrity error.")
+                try:
+                    action=butypes.Action(#timestamp=None,
+                        author=author,
+                        action_string=action_string,
+                        signature=signature)
+                    returnval=action.apply(upload, data)
+                    db.session.commit()
+                except jvalidate.ValidationError as ve:
+                    log.warn("Action: Problem: %d, %s", ve.status, str(ve))
+                    if ve.error_page is not None:
+                        return render_template(ve.error_page["template"],
+                                               **ve.error_page), ve.status
+                    else:
+                        abort(ve.status, str(ve))
 
-            log.debug("action: Successful execution")
-            return render_template("on_action_%s.html" % action.parser.act,
-                                   action = action,
-                                   returnval = returnval), 201
+                except sqlalchemy.exc.IntegrityError as ie: # pragma: no cover
+                    # should not happen, but better be prepared
+                    log.warn("SQLalchemy integrity error: %s", ie)
+                    abort(403, "Database integrity error.")
+
+                log.debug("action: Successful execution")
+                return render_template("on_action_%s.html" % action.parser.act,
+                                       action = action,
+                                       returnval = returnval), 201
+        finally:
+            try:
+                db.session.close()
+                db.session.expire_all()
+            except Exception as e:
+                log.warn("Error (%s) while invalidating session after action.",
+                         str(e))
+                abort(500, "Problem closing DB session.")
 
 
     @app.route("/api1/multi-action", methods=["POST"])
     def _multi_action():
-        with write_lock:
-            author_name = request.form["author_name"] if "author_name" in request.form else None
-            multi_action_string = request.form["action_string"] if "action_string" in request.form else None
-            multi_signature = request.form["signature"] if "signature" in request.form else None
+        try:
+            with write_lock:
+                author_name = request.form["author_name"] if "author_name" in request.form else None
+                multi_action_string = request.form["action_string"] if "action_string" in request.form else None
+                multi_signature = request.form["signature"] if "signature" in request.form else None
 
-            log.debug("multi-action: Extracted fields")
+                log.debug("multi-action: Extracted fields")
 
-            if author_name is None:
-                abort(403, "Author name field is missing.")
-            if multi_action_string is None:
-                abort(403, "Multi-action string is missing.")
-            if multi_signature is None:
-                abort(403, "Multi-signature is missing.")
+                if author_name is None:
+                    abort(403, "Author name field is missing.")
+                if multi_action_string is None:
+                    abort(403, "Multi-action string is missing.")
+                if multi_signature is None:
+                    abort(403, "Multi-signature is missing.")
 
-            author = Member.by_name(author_name)
+                author = Member.by_name(author_name)
 
-            if author is None:
-                abort(403, "Author '%s' does not exist." % author_name)
+                if author is None:
+                    abort(403, "Author '%s' does not exist." % author_name)
 
+                try:
+                    multi_action=butypes.MultiAction(author=author,
+                                                multi_action_string=multi_action_string,
+                                                multi_signature=multi_signature)
+                    returnvals=multi_action.apply()
+                    db.session.commit()
+                except jvalidate.ValidationError as ve:
+                    log.warn("MultiAction: Problem: %d, %s", ve.status, str(ve))
+                    if ve.error_page is not None:
+                        return render_template(ve.error_page["template"],
+                                               **ve.error_page), ve.status
+                    else:
+                        abort(ve.status, str(ve))
+                except sqlalchemy.exc.IntegrityError as ie: # pragma: no cover
+                    # should not happen, but better be prepared
+                    log.warn("SQLalchemy integrity error: %s", ie)
+                    abort(403, "Database integrity error.")
+
+                log.debug("multi-action: Successful execution")
+                return render_template("on_multi_action.html",
+                                       multi_action = multi_action,
+                                       returnvals = returnvals), 201
+        finally:
             try:
-                multi_action=butypes.MultiAction(author=author,
-                                            multi_action_string=multi_action_string,
-                                            multi_signature=multi_signature)
-                returnvals=multi_action.apply()
-                db.session.commit()
-            except jvalidate.ValidationError as ve:
-                log.warn("MultiAction: Problem: %d, %s", ve.status, str(ve))
-                if ve.error_page is not None:
-                    return render_template(ve.error_page["template"],
-                                           **ve.error_page), ve.status
-                else:
-                    abort(ve.status, str(ve))
-            except sqlalchemy.exc.IntegrityError as ie: # pragma: no cover
-                # should not happen, but better be prepared
-                log.warn("SQLalchemy integrity error: %s", ie)
-                abort(403, "Database integrity error.")
-
-            log.debug("multi-action: Successful execution")
-            return render_template("on_multi_action.html",
-                                   multi_action = multi_action,
-                                   returnvals = returnvals), 201
+                db.session.close()
+                db.session.expire_all()
+            except Exception as e:
+                log.warn("Error (%s) while invalidating session after multi-action.",
+                         str(e))
+                abort(500, "Problem closing DB session.")
 
     @app.route("/api1/zip/<objtype:name>/<shex:hashval>")
     def _get_zip(name, hashval):

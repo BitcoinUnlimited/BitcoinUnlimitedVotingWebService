@@ -138,6 +138,7 @@ def app_and_session():
 
     logging.basicConfig(level=logging.DEBUG) # FIXME: use ctx manager
 
+    db.session.commit()
     return app, db.session
 
 @pytest.fixture(scope="function")
@@ -152,6 +153,7 @@ def small_app():
     ml.set_current()
     db.session.add(ml)
 
+    db.session.commit()
     return app
 
 @pytest.fixture(scope="function")
@@ -183,6 +185,7 @@ def member_list_no_vote_times():
     if ml is None:
         ml = makeTestMemberList(None, False)
         Global.set_current_member_list(ml)
+    db.session.commit()
     return ml
 
 def objCached(cls, name):

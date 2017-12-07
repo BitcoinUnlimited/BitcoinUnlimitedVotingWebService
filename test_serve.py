@@ -151,6 +151,7 @@ def test_forms(client, app):
 
 
 def test_action1(client, app, raw_file):
+    db.session.commit() # make sure that raw_file exists
     data={}
     res = client.post(prefix+"action", data=data)
     assert res.status_code == 403
@@ -203,15 +204,24 @@ def test_action1(client, app, raw_file):
     assert res.status_code == 413
 
     # add upload that exists already
+    action_up = makeTestAction(
+        member_v(),
+        "%s proposal-upload file %s by member_v" % (
+            ml.hashref(),
+            sha256(b"test data")))
+
     data["upload"]=(BytesIO(b"test data"), "test.txt")
     data["author_name"]="member_v"
-    data["action_string"] = action.action_string
-    data["signature"] = action.signature
+    data["action_string"] = action_up.action_string
+    data["signature"] = action_up.signature
     res = client.post(prefix+"action", data=data)
     assert res.status_code == 409
 
     # finally, do everything right
     del data["upload"]
+    data["author_name"]="member_v"
+    data["action_string"] = action.action_string
+    data["signature"] = action.signature
     res = client.post(prefix+"action", data=data)
     assert res.status_code == 201
 
