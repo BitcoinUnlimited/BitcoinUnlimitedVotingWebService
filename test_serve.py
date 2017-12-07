@@ -143,17 +143,10 @@ def test_forms(client, app):
     find(client, prefix+"form/cast-member-ballot/name/address")
     find(client, prefix+"form/close-member-elections")
 
-    with pytest.raises(ValidationError):
-        dont_find(client, prefix+"form/proposal-publish/invalid")
-
-    with pytest.raises(ValidationError):
-        dont_find(client, prefix+"form/open-proposal-vote/invalid")
-
-    with pytest.raises(ValidationError):
-        dont_find(client, prefix+"form/close-proposal-vote/invalid")
-
-    with pytest.raises(ValidationError):
-        dont_find(client, prefix+"form/cast-proposal-ballot/invalid")
+    dont_find(client, prefix+"form/proposal-publish/invalid")
+    dont_find(client, prefix+"form/open-proposal-vote/invalid")
+    dont_find(client, prefix+"form/close-proposal-vote/invalid")
+    dont_find(client, prefix+"form/cast-proposal-ballot/invalid")
 
 
 
@@ -257,12 +250,9 @@ def test_upload(client, app, raw_file):
 
 
 def test_zip_download(client, app, member_list, raw_file, proposal_vote):
-    with pytest.raises(urlvalidate.ValidationError):
-        dont_find(client, prefix+"zip/invalid/invalid")
-    with pytest.raises(urlvalidate.ValidationError):
-        dont_find(client, prefix+"zip/invalid/"+"0"*64)
-    with pytest.raises(urlvalidate.ValidationError):
-        dont_find(client, prefix+"zip/raw_file/invalid")
+    dont_find(client, prefix+"zip/invalid/invalid")
+    dont_find(client, prefix+"zip/invalid/"+"0"*64)
+    dont_find(client, prefix+"zip/raw_file/invalid")
 
     dont_find(client, prefix+"zip/raw_file/"+64*"0")
 
