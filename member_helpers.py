@@ -1,6 +1,49 @@
 from butype import *
 from butypes import *
 from jvalidate import ValidationError
+import logging
+log=logging.getLogger(__name__)
+
+def addMember(name,
+              address,
+              pgp_pubkey,
+              number,
+              last_vote_time):
+    ml = Global.current_member_list()
+
+    if len(list(ml.applications())):
+        raise ValidationError("Current member list has new members applying.")
+
+    if name in [m.name for m in ml.members]:
+        raise ValidationError("Member '%s' exists in current member list." % name)
+
+    new_member = Member(name = name,
+                        address = address,
+                        pgp_pubkey = pgp_pubkey,
+                        number = number)
+    hmember = Member.by_hash(new_member.hashref())
+    if hmember is not None:
+        # FIXME: maybe implement pointing to old member definition here
+        log.info("Use existing member with same info.")
+        new_member = hmember
+
+    new_memberlist = ml.members.copy()
+    new_memberlist.append(new_member)
+
+    new_memberlist=MemberList(
+        members = new_memberlist,
+        secretary = ml.secretary,
+        president = ml.president,
+        developer = ml.developer,
+        previous = ml)
+
+    if hmember is None:
+        db.session.add(new_member)
+    db.session.add(new_memberlist)
+    db.session.flush() # need to flush so that Global.set* works below
+
+    Global.set_member_last_vote_time(new_member, last_vote_time)
+    Global.set_current_member_list(new_memberlist)
 
 def updateMemberinCurrentMemberList(name,
                                     address,
@@ -85,4 +128,22 @@ def update_member_cmd(args):
         args.address if args.address is not None else "unchanged",
         pgp_key if pgp_key is not None else "unchanged",
         args.number if args.number is not None else "unchanged")
+    db.session.commit()
+
+def add_member_cmd(args):
+    """ Add a regular member and update the current member list """
+    import time
+    import dbenv
+    pgp_key = None
+    if args.pgp_key_file is not None:
+        pgp_key = open(args.pgp_key_file).read()
+
+    last_vote_time = int(time.mktime(time.strptime(args.last_vote_time, "%d-%m-%Y")))
+
+    addMember(
+        args.name,
+        args.address,
+        pgp_key,
+        args.number,
+        last_vote_time)
     db.session.commit()

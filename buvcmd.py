@@ -24,8 +24,19 @@ def buvcmd():
     serve_update_member.add_argument("--address", "-a", type=str, help="Set a member's Bitcoin address.")
     serve_update_member.add_argument("--pgp_key_file", "-p", type=str, help="Set a member's PGP key from a file.")
     serve_update_member.add_argument("--number", "-n", type=int, help="Set a member's number.")
-
     serve_update_member.set_defaults(func=member_helpers.update_member_cmd)
+
+
+    # add a member
+    # Note: the web service should be switched off for this, due to the (very) small
+    # risk of database access races.
+    serve_add_member = subparsers.add_parser("add-member", help="Add a member to the current member list")
+    serve_add_member.add_argument("name", type=str, help="Name of new member.")
+    serve_add_member.add_argument("address", type=str, help="Bitcoin address of new member.")
+    serve_add_member.add_argument("number", type=int, help="Set a member's number.")
+    serve_add_member.add_argument("last_vote_time", type=str, help="Last vote time of member in format d-m-YYYY.")
+    serve_add_member.add_argument("--pgp_key_file", "-p", type=str, help="PGP key of new member.")
+    serve_add_member.set_defaults(func=member_helpers.add_member_cmd)
 
     args=parser.parse_args()
 
