@@ -98,13 +98,6 @@ class Member(db.Model, BUType):
         if pgp_pubkey is not None:
             sanitize_pgppubkey(pgp_pubkey)
 
-        if self.by_name(name):
-            raise ValidationError("Current member '%s' exists already."
-                                  % name)
-
-        if self.by_address(address):
-            raise ValidationError("Current member with address '%s' exists already." % address)
-
         # Note: as-is, the member.number increment statement below is
         # subject to potential race conditions.
         # However, note also: all changes to the DB happen within the
