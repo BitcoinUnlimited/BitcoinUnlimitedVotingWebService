@@ -1,7 +1,7 @@
 {% extends "common.html" %}
 {% block body %}
     <h1>Cast ballots on Members (all applying at once)</h1>
-    
+
     {{ mainform_begin_multi() }}
     {{ form_author() }}
 
@@ -49,13 +49,13 @@
     {{ mainform_end() }}
 
     {{ privkeyform() }}
-    
+
     <script type="text/javascript">
      function recalc() {
 	 var ap = "{{ action_prefix }}"+ "{{ cml.hashref() }} ";
          var sep = "\n@@@@@\n";
 	 var voting_member = $("input[name='author_name']").val();
-         
+
          var member_names = [];
          var member_addresses = [];
          var ballot_options = [];
@@ -65,7 +65,7 @@
              member_addresses.push("{{ nmer.new_member.address }}");
              ballot_options.push($("input[name='ballot_option_{{ loop.index }}']:checked").val());
          {% endfor %}
-         
+
          var invalid = false;
 	 if (voting_member === "") {
              $("textarea[name='action_string']").val("");
@@ -88,15 +88,14 @@
              var s = "";
              for (var i=0; i < ballot_options.length; i++) {
                  if (ballot_options[i] !== "skip") {
-	             s+= (ap + 
-                          "cast-member-ballot name " + 
-                          member_names[i] + 
+	             s+= (ap +
+                          "cast-member-ballot name " +
+                          member_names[i] +
                           " address " + member_addresses[i]+
-                          " by " + 
-                          voting_member + 
-                          " answer (" + 
-                          ballot_options[i] + 
-                          ")");
+                          " by " +
+                          voting_member +
+                          " answer " +
+                          ballot_options[i]);
 
                      s+=sep;
                  }
