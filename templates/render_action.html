@@ -9,18 +9,19 @@
 	<li>Uploading proposals</li>
 	<li>Publishing proposals</li>
     </ul>
-    
+
     <p>
 	The author of this action is: {{ format_member_link(action.author) }}<br/>
     </p>
-    
+
     <p>
 	The {{ format_member_list_link(action.member_list) }} that this action was made for.
     </p>
-    
+
     <p>
 	The action string, which is the actual "command" part of the action:</p>
     <p>{{ format_action_string(action.action_string) }}</p>
+    {%if action.signature %}
     <p> Signature:</p>
     <p>{{ format_signature(action.signature) }}</p>
     <p>
@@ -28,4 +29,11 @@
 	Bitcoin-signature of the above action string, signed with this
 	action author's Bitcoin address.
     </p>
+    {% else %}
+    <p>
+        This action is part of a
+        <a href="{{ url('render/multi_action/'+action.multi_action.hashref()) }}">multi-action</a>
+        and only the multi-action is signed.
+    </p>
+    {% endif %}
 {% endblock %}

@@ -1,0 +1,23 @@
+{% extends "common.html" %}
+{% import "proplist.html" as proplist %}
+
+{% block body %}
+    <h1>Multi action</h1>
+    <p>A {{ format_object_type("multi-action") }} is a set of changes submitted to the voting
+        system all at once.</p>
+
+    <p>
+	The author of this multi-action is: {{ format_member_link(multi_action.author) }}<br/>
+    </p>
+
+    <p>
+	The multi action string, containing the encoded individual actions:
+    <p>{{ format_action_string(multi_action.multi_action_string) }}</p>
+    <p> Signature:</p>
+    <p>{{ format_signature(multi_action.multi_signature) }}</p>
+    <p>
+	This signature is the <span class="monospace">base64</span>-encoded
+	Bitcoin-signature of the above action string, signed with this
+	action author's Bitcoin address.
+    </p>
+{% endblock %}
