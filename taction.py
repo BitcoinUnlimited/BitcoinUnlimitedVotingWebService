@@ -14,7 +14,7 @@ class Action(db.Model, BUType):
 
     id = Column(Integer, primary_key=True)
     x_json = Column(LargeBinary, nullable=False)
-    x_sha256 = Column(String(length=64), nullable=False, unique=True)    
+    x_sha256 = Column(String(length=64), nullable=False, unique=True)
 
     author_id = Column(Integer, ForeignKey("member.id"), nullable=False)
     author = relationship("Member", uselist=False)
@@ -25,12 +25,11 @@ class Action(db.Model, BUType):
     member_list = relationship("MemberList", uselist=False)
 
     multi_action_id = Column(Integer, ForeignKey("multi_action.id"), nullable=True)
-    multi_action = relationship("MultiAction", back_populates="actions")
-    
+
     # Time stamp of creation in DB
     # used for member voting eligibility calculations etc.
     timestamp = Column(Float, nullable=False)
-                       
+
     signature = Column(String, nullable=True)
 
     def __init__(self,
@@ -43,7 +42,7 @@ class Action(db.Model, BUType):
 
         if multi_action is None and signature is None:
             raise jvalidate.ValidationError("Action needs to be part of a signed multi-action or needs to have a signature itself.")
-        
+
         self.timestamp = time.time()
 
         self.author = author
@@ -69,7 +68,7 @@ class Action(db.Model, BUType):
             raise jvalidate.ValidationError(
                 "Action is not prefixed with '%s', found '%s' instead." %
                 (config.action_prefix, self.action_string[:L1]))
-        
+
         member_hash=self.action_string[L1:L1+L2]
 
         member_list = MemberList.by_hash(member_hash)
@@ -83,9 +82,9 @@ class Action(db.Model, BUType):
         else:
             if member_list != self.member_list: # pragma: no cover
                 raise jvalidate.ValidationError("Member list do not match in reconstructor (%s, %s)." % (member_list, self.member_list))
-        
+
         self.member_list = member_list
-        
+
         if self.author not in self.member_list.members:
             raise jvalidate.ValidationError("Action author not in member list.")
 
@@ -94,7 +93,7 @@ class Action(db.Model, BUType):
 
     def apply(self, upload, data):
         return self.parser.apply(upload, data)
-        
+
     def toJ(self):
         return defaultExtend(self, {
             "author" : self.author.toJ(),
@@ -104,6 +103,9 @@ class Action(db.Model, BUType):
         })
 
     def dependencies(self):
-        return [self.author,
+        deps = [self.author,
                 self.member_list]
-    
+
+        if self.multi_action is not None:
+            deps.append(self.multi_action)
+        return deps

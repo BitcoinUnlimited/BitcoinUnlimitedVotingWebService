@@ -21,7 +21,7 @@ class MultiAction(db.Model, BUType):
     author_id = Column(Integer, ForeignKey("member.id"), nullable=False)
     author = relationship("Member", uselist=False)
 
-    actions = relationship("Action")
+    actions = relationship("Action", backref="multi_action")
 
     # the concatenated individual actions
     multi_action_string = Column(String, nullable=False)
@@ -59,8 +59,7 @@ class MultiAction(db.Model, BUType):
         })
 
     def dependencies(self):
-        return [self.author,
-                self.actions]
+        return [self.author]+self.actions
 
     def apply(self):
         return [action.parser.apply(None, None)
