@@ -41,7 +41,6 @@ class MultiAction(db.Model, BUType):
 
         naction = 0
         for action_string in (multi_action_string
-                              .replace("\r", "")
                               .split("\n@@@@@\n")):
             # action adds itself to this multi_action
             Action(author, action_string, None, self)

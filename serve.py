@@ -413,6 +413,7 @@ def make_app(test_mode_internal=False):
             with write_lock:
                 author_name = request.form["author_name"] if "author_name" in request.form else None
                 multi_action_string = request.form["action_string"] if "action_string" in request.form else None
+                multi_action_string = multi_action_string.replace("\r", "")
                 multi_signature = request.form["signature"] if "signature" in request.form else None
 
                 log.debug("multi-action: Extracted fields")
