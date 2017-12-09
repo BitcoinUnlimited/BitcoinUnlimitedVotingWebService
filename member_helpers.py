@@ -17,6 +17,10 @@ def addMember(name,
     if name in [m.name for m in ml.members]:
         raise ValidationError("Member '%s' exists in current member list." % name)
 
+    member = Member.by_name(name)
+    if member is not None:
+        raise ValidationError("Recent member '%s' exists." % name)
+
     new_member = Member(name = name,
                         address = address,
                         pgp_pubkey = pgp_pubkey,
