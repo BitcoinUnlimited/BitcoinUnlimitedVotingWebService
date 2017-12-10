@@ -107,6 +107,7 @@ def updateMemberinCurrentMemberList(name,
         president = new_president,
         developer = new_developer,
         previous = ml)
+    db.session.add(member)
     db.session.add(updated_member)
     db.session.add(new_memberlist)
     db.session.flush() # need to flush so that Global.set* works below
