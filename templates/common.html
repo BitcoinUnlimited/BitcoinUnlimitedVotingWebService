@@ -22,6 +22,10 @@
     <span class="monospace">{{ astr }}</span>
 {%-  endmacro %}
 
+{% macro format_multi_action_string(astr) -%}
+    </p><small><span class="monospace"><pre>{{ astr }}</pre></span></small><p>
+{%-  endmacro %}
+
 {% macro format_signature(sig) -%}
     <span class="monospace">{{ sig }}</span>
 {%- endmacro %}
