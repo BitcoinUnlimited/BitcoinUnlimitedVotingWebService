@@ -152,3 +152,14 @@ def add_member_cmd(args):
         args.number,
         last_vote_time)
     db.session.commit()
+
+def set_member_last_vote_time(args):
+    import time
+    import dbenv
+
+    member = Member.by_name(args.name)
+    if member is None:
+        raise ValidationError("No recent member '%s' exists." % args.name)
+
+    Global.set_member_last_vote_time(member, time.mktime(time.strptime(args.last_vote_time, "%d-%m-%Y")))
+    db.session.commit()
