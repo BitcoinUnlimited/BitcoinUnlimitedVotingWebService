@@ -1,0 +1,8 @@
+{% extends "common.html" %}
+{% block body %}
+    <h1> Successfully set member's PGP key</h1>
+    <p>By: {{ action.author.name }}</p>
+    <p>Action string: {{ format_action_string(action.action_string) }}</p>
+    <hr/>
+    <p><a href="{{ url("") }}">Back to overview</a></p>
+{% endblock %}
