@@ -1,5 +1,4 @@
-= How to set 'last vote override time' for those members that do
-not use the voting system consistently =
+# How to set 'last vote override time' for those members that do not use the voting system consistently
 
 On the voting server, stop the `gunicorn` app server instances by
 (as user awemany) removing the file `ready-to-start.flagfile` and
